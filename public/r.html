@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <script src="js/utils.js"></script>
+        <script>
+
+        var potInput;
+        var amount;
+        
+        var permMax     = 2;
+        var permCurrent = 0;
+        var currentProduct;
+
+        var basePots = [    {id:1,capacity:7600, contents:0, product:"", minimum:7500},
+                            {id:2,capacity:7600, contents:0, product:"", minimum:6600},
+                            {id:3,capacity:7000, contents:0, product:"", minimum:3500},
+                            {id:4,capacity:7600, contents:0, product:"", minimum:3800},
+                            {id:5,capacity:6000, contents:0, product:"", minimum:3000},
+                            {id:6,capacity:7000, contents:0, product:"", minimum:6000}];
+
+        function potSingleProduct( remainingPots, product )
+        {
+            if ( remainingPots.length === 0 ) 
+            {
+                console.log("NO POTS REMAINING FOR PRODUCT " + product.id );
+                return;
+            }
+
+            if ( remainingPots.reduce( Utils.countAvailableSpace, 0 ) < product.volume )
+            {
+                console.log("NO SPACE REMAINING FOR " + product.volume + " of " + product.id + " IN POTS: ");
+                console.table( remainingPots );
+                return;
+            }
+
+            currentProduct = product;
+
+           return doPotting( remainingPots, product );
+        }
+
+        function basePotting()
+        {
+            var activePots = basePots.slice();
+
+            var usedPots = potSingleProduct( activePots, {id:"None", amount:potInput.value });
+        }
+
+        window.onload = function()
+        {
+            document.getElementById( 'btn_pot' ).onclick = basePotting;
+            potInput = document.getElementsByTagName('input')[ 0 ];
+        };
+
+        function calculateLeeway( fromPots )
+        {
+            var needed      = fromPots.reduce( Utils.countRemainingSpace, 0 );
+            var available   = fromPots.reduce( Utils.countAvailableSpace, 0 );
+
+            return needed - available;
+        }
+
+        function doPotting( withPots, product )
+        {
+            var allPotCombos    = [];
+            var remainder       = amount;
+	        var found           = {};
+            var uniques;
+
+            allPotCombos        = Utils.getPotCombinations( withPots );
+            
+            putProductIntoPots( product, allPotCombos );
+        
+            uniques = Utils.checkForUniquePotCombos( allPotCombos );
+
+            console.log( " Number Of Uniques: ", uniques.length );
+    
+            var pottedWithinRules = uniques.filter( checkRules );
+
+            pottedWithinRules.sort( Utils.sortByRemaining );
+
+            console.log(" Number that will pot safely: ", pottedWithinRules.length );
+
+            pottedWithinRules.forEach( function( potArray )
+            {                                
+                console.log( potArray.length, potArray.reduce( Utils.getAllPotIds, '' ), potArray.reduce( Utils.countRemainingSpace, 0 ));
+
+                var available = calculateLeeway( potArray );
+            });
+
+            return pottedWithinRules[ 0 ];
+        }
+
+        function fillLastPot( lastPot, potsToMoveProductFrom )
+        {
+            var needed = lastPot.minimum - lastPot.contents;
+            var amountMoved;
+            var helperPot;
+            potsToMoveProductFrom.sort( Utils.sortByAmountMoveable );
+
+            for ( var i = 0; i < potsToMoveProductFrom.length; i++ )
+            {
+            
+                helperPot = potsToMoveProductFrom[i];
+
+                if ( helperPot.contents - needed > helperPot.minimum )
+                {
+                    amountMoved = helperPot.contents - ( helperPot.contents - needed );
+                } 
+                else
+                {
+                    amountMoved = helperPot.contents - ( helperPot.contents - helperPot.minimum );
+                }
+
+                needed              -= amountMoved;
+                helperPot.contents  -= amountMoved;
+                lastPot.contents    += amountMoved;
+
+
+                if ( lastPot.contents >= lastPot.minimum )
+                    break;
+            }
+        }
+
+        function checkRules( potCombination )
+        {
+            //last pot in list is always the pot with least in it
+            var lastPot = potCombination[ potCombination.length - 1 ];
+            console.clear();
+            console.log( "Checking Pots " + potCombination.reduce( Utils.getAllPotIds ));
+            console.table(potCombination);
+
+            if ( lastPot.contents < lastPot.minimum )
+            {
+                //count how much product is over each pots minimum amount.
+                var available = potCombination.slice(0,-1).reduce( function( prev, next )
+                {
+                    return prev + ( next.contents - next.minimum );
+                }, 0);
+
+                //check there's enough product to move away from other pots
+                if ( lastPot.contents + available >= lastPot.minimum ) 
+                {
+                    fillLastPot( lastPot, potCombination.slice( 0, -1 ) );
+                    
+                    return true;
+                }
+                else return false;
+                
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        function putProductIntoPots( product, potCombinations )
+        {
+            potCombinations.forEach( function( pots )
+            {            
+                for ( var i = 0; i < pots.length; i++ )
+                {
+                    pots[ i ].product = product.id;
+
+                    if ( product.amount - pots[ i ].capacity > 0 )
+                    {
+                        pots[ i ].contents = pots[ i ].capacity;   
+                    }
+                    else
+                    {
+                        pots[ i ].contents = product.amount;
+                    }
+
+                    product.amount = Math.max( 0, product.amount - pots[ i ].capacity );
+
+                    if ( product.amount === 0 ) 
+                    {
+                        pots.splice( i + 1  );
+
+                        return;
+                    }
+                }
+            });
+        }
+
+
+        </script>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    </head>
+    <body>
+    	<div class="wrap">
+    		<input value=25000 type="text">
+            <input value=10000 type="text">
+            <input value=6000 type="text">
+    		<button id="btn_pot" type="button">POT!</button>
+    	</div>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <p>Hello world! This is HTML5 Boilerplate.</p>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+    </body>
+</html>

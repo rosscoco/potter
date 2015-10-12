@@ -1,0 +1,92 @@
+*
+{
+	margin:0;
+	padding:0;
+}
+
+body
+{
+	background: url(resources/background.png) top left;
+	font: .8em "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	background-color: #C1c1c1;
+}
+
+h2
+{
+	margin-bottom:10px;
+}
+
+#wrapper
+{
+	width:720px;
+	margin: 40px auto 0;
+
+}
+
+#wrapper h1
+{
+	color:#FFF;
+	text-align:center;
+	margin-bottom:20px;
+}
+
+#wrapper a
+{
+	display:block;
+	font-size:1.2em;
+	color:#FFF;
+	text-decoration: none;
+	text-align:center;
+}
+
+#tabContainer
+{
+	width:700px;
+	padding:15px;
+	background-color: #2e2e2e;
+	border-radius: 4px;
+}
+
+.tabs
+{
+	height:30px;
+	overflow:hidden
+}
+
+.tabs > ul
+{
+	font-size: 1em;
+	list-style: none;
+}
+
+
+.tabs > ul > li
+{
+	margin: 0 2px 0 0;
+	padding: 7px 10px;
+	float:left;
+	display:block;
+	color:#FFF;
+	user-select:none;
+	border-radius:4px 4px 0 0;
+	background:#c9c9c9;
+	background: -webkit-gradient( linear, left top, left bottom, color-stop(0%,#0c91ec), color-stop(100%, #257ab6));
+}
+
+.tabs > ul > li:hover,
+.tabs > ul > li.tabActiveHeader
+{
+	background: #FFFFFF;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFFFFF));
+	color:#333;
+	cursor: pointer;
+}
+
+#tabsContent
+{
+	border-radius: 0 4px 4px 4px;
+	padding: 10px 10px 25px;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(90%,#FFFFFF), color-stop(100%,#e4e9ed)); /* webkit */
+	margin:0;
+	color:#333;
+}
