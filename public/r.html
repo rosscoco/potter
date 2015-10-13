@@ -7,6 +7,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title></title>
+
         <script src="js/utils.js"></script>
         <script>
 
@@ -16,6 +17,10 @@
         var permMax     = 2;
         var permCurrent = 0;
         var currentProduct;
+        var pottingController;
+
+        var products = [    {id:"1051512", amount:22800, pottingUsed:[] },
+                            {id:"1051510", amount:12000, pottingUsed:[] }];
 
         var basePots = [    {id:1,capacity:7600, contents:0, product:"", minimum:7500},
                             {id:2,capacity:7600, contents:0, product:"", minimum:6600},
@@ -24,56 +29,20 @@
                             {id:5,capacity:6000, contents:0, product:"", minimum:3000},
                             {id:6,capacity:7000, contents:0, product:"", minimum:6000}];
 
-        function potSingleProduct( remainingPots, product )
-        {
-            /*if ( remainingPots.length === 0 ) 
-            {
-                console.log("NO POTS REMAINING FOR PRODUCT " + product.id );
-                return;
-            }
-
-            if ( remainingPots.reduce( Utils.countAvailableSpace, 0 ) < product.volume )
-            {
-                console.log("NO SPACE REMAINING FOR " + product.volume + " of " + product.id + " IN POTS: ");
-                console.table( remainingPots );
-                return;
-            }*/
-
-            currentProduct = product;
-
-           return doPotting( remainingPots, product );
-        }
-
-        function basePotting()
-        {
-            var activePots = basePots.slice();
-
-            var usedPots = potSingleProduct( activePots, {id:"None", amount:potInput.value });
-        }
-
         window.onload = function()
         {
-            document.getElementById( 'btn_pot' ).onclick = basePotting;
+            document.getElementById( 'btn_pot' ).onclick = potProducts;
             potInput = document.getElementsByTagName('input')[ 0 ];
+            pottingController = new PottingController( basePots );
         };
 
-        function doPotting( withPots, product )
+        function potProducts()
         {
-            var allPottingSets = new PottingSetList( Utils.getPotPermutations( withPots ) );
-
-            allPottingSets.sendToPottingSets( product );
-            allPottingSets.removeDuplicates();
-            allPottingSets.removeInvalid();
-
-            allPottingSets.debug();
-            
-            var bestPottingSet = allPottingSets.getBestPottingSet();
-
-            console.log("Best Potting Set: ");
-            console.table( bestPottingSet.data );
-            
-            return bestPottingSet;
+            pottingController.doPottingWithProducts( products );
         }
+
+        
+
 
         </script>
         <meta name="description" content="">
@@ -88,13 +57,20 @@
             <input value=6000 type="text">
     		<button id="btn_pot" type="button">POT!</button>
     	</div>
+
+        <div id="pottingDisplay">
+            <div class="pot">0</div>
+            <div class="pot">0</div>
+            <div class="pot">0</div>
+            <div class="pot">0</div>
+            <div class="pot">0</div>
+            <div class="pot">0</div>
+        </div>
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
         <!-- Add your site or application content here -->
-        <p>Hello world! This is HTML5 Boilerplate.</p>
-
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
 

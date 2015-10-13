@@ -17,6 +17,89 @@
     };
 }*/
 
+function PottingController( listOfPots )
+{
+    var _basePots   = listOfPots;
+    var _activePots;
+
+    
+    return {
+        doPottingWithProducts   : doPottingWithProducts
+    };
+
+    function doPottingWithProducts( withProducts )
+    {
+        _activePots = _basePots.slice();        
+        _products   = withProducts;
+
+        var pottingUsed = [];
+
+        var usedPottingSet = '';
+
+        for ( var i = 0; i < _products.length; i++ )
+        {                
+            usedPottingSet = potSingleProduct( _activePots, _products[ i ] );
+
+            pottingUsed.push( usedPottingSet );
+
+            //remove the pots used in the last product potting before we try and pot the next product
+            _activePots = _activePots.reduce( reduceToUnusedPots, { usedPots: usedPottingSet, unusedPots:[] } ).unusedPots;
+        }                                           
+
+        return pottingUsed;
+    }
+
+    function reduceToUnusedPots( potCheckingData, nextPotToCheck )
+    {
+        if ( potCheckingData.usedPots.getUsedPotsById().indexOf( nextPotToCheck.id ) < 0 )
+        {
+            potCheckingData.unusedPots.push( nextPotToCheck );
+        }
+
+        return potCheckingData;
+    }
+
+    function potSingleProduct( remainingPots, product )
+    {
+        /*if ( remainingPots.length === 0 ) 
+        {
+            console.log("NO POTS REMAINING FOR PRODUCT " + product.id );
+            return;
+        }
+
+        if ( remainingPots.reduce( Utils.countAvailableSpace, 0 ) < product.volume )
+        {
+            console.log("NO SPACE REMAINING FOR " + product.volume + " of " + product.id + " IN POTS: ");
+            console.table( remainingPots );
+            return;
+        }*/
+
+        currentProduct = product;
+
+       return doPotting( remainingPots, product );
+    }
+
+    function doPotting( withPots, product )
+    {
+        var allPottingSets = new PottingSetList( Utils.getPotPermutations( withPots ) );
+
+        allPottingSets.sendToPottingSets( product );
+        allPottingSets.removeDuplicates();
+        allPottingSets.removeInvalid();
+
+        allPottingSets.debug();
+        
+        var bestPottingSet = allPottingSets.getBestPottingSet();
+
+        console.log("Best Potting Set: ");
+        console.table( bestPottingSet.data );
+        
+        return bestPottingSet;
+    }
+
+    return [];
+}
+
 function PottingSetList( withListOfPots )
 {
    var _listOfPottingSets = withListOfPots.map( function( potArray ) 

@@ -90,3 +90,16 @@ h2
 	margin:0;
 	color:#333;
 }
+
+
+.pot
+{
+	display:inline-block;
+	width:100px;
+	height:200px;
+	border-radius: 3px;
+	border: solid 2px #CCC;	
+	margin-right: 40px;
+	background-color: #EEEEEE
+}
+
