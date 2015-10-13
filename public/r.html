@@ -26,7 +26,7 @@
 
         function potSingleProduct( remainingPots, product )
         {
-            if ( remainingPots.length === 0 ) 
+            /*if ( remainingPots.length === 0 ) 
             {
                 console.log("NO POTS REMAINING FOR PRODUCT " + product.id );
                 return;
@@ -37,7 +37,7 @@
                 console.log("NO SPACE REMAINING FOR " + product.volume + " of " + product.id + " IN POTS: ");
                 console.table( remainingPots );
                 return;
-            }
+            }*/
 
             currentProduct = product;
 
@@ -57,137 +57,23 @@
             potInput = document.getElementsByTagName('input')[ 0 ];
         };
 
-        function calculateLeeway( fromPots )
-        {
-            var needed      = fromPots.reduce( Utils.countRemainingSpace, 0 );
-            var available   = fromPots.reduce( Utils.countAvailableSpace, 0 );
-
-            return needed - available;
-        }
-
         function doPotting( withPots, product )
         {
-            var allPotCombos    = [];
-            var remainder       = amount;
-	        var found           = {};
-            var uniques;
+            var allPottingSets = new PottingSetList( Utils.getPotPermutations( withPots ) );
 
-            allPotCombos        = Utils.getPotCombinations( withPots );
+            allPottingSets.sendToPottingSets( product );
+            allPottingSets.removeDuplicates();
+            allPottingSets.removeInvalid();
+
+            allPottingSets.debug();
             
-            putProductIntoPots( product, allPotCombos );
-        
-            uniques = Utils.checkForUniquePotCombos( allPotCombos );
+            var bestPottingSet = allPottingSets.getBestPottingSet();
 
-            console.log( " Number Of Uniques: ", uniques.length );
-    
-            var pottedWithinRules = uniques.filter( checkRules );
-
-            pottedWithinRules.sort( Utils.sortByRemaining );
-
-            console.log(" Number that will pot safely: ", pottedWithinRules.length );
-
-            pottedWithinRules.forEach( function( potArray )
-            {                                
-                console.log( potArray.length, potArray.reduce( Utils.getAllPotIds, '' ), potArray.reduce( Utils.countRemainingSpace, 0 ));
-
-                var available = calculateLeeway( potArray );
-            });
-
-            return pottedWithinRules[ 0 ];
-        }
-
-        function fillLastPot( lastPot, potsToMoveProductFrom )
-        {
-            var needed = lastPot.minimum - lastPot.contents;
-            var amountMoved;
-            var helperPot;
-            potsToMoveProductFrom.sort( Utils.sortByAmountMoveable );
-
-            for ( var i = 0; i < potsToMoveProductFrom.length; i++ )
-            {
+            console.log("Best Potting Set: ");
+            console.table( bestPottingSet.data );
             
-                helperPot = potsToMoveProductFrom[i];
-
-                if ( helperPot.contents - needed > helperPot.minimum )
-                {
-                    amountMoved = helperPot.contents - ( helperPot.contents - needed );
-                } 
-                else
-                {
-                    amountMoved = helperPot.contents - ( helperPot.contents - helperPot.minimum );
-                }
-
-                needed              -= amountMoved;
-                helperPot.contents  -= amountMoved;
-                lastPot.contents    += amountMoved;
-
-
-                if ( lastPot.contents >= lastPot.minimum )
-                    break;
-            }
+            return bestPottingSet;
         }
-
-        function checkRules( potCombination )
-        {
-            //last pot in list is always the pot with least in it
-            var lastPot = potCombination[ potCombination.length - 1 ];
-            console.clear();
-            console.log( "Checking Pots " + potCombination.reduce( Utils.getAllPotIds ));
-            console.table(potCombination);
-
-            if ( lastPot.contents < lastPot.minimum )
-            {
-                //count how much product is over each pots minimum amount.
-                var available = potCombination.slice(0,-1).reduce( function( prev, next )
-                {
-                    return prev + ( next.contents - next.minimum );
-                }, 0);
-
-                //check there's enough product to move away from other pots
-                if ( lastPot.contents + available >= lastPot.minimum ) 
-                {
-                    fillLastPot( lastPot, potCombination.slice( 0, -1 ) );
-                    
-                    return true;
-                }
-                else return false;
-                
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        function putProductIntoPots( product, potCombinations )
-        {
-            potCombinations.forEach( function( pots )
-            {            
-                for ( var i = 0; i < pots.length; i++ )
-                {
-                    pots[ i ].product = product.id;
-
-                    if ( product.amount - pots[ i ].capacity > 0 )
-                    {
-                        pots[ i ].contents = pots[ i ].capacity;   
-                    }
-                    else
-                    {
-                        pots[ i ].contents = product.amount;
-                    }
-
-                    product.amount = Math.max( 0, product.amount - pots[ i ].capacity );
-
-                    if ( product.amount === 0 ) 
-                    {
-                        pots.splice( i + 1  );
-
-                        return;
-                    }
-                }
-            });
-        }
-
 
         </script>
         <meta name="description" content="">
