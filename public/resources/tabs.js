@@ -1,4 +1,5 @@
-window.onload = function()
+
+function createTabs()
 {
 	var tabContainer = document.getElementById("tabContainer");
 	//var tabContent = document.getElementById("tabsContent");
@@ -50,4 +51,4 @@ window.onload = function()
 		thisPage.style.display = "block";
 		this.parentNode.setAttribute("data-current", thisID );
 	}
-};
+}

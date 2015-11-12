@@ -59,7 +59,6 @@ h2
 	list-style: none;
 }
 
-
 .tabs > ul > li
 {
 	margin: 0 2px 0 0;
@@ -91,15 +90,51 @@ h2
 	color:#333;
 }
 
+.potContents
+{
+	position: absolute;
+	bottom:0;	
+	vertical-align: bottom;
+	height:100%;
+	width:100%;
+	background-color: #EEEEEE;
+}
 
-.pot
+.potContents[data-product="1051510"]
+{
+	background-color:#009900;
+}
+
+.potContents[data-product="1051512"]
+{
+	background-color:#00FF00;
+}
+
+.potContents[data-product="1051485"]
+{
+	background-color:blue;
+}
+
+.potContents[data-product="1051643"]
+{
+	background-color:pink;
+}
+
+.potContainer
 {
 	display:inline-block;
 	width:100px;
 	height:200px;
+	margin:20px;
+}
+
+.pot
+{
+	position: relative;
+	width:100%;
+	height:100%;	
 	border-radius: 3px;
-	border: solid 2px #CCC;	
-	margin-right: 40px;
-	background-color: #EEEEEE
+	border: solid 2px #CCC;		
+	background-color: #EEEEEE;
 }
 

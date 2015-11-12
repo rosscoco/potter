@@ -32,7 +32,7 @@
 			[{
 				'name':'default',
 				'pots':[7,7,7,7,7,7],
-				'max_weight':44000
+				"max_weight":"44000"
 			},
 			{
 				'name':'Lomax',

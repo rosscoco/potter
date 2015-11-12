@@ -10,7 +10,193 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="style.css">
+        <script>
+            var potInput;
+            var amount;
+            
+            var permMax     = 2;
+            var permCurrent = 0;
+            var currentProduct;
+            var pottingController;
 
+            console.log("Loaded")
+            
+
+            var uiRefs = {};
+
+            var products = [    {id:"1051512", amount:22800, pottingUsed:[] },
+                                {id:"1051510", amount:12000, pottingUsed:[] }];
+
+            var basePots = [    {id:1,capacity:7600, contents:0, product:"", minimum:7500},
+                                {id:2,capacity:7600, contents:0, product:"", minimum:6600},
+                                {id:3,capacity:7000, contents:0, product:"", minimum:3500},
+                                {id:4,capacity:7600, contents:0, product:"", minimum:3800},
+                                {id:5,capacity:6000, contents:0, product:"", minimum:3000},
+                                {id:6,capacity:7000, contents:0, product:"", minimum:6000}];
+
+            var testPots =  [    {id:1,capacity:7600, contents:0, product:"", minimum:7500},
+                                {id:2,capacity:7600, contents:0, product:"", minimum:6600},
+                                
+                                {id:4,capacity:7600, contents:0, product:"", minimum:3800}];
+
+            var testProduct = {id:"1051510", amount:18000, pottingUsed:[] };
+
+            var uiElements = {};
+
+            window.onload = function()
+            {
+                //pottingController = new PottingController( basePots );
+                initUI();
+                //test()
+            };
+
+            function test()
+            {
+                var pottingList = new PottingSetList( [testPots] );
+                pottingList.sendToPottingSets( testProduct );
+                var best = pottingList.getBestPottingSet();
+            }
+
+            function initUI()
+            {
+                var arrayCopy = Array.prototype.slice;
+
+                uiElements.pottingButtons      = arrayCopy.call( document.querySelectorAll(".btn_fillTanker")   );
+                uiElements.productInputSets    = arrayCopy.call( document.querySelectorAll(".productInputSet")  );
+                uiElements.potDisplays         = arrayCopy.call( document.querySelectorAll("div[id*='pot'"));
+                
+                //   
+                basePots.forEach( function( potData )
+                {
+                    document.getElementById("pot"+ potData.id ).getElementsByTagName("h1")[0].innerHTML = potData.capacity;
+                })
+
+                uiElements.productInputSets.forEach( function( inputSet )
+                {
+                    inputSet.addEventListener("click", function( evt )
+                    {
+                        if ( evt.target && evt.target.className == "btn_fillTanker" )
+                        {
+                            //remove any input values from the selected input set as we are filling the tanker to capacity, not by the entered value
+                            var txtInput        = this.querySelector(".txt_inputAmount")
+                            txtInput.value      = 0;
+                            var productToFill   = evt.target.getAttribute( "id" ).split( "_" )[ 1 ];
+
+                            fillTankerWithProduct( productToFill );
+                        }
+                    }
+                });
+            }
+
+
+            function getEnteredProductAmounts( ignoreProduct )
+            {
+                var selectedProducts = uiElements.productInputSets.map( function getProductAmounts( inputGroup ) 
+                    {
+                        return {    id      :inputGroup.getAttribute("id").split("_")[1], 
+                                    amount  :inputGroup.querySelector(".txt_inputAmount").value };
+                    })
+                    .filter( function removeZeroValues( inputValues )
+                    {
+                        if ( inputValues.amount > 0 ) return true;
+                    });
+
+                return selectedProducts;
+            }
+
+            function fillTankerWithProduct( productToFill )
+            {
+                resetPotDisplays();
+
+                var selectedProducts    = getEnteredProductAmounts();
+                var usedPottingSets     = pottingController.doPottingWithProducts( selectedProducts );
+                
+                var usedPotIds          = usedPottingSets.reduce( function( potIdList, pottingSet )
+                                            {
+                                                return potIdList + pottingSet.getUsedPotsById();
+                                            },'');
+                    
+                var remainingPots       = basePots.filter( function( pot )
+                                            {
+                                                return usedPotIds.indexOf( pot.id ) === -1;
+                                            });
+
+                var fillPottingController = new PottingController( remainingPots );
+
+                usedPottingSets.forEach( function( pottingSetForProduct )
+                {
+                    var potsUsedForProduct = pottingSetForProduct.data;
+                    potsUsedForProduct.forEach( showPottingData );
+                });
+            }
+
+            function potSingleProduct( product, usingPots )
+            {
+
+            }
+
+            function sortAscending( a, b)
+            {
+
+            }
+            /*
+            *@param potData - object containign pot id, product and volume
+            */
+            function showPottingData( potData )
+            {
+                console.log( "Filling " + potData.id + " with " + potData.contents + "/" + potData.capacity + " of " + potData.product );
+
+                var potId = potData.id;
+                //console.log( potData.id );
+                //console.table( potData );
+
+                var potDisplay = document.getElementById( 'pot' + potData.id );
+                
+                var potContents = potDisplay.querySelector(".potContents");
+
+                potContents.setAttribute( "data-product", potData.product );
+
+                potContents.style.height = Math.round( potData.contents / potData.capacity * 100 ) + "%";
+            }
+
+            function potProducts()
+            {
+                var usedPottingSets = pottingController.doPottingWithProducts( products );
+                var potData;
+                
+                usedPottingSets.forEach( function( pottingSet )
+                {
+                    potData = pottingSet.data;
+                    potData.forEach( showPottingData );
+                });
+            }
+
+            function getPotDisplays()
+            {
+                var potNodeList = document.querySelectorAll("div [id*]=pot")    //find all divs with *pot* in the id.
+
+                var forEach = Array.prototype.forEach;
+
+                forEach.call( potNodeList, function( potDiv ) 
+                {
+
+                });
+            }
+
+            function resetPotDisplays()
+            {
+                uiElements.potDisplays.forEach( function( potDomElement )
+                {
+                    potDomElement.querySelector('.potContents').setAttribute('data-product','');
+
+                    /*var classes = potDomElement.querySelector('.potContents').className.split(' ').filter( function( className )
+                    {
+                        return className.indexOf('product') !== 0;  //remove product-****** from class name
+                    })*/
+                })
+            }
+
+        </script>
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     </head>
     <body>
@@ -32,19 +218,28 @@
                     <div class="tabPage" id="tabPage_bramhall">
                         <h2>Page 1</h2>
                         <div class="inputValues">   
-                            <fieldset>
-                                <label for="input_1051510">UN Diesel</label>
-                                <input id="input_1051510" type="text" value=0></input>
-                                <button id="btn_fill">Fill</button>                            
-                                <button id="btn_clear">Clear</button>
-                                <button id="btn_clear">Pot</button>
+
+                            <fieldset id="input_1051485" class="productInputSet" >
+                                <label>Unleaded</label>
+                                <input class="txt_inputAmount" type="text" value=0></input>
+                                <button class="btn_fillTanker" id="fill_1051485">Fill</button>                            
+                                <button class="btn_clearProduct" id="clear_1051485">Clear</button>
                             </fieldset>
-                            <fieldset>
-                                <label for="input_1051512">AD Diesel</label>
-                                <input id="input_1051512" type="text" value=0></input>
-                                <button id="btn_fill">Fill</button>                            
-                                <button id="btn_clear">Clear</button>
+
+                            <fieldset id="input_1051510" class="productInputSet" >
+                                <label>UN Diesel</label>
+                                <input class="txt_inputAmount" type="text" value=0></input>
+                                <button class="btn_fillTanker" id="fill_1051510">Fill</button>                            
+                                <button class="btn_clearProduct" id="clear_1051510">Clear</button>
                             </fieldset>
+
+                            <fieldset id="input_1051643" class="productInputSet" >
+                                <label>Super Unleaded</label>
+                                <input class="txt_inputAmount" type="text" value=0></input>
+                                <button class="btn_fillTanker" id="fill_1051643">Fill</button>                            
+                                <button class="btn_clearProduct" id="clear_1051643">Clear</button>
+                            </fieldset>
+
                         </div>                        
                     </div>
                     <div class="tabPage" id="tabPage_grangemouth">
@@ -77,28 +272,54 @@
 
         <!-- Add your site or application content here -->
         <div id="pottingDisplay">
-            <div class="pot">
-                <div class="potContents" data-product=""></div>
+            <div class="potContainer" id="pot1">
+                <h1>7600</h1>
+                <div class="pot">
+                    <div class="potContents"></div>
+                </div>    
             </div>
-            <div class="pot">
-                <div class="potContents" data-product=""></div>
+
+            <div class="potContainer" id="pot2">
+                <h1>7600</h1>
+                <div class="pot" >
+                    <div class="potContents"></div>
+                </div>    
             </div>
-            <div class="pot">
-                <div class="potContents" data-product=""></div>
+
+            <div class="potContainer" id="pot3">
+                <h1>7600</h1>
+                <div class="pot" >
+
+                    <div class="potContents">
+                        <h1>0</h1>
+                    </div>
+                </div>    
             </div>
-            <div class="pot">
-                <div class="potContents" data-product=""></div>
+
+            <div class="potContainer" id="pot4">
+                <h1>7600</h1>
+                <div class="pot" >
+                    <div class="potContents"></div>
+                </div>    
             </div>
-            <div class="pot">
-                <div class="potContents" data-product=""></div>
+
+            <div class="potContainer" id="pot5">
+                <h1>7600</h1>
+                <div class="pot" >
+                    <div class="potContents"></div>
+                </div>    
             </div>
-            <div class="pot">
-                <div class="potContents" data-product=""></div>
+
+            <div class="potContainer"  id="pot6">
+                <h1>7600</h1>
+                <div class="pot">
+                    <div class="potContents"></div>
+                </div>    
             </div>
-        </div>
 
         <script src="js/jquery.js"></script>
         <script src="resources/tabs.js"></script>
+        <script src="js/Utils.js"></script>
         <script>
 
 
