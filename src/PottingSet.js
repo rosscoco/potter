@@ -1,6 +1,7 @@
 (function()
 {
 	"use strict";
+	var PotSorter = require("./Utils.js").PotSorter;
 	
 	module.exports = function PottingSet( fromPotArr )
 	{
@@ -9,32 +10,39 @@
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
-	        checkRules              : checkRules,
+	        willPotWithinRules      : willPotWithinRules,
 	        getRemainingSpace       : getRemainingSpace,
-	        data                    : _availablePots,
+	        getUsedPots             : getUsedPots,
 	        isValid                 : isValid
 	    };
 
+	    function getUsedPots()
+	    {
+	        return _availablePots;
+	    }
+
 	    function isValid()
 	    {
-	        var valid = _availablePots.reduce( function( isWithinRules, potData )
-	        {
-	            return isWithinRules && potData.capacity > potData.minimum;
+	        var valid = _availablePots.reduce( checkPotCapacityAgainstContents, true );
 
-	        }, true );
-
-	        if ( !valid )
+	        if ( valid )
 	        {
-	            
+	            return true;
+	        } 
+	        else
+	        {
+	            fillLastPot();
 	        }
+	    }
 
-	        if ( valid ) return true;
-
-
+	    function checkPotCapacityAgainstContents( isWithinRules, potData )
+	    {
+	        return isWithinRules && potData.capacity > potData.minimum;
 	    }
 
 	    function fillSinglePot( withProduct, pot )
 	    {
+	        console.log("Filling Pot " + pot.id + " with " + withProduct.amount + " of " + withProduct.id );
 	        pot.product = withProduct.id;
 
 	        if ( pot.capacity > withProduct.amount )
@@ -51,15 +59,23 @@
 
 	    function putProductIntoPots( product )
 	    {
-	        _availablePots = _availablePots.reduce( function( usedPots, nextPot )
+	        var usedPots = [];	
+
+	        _availablePots.forEach( function( nextPot )
 	        {
-	            if ( product.amount > 0 ) usedPots.push( nextPot );
+	            if ( product.amount > 0 ) 
+	            {
+	                fillSinglePot( product, nextPot );
+	                usedPots.push( nextPot );
+	            }
+	            
 
-	            product.amount = fillSinglePot( product, nextPot );
+	        });
 
-	        },[]);
+	        _availablePots = usedPots;
+	        console.log( _availablePots );
 
-	        return product;        
+	       // return product;        
 	    }
 
 	    function getRemainingSpace()
@@ -73,7 +89,7 @@
 
 	    function getUsedPotsById()
 	    {
-	        _availablePots.sort( PotSorters.sortPotsById );
+	        _availablePots.sort( PotSorter.sortPotsById );
 	        
 	        return _availablePots.reduce( function( idList , nextPot  )
 	        {
@@ -82,23 +98,32 @@
 	        }, '');
 	    }
 
-	    function checkRules( potCombination )
+	    function willPotWithinRules( potCombination )
 	    {
-	        //last pot in list is always the pot with least in it
-	        var lastPot = _availablePots[ _availablePots.length - 1 ];
-
-
-	        //count how much product is over each pots minimum amount.
-	        var available = _availablePots.slice(0,-1).reduce( function( prev, next )
+	        var potToFill;
+	        var otherPots = potCombination.filter( function( potData )
 	        {
-	            return prev + ( next.contents - next.minimum );
+	            if ( potData.contents > potData.minimum )
+	            {
+	                return true;
+	            }
+	            else
+	            {
+	                potToFill = potData;
+	            }
+	        });
+
+	        //count how much product is over each pots minimum amount. This will give us the total we can move to the last pot
+	        var available = otherPots.reduce( function( productAvailable, nextPotToCheck )
+	        {
+	            return productAvailable + ( nextPotToCheck.contents - nextPotToCheck.minimum );
 	        }, 0 );
 
 	        //check there's enough product to move away from other pots
-	        if ( lastPot.contents + available >= lastPot.minimum ) 
+	        if ( potToFill.contents + available >= potToFill.minimum ) 
 	        {
 	            //If product available then move from other pots into the last pot
-	            fillLastPot( lastPot, _availablePots.slice( 0, -1 ) );                
+	            fillLastPot( potToFill, otherPots );
 
 	            return true;
 	        }
@@ -110,7 +135,7 @@
 
 	    function IsGreaterThan( checkAgainst )
 	    {
-	        var mustBeGreaterThan = checkAgainst; 
+	        var mustBeGreaterThan = checkAgainst;
 
 	        return function( amountToCheck )
 	        {
@@ -150,6 +175,6 @@
 	                break;
 	            }
 	        }
-    	}
+	    }
 	};
 }());

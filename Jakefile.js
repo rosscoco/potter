@@ -24,8 +24,8 @@
 	{
 		console.log("Linting JS: .");
 
-		//jshint.checkFiles({files:["Jakefile.js", "./src/*.js"],
-			jshint.checkFiles({files:["Jakefile.js", "./public/js/*.js","!./public/js/jquery.js"],
+		jshint.checkFiles({files:["Jakefile.js", "./src/*.js"],
+			//jshint.checkFiles({files:["Jakefile.js", "./public/js/*.js","!./public/js/jquery.js"],
 							options:lintOptions(),
 							globals:lintGlobals()}, complete, fail );
 	});

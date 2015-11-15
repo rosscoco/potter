@@ -12,7 +12,7 @@
 	    var _activePots,_products;
 	    
 	    return {
-	        doPottingWithProducts   : doPottingWithProducts,
+	        doPottingWithProduct   : doPottingWithProduct,
 	        usedPots :_basePots
 	    };
 
@@ -21,128 +21,48 @@
 
 	    }
 
-	    function doPottingWithProducts( withProducts )
+	    function doPottingWithProduct( withProduct, withPots )
 	    {
-	        _activePots         = _basePots.slice();        
-	        _products           = withProducts;
+	        _activePots             = withPots;        
 
-	        var productRemainder = {};
-	        var pottingUsed     = [];
-	        var usedPottingSet  = '';
+	        var productRemainder    = {};
+	        var pottingUsed         = [];
+	        var usedPottingSet      = '';
 
-	        function reduceToUnusedPots( potCheckingData, nextPotToCheck )
-            {
-                if ( potCheckingData.usedPots.getUsedPotsById().indexOf( nextPotToCheck.id ) < 0 )
-                {
-                    potCheckingData.unusedPots.push( nextPotToCheck );
-                }
+	         var spaceAvailable     = _activePots.reduce( function ( count, potData )
+	         {
+	            return count + potData.capacity;
+	         }, 0 );
 
-            	return potCheckingData; 
-         	}
+	         if ( spaceAvailable < withProduct.amount )
+	         {
+	            withProduct.amount = spaceAvailable;
+	            productRemainder[ withProduct.id ] = withProduct.amount - spaceAvailable;
+	         }
 
-	       withProducts.sort( function( a, b ) { return a.amount - b.amount; });
+	        usedPottingSet = getBestPotsForProduct( _activePots, withProduct );
 
-	        for ( var i = 0; i < _products.length; i++ )
-	        {
-	             var spaceAvailable = _activePots.reduce( function ( count, potData )
-	             {
-	                return count + potData.capacity;
-	             }, 0);
-
-	             if ( spaceAvailable < _products[ i ].amount )
-	             {
-	                products[i].amount = spaceAvailable;
-	                productRemainder[ products[i].id ] = _products[i].amount - spaceAvailable;
-	             }
-
-	            usedPottingSet = getBestPotsForProduct( _activePots, _products[ i ] );
-
-	            //usedPots = doPotting( _activePots, _products[ i ]);
-
-	            pottingUsed.push( usedPottingSet );
-
-	            //remove the pots used in the last product potting before we try and pot the next product
-	            _activePots = _activePots.reduce( function ,  ).unusedPots;
-	        }                                           
+	        pottingUsed.push( usedPottingSet );
 
 	        return pottingUsed;
 	    }
 
-
-	    function potSingleProduct( remainingPots, product )
-	    {
-	        currentProduct = product;
-
-	       return doPotting( remainingPots, product );
-	    }
-
-	    function potSingleProduct( withPots, product )
+	    function getBestPotsForProduct( withPots, product )
 	    {
 	        var allPotPermutations  = Utils.getPotPermutations( withPots );
 
-	        var allPottingSets      = new PottingSetList( );
+	        //var allPottingSets      = new PottingSetList( allPotPermutations );
+	        var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
 	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
 
 	        var validPottingSets    = [];
 	        var invalidPottingSets  = [];
 
-	        uniquePottingSets.forEach( function( pottingSet )
-	        {
-	            pottingSet.data.forEach( function( potData )
-	            {
-	                if ( potData.contents < potData.minimum )
-	                {
-	                    //invalidPottingSets.push( pottingSet.data ));
-	                    invalidPottingSets.push( pottingSet ););
-	                    return;
-	                }
+	        var bestPottingSet      = allPottingSets.getBestPottingSet();
 
-	                //validPottingSets.push( pott`ingSet.data );
-	                validPottingSets.push( pottingSet );
-	            });
-	        });
-
-	        var fixablePottingSets = invalidPottingSets.filter( 
-	        {
-	            for ( var i = 0;; i < pottingSet.data.length; );
-	        });
-
-	        {
-	            var potToFix;
-	            potArray.sort( PotSorter.sortPotsBy);
-	            
-	            potArray = potArray.filter( function( potData ) 
-	            { 
-	                if ( potData.contents > potData.capacity )
-	                {
-	                    return true;
-	                }
-	                else
-	                {
-	                    potToFix = potData;
-	                    return false;
-	                }
-	            });    
-
-	            var productToMove = potArray.reduce( function( count, nextPot )
-	            {
-	               //return count + nextPot.getCapacity() - nextPot.getContents();
-	               return count + nextPot.capacity - nextPot.contents;
-	            }, 0);
-	            
-	        });
-
-	        var bestPottingSet = allPottingSets.getBestPottingSet();
-
-
-
-	        console.log("Best Potting Set: ");
-	        
-
-
-	        //console.table( bestPottingSet.data );
+	        console.log( "Best Potting Set: ");
 	        
 	        return bestPottingSet;
-	    };
-	}
-}();}
+	    }
+	};
+}());

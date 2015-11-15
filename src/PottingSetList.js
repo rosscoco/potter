@@ -2,9 +2,10 @@
 {
 	"use strict";
 	
-	module.exports.PottingSetList = PottingSetList;
+	var PotSorter = require('./Utils.js').PotSorter;
+	var PottingSet = require('./PottingSet.js');
 
-	function PottingSetList( withListOfPots )
+	module.exports = function PottingSetList( withListOfPots )
 	{
 	   var _listOfPottingSets = withListOfPots.map( function( potArray ) 
 	    {
@@ -12,7 +13,8 @@
 	    });
 
 	    return {
-	        sendProductToPottingSets    : sendProductToPottingSets
+	        sendProductToPottingSets    : sendProductToPottingSets,
+	        getBestPottingSet:getBestPottingSet 
 	    };
 
 	    function removeDuplicates()
@@ -20,8 +22,12 @@
 	        var uniquePotCombos = [];
 	        var listOfPotCombos = {};
 
+	        var debugCounter = 0;
+
 	        _listOfPottingSets.forEach ( function( pottingSet )
 	        {
+	            debugCounter++; 
+
 	            var usedPotIds = pottingSet.getUsedPotsById();
 
 	            if ( listOfPotCombos[ usedPotIds ] )
@@ -39,14 +45,20 @@
 	    }
 
 	    function sendProductToPottingSets( product, potCombinations )
-	    {
+	    {        
 	        _listOfPottingSets.forEach( function( pottingSet )
 	        {  
-	            pottingSet.putProductIntoPots( product );
+	            pottingSet.putProductIntoPots( {id:product.id, amount:product.amount });
+	            console.log( pottingSet.getUsedPots() );
 	        });
+
+	        
 
 	        removeDuplicates();
 	        removeInvalid();
+
+	        //getBestPottingSet();
+	        _listOfPottingSets.sort( PotSorter.sortPotSetsByRemainder );
 
 	        return _listOfPottingSets;
 	    }
@@ -59,18 +71,13 @@
 	            {
 	                return true;
 	            }
-	            else if ( pottingSet)
-	            else;
-	            {
-	                return pottingSet.checkRules(); 
-	            }            
 	        });
 	    }
 
 	    function getBestPottingSet()
 	    {
-	        _listOfPottingSets.sort( PotSorters.sortPotSetsByRemainder );
+	        _listOfPottingSets.sort( PotSorter.sortPotSetsByRemainder );
 	        return _listOfPottingSets[ 0 ];
 	    }
-	}
+	};
 }());

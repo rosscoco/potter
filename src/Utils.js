@@ -32,4 +32,22 @@
 
 	    return permute( fromList );
 	};
-});
+
+	exports.PotSorter = {
+
+	    sortPotsByAmountMoveable: function sortPotSetByAmountMoveable( aPot, bPot )
+	    {
+	        return ( bPot.capacity - bPot.minimum ) - ( aPot.capacity - aPot.minimum );
+	    },
+
+	    sortPotsById: function sortPotSetById( a, b )
+	    {        
+	        return a.id - b.id;
+	    },
+
+	    sortPotSetsByRemainder: function sortPotSetsByRemainder( aPottingList, bPottingList  )
+	    {   
+	        return aPottingList.getRemainingSpace() - bPottingList.getRemainingSpace();
+	    }
+	};
+}());

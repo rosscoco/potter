@@ -1,11 +1,11 @@
 /* globals PottingSetList:false, PottingController:false */
-           var potInput;
+            var potInput;
             var amount;
             
             var permMax     = 2;
             var permCurrent = 0;
             var currentProduct;
-            var pottingController;
+            var pottingController = require("./PottingController.js");
 
             var uiRefs = {};
 
@@ -39,8 +39,8 @@
             {
                 var arrayCopy = Array.prototype.slice;
 
-                uiElements.pottingButtons      = arrayCopy.call( document.querySelectorAll(".btn_fillTanker")   );
-                uiElements.productInputSets    = arrayCopy.call( document.querySelectorAll(".productInputSet")  );
+                uiElements.pottingButtons      = arrayCopy.call( document.querySelectorAll(".btn_fillTanker"));
+                uiElements.productInputSets    = arrayCopy.call( document.querySelectorAll(".productInputSet"));
                 uiElements.potDisplays         = arrayCopy.call( document.querySelectorAll("div[id*='pot'"));
                 
                 //   
@@ -82,6 +82,17 @@
                 return selectedProducts;
             }
 
+            function getRemainingPots( fromListOfPots, usedPotIds )
+            {
+                return fromListOfPots.filter( function removeUsedPots( potData )
+                {
+                    if ( potData.id.indexOf( usedPotIds ) == -1 )
+                    {
+                        return true;
+                    }
+                });
+            }
+
             function fillTankerWithProduct( productToFill )
             {
                 resetPotDisplays();
@@ -91,7 +102,21 @@
 
                 //usedPottingSets.push( pottingController.doPottingWithProduct( selectedProducts[0] ));
                 //debugger;
-                usedPottingSets         =  pottingController.doPottingWithProduct( selectedProducts[0], basePots.slice() );
+
+                var availablePots = basePots.slice();
+                var bestPottingSet;
+                
+                selectedProducts.every( function( productData )
+                {
+                    if ( availablePots.length < 1 )
+                    {
+                        return false;
+                    }
+
+                    usedPottingSets     = pottingController.doPottingWithProduct( productData, availablePots );
+                    bestPottingSet      = usedPottingSets[0];
+                    availablePots       = getRemainingPots( availablePots, bestPottingSet );
+                });
                 
                 var usedPotIds          = usedPottingSets.reduce( function( potIdList, pottingSet )
                                             {
