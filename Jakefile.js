@@ -5,6 +5,11 @@
 
 	var jshint = require('simplebuild-jshint');
 	var shelljs = require('shelljs');
+	var browserify = require('browserify');
+	var path = require('path');
+	var fs = require('fs');
+	var exorcist = require('exorcist');
+
 	var DEPLOY_DIR = "./deploy/";
 
 	desc("Default task");
@@ -33,10 +38,23 @@
 	});
 
 
-	desc("Deploy files to public folder");
-	task("deploy",[DEPLOY_DIR,DEPLOY_DIR + "js"], {async:true}, function()
+	desc("Bundling JS for deployment");
+	task("bundlejs", function()
 	{
 		console.log("Broserifying JS Modules: .");
+
+		var mapfile = path.join(DEPLOY_DIR,"js","app.js.map");
+
+		browserify({debug:true}).require(require.resolve('./src/app.js'), {entry:true})
+					.bundle()
+					.pipe(exorcist(mapfile))
+					.pipe(fs.createWriteStream( path.join(DEPLOY_DIR,"js","app.js")), 'utf8');
+	});
+	
+	desc("Deploy files to public folder");
+	task("deploy",[DEPLOY_DIR,DEPLOY_DIR + "js","bundlejs"], {async:true}, function()
+	{
+
 
 		jake.exec('node_modules/browserify/bin/cmd.js ./src/app.js -o ' + DEPLOY_DIR + "js/app.js", complete );
 
@@ -50,9 +68,9 @@
 		console.log("Linting JS: .");
 
 		jshint.checkFiles({files:["Jakefile.js", "./src/*.js"],
-			//jshint.checkFiles({files:["Jakefile.js", "./public/js/*.js","!./public/js/jquery.js"],
-							options:lintOptions(),
-							globals:lintGlobals()}, complete, fail );
+		//jshint.checkFiles({files:["Jakefile.js", "./public/js/*.js","!./public/js/jquery.js"],
+						options:lintOptions(),
+						globals:lintGlobals()}, complete, fail );
 	});
 
 	
