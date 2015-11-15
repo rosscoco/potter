@@ -1,23 +1,48 @@
-/* globals desc:false, task:false, complete:false, fail:false */
+/* globals desc:false, task:false, complete:false, fail:false, jake:false, directory:false */
 (function()
 {
 	"use strict";
 
 	var jshint = require('simplebuild-jshint');
-
+	var shelljs = require('shelljs');
+	var DEPLOY_DIR = "./deploy/";
 
 	desc("Default task");
-	task("default",["lint"],function()
+	task("default",["lint","clean","deploy","http"],function()
 	{
 		console.log("Build OK!");
 	});
 
-	desc("Fixing Javascript");
-	task("fixmysjs", function()
+	desc("Launch the http-server");
+	task('http', function()
 	{
-
+		jake.exec("node_modules/http-server/bin/http-server " + DEPLOY_DIR, {interactive:true}, complete );
 	});
 
+	desc("Check Deploy dir exists");
+	directory(DEPLOY_DIR);
+
+	desc("Check JS dir exists");
+	directory(DEPLOY_DIR + "js");
+
+	desc("Remove existing files from deploy directory");
+	task("clean", function()
+	{
+		console.log("Clearing Deploy folder: .");
+		shelljs.rm('-rf', DEPLOY_DIR );
+	});
+
+
+	desc("Deploy files to public folder");
+	task("deploy",[DEPLOY_DIR,DEPLOY_DIR + "js"], {async:true}, function()
+	{
+		console.log("Broserifying JS Modules: .");
+
+		jake.exec('node_modules/browserify/bin/cmd.js ./src/app.js -o ' + DEPLOY_DIR + "js/app.js", complete );
+
+		console.log("Copying content files: .");
+		shelljs.cp("-R", "./src/content/*", DEPLOY_DIR );
+	});
 
 	desc("Lint Javascript");
 	task("lint", function()
@@ -30,7 +55,7 @@
 							globals:lintGlobals()}, complete, fail );
 	});
 
-
+	
 	function lintOptions()
 	{
 		return { 
