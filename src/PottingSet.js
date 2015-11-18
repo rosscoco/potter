@@ -43,37 +43,38 @@
 	    function fillSinglePot( withProduct, pot )
 	    {
 	        console.log("Filling Pot " + pot.id + " with " + withProduct.amount + " of " + withProduct.id );
+
 	        pot.product = withProduct.id;
 
 	        if ( pot.capacity > withProduct.amount )
 	        {
 	            pot.contents = withProduct.amount;
-	            withProduct.amount = 0;
+
+	            return withProduct.amount;
 	        }
 	        else
 	        {
 	            pot.contents = pot.capacity;
 	            withProduct.amount -= pot.capacity;
+	            return pot.capacity;
 	        }
 	    }
 
 	    function putProductIntoPots( product )
 	    {
-	        var usedPots = [];	
+	        var usedPots = [];
 
 	        _availablePots.forEach( function( nextPot )
 	        {
 	            if ( product.amount > 0 ) 
 	            {
-	                fillSinglePot( product, nextPot );
+	                product.amount -= fillSinglePot( product, nextPot );
 	                usedPots.push( nextPot );
-	            }
-	            
-
+	            }	        
 	        });
 
 	        _availablePots = usedPots;
-	        console.log( _availablePots );
+	        //console.log( _availablePots );
 
 	       // return product;        
 	    }

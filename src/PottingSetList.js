@@ -26,7 +26,7 @@
 
 	        _listOfPottingSets.forEach ( function( pottingSet )
 	        {
-	            debugCounter++; 
+	            debugCounter++;
 
 	            var usedPotIds = pottingSet.getUsedPotsById();
 
@@ -48,11 +48,8 @@
 	    {        
 	        _listOfPottingSets.forEach( function( pottingSet )
 	        {  
-	            pottingSet.putProductIntoPots( {id:product.id, amount:product.amount });
-	            console.log( pottingSet.getUsedPots() );
+	        	pottingSet.putProductIntoPots( {id:product.id, amount:product.amount });
 	        });
-
-	        
 
 	        removeDuplicates();
 	        removeInvalid();
