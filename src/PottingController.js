@@ -18,7 +18,7 @@
 
 	    function putProductIntoPots( product )
 	    {
-
+	    		
 	    }
 
 	    function doPottingWithProduct( withProduct, withPots )

@@ -24,6 +24,12 @@
 		jake.exec("node_modules/http-server/bin/http-server " + DEPLOY_DIR, {interactive:true}, complete );
 	});
 
+	desc("Launch the http-server from the src directory");
+	task('httpd', function()
+	{
+		jake.exec("node_modules/http-server/bin/http-server " + "src/content", {interactive:true}, complete );
+	});
+
 	desc("Check Deploy dir exists");
 	directory(DEPLOY_DIR);
 
@@ -49,10 +55,12 @@
 					.bundle()
 					.pipe(exorcist(mapfile))
 					.pipe(fs.createWriteStream( path.join(DEPLOY_DIR,"js","app.js")), 'utf8');
+
+		//# sourceMappingURL=./app.js.map
 	});
 	
 	desc("Deploy files to public folder");
-	task("deploy",[DEPLOY_DIR,DEPLOY_DIR + "js","bundlejs"], {async:true}, function()
+	task("deploy",["clean",DEPLOY_DIR,DEPLOY_DIR + "js","lint","bundlejs"], {async:true}, function()
 	{
 
 

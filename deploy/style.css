@@ -6,9 +6,9 @@
 
 body
 {
-	background: url(resources/background.png) top left;
+	/*background: url(resources/background.png) top left;
 	font: .8em "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-	background-color: #C1c1c1;
+	background-color: #C1c1c1;*/
 }
 
 h2
@@ -16,10 +16,14 @@ h2
 	margin-bottom:10px;
 }
 
+
+
+
 #wrapper
 {
 	width:720px;
 	margin: 40px auto 0;
+	border: 1px solid black;
 
 }
 
@@ -41,10 +45,21 @@ h2
 
 #tabContainer
 {
-	width:700px;
+	width:1000px;
 	padding:15px;
-	background-color: #2e2e2e;
+	/*background-color: #2e2e2e;*/	
 	border-radius: 4px;
+}
+
+
+form
+{
+	margin-top: 50px;
+}
+
+.form-inline:last-child
+{
+	padding-left: 10px;
 }
 
 .tabs
@@ -83,11 +98,11 @@ h2
 
 #tabsContent
 {
-	border-radius: 0 4px 4px 4px;
+	/*border-radius: 0 4px 4px 4px;
 	padding: 10px 10px 25px;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(90%,#FFFFFF), color-stop(100%,#e4e9ed)); /* webkit */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(90%,#FFFFFF), color-stop(100%,#e4e9ed)); 
 	margin:0;
-	color:#333;
+	color:#333; */
 }
 
 .potContents

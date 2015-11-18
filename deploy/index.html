@@ -10,6 +10,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="bootstrap.css">
         <script>
  
 
@@ -32,7 +33,7 @@
                     </ul>
                 </div>
                 <div id="tabsContent">
-                    <div class="tabPage" id="tabPage_bramhall">
+                   <!-- <div class="tabPage" id="tabPage_bramhall">
                         <h2>Page 1</h2>
                         <div class="inputValues">   
 
@@ -58,30 +59,40 @@
                             </fieldset>
 
                         </div>                        
-                    </div>
-                    <div class="tabPage" id="tabPage_grangemouth">
-                        <h2>Page 2</h2>
-                        <p>Pellentesque habitant morbi tristique senectus...</p>
-                    </div>
-                    <div class="tabPage" id="tabPage_ipc">
-                        <h2>Page 3</h2>
-                        <p>Pellentesque habitant morbi tristique senectus...</p>
-                    </div>
-                    <div class="tabPage" id="tabPage_kingsbury">
-                        <h2>Page 3</h2>
-                        <p>Pellentesque habitant morbi tristique senectus...</p>
-                    </div>
-                    <div class="tabPage" id="tabPage_southeast">
-                        <h2>Page 3</h2>
-                        <p>Pellentesque habitant morbi tristique senectus...</p>
-                    </div>
-                    <div class="tabPage" id="tabPage_teesside">
-                        <h2>Page 3</h2>
-                        <p>Pellentesque habitant morbi tristique senectus...</p>
-                    </div>
+                    </div> -->
+
+
+                    <form id="productInputs" class="form form-horizontal container">                        
+
+                            <fieldset id="input_1051510" class="form-group">
+                                <label class="control-label col-md-2" for="txtVolume_1051510">Unadditised Diesel</label>
+                                <div class="col-md-10 form-inline">
+                                    <button class="btn btn-primary" id="btnFill_1051510" type="button">Fill Balance</button>
+                                    <input class="form-control" id="productInput_1051510" type="text" placeholder="Or Enter Volume...">
+                                    <button class="btn btn-danger" id="btnClear_1051510" type="button">X</button>
+                                </div>   
+                            </fieldset>
+
+                            <fieldset id="input_1051485" class="form-group">
+                                <label class="control-label col-md-2" for="txtVolume_1051512">Unleaded</label>
+                                <div class="col-md-10 form-inline">
+                                    <button class="btn btn-primary" id="btnFill_1051512" type="button">Fill Balance</button>
+                                    <input class="form-control" id="productInput_1051512" type="text" placeholder="Or Enter Volume...">
+                                    <button class="btn btn-danger" id="btnClear_1051512" type="button">X</button>
+                                </div>   
+                            </fieldset>
+
+                            <fieldset id="input_1051643"  class="form-group">
+                                <label class="control-label col-md-2" for="txtVolume_1051643">Super Unleaded</label>
+                                <div class="col-md-10 form-inline">
+                                    <button class="btn btn-primary" id="btnFill_1051643" type="button">Fill Balance</button>
+                                    <input class="form-control" id="productInput_1051643" type="text" placeholder="Or Enter Volume...">
+                                    <button class="btn btn-danger" id="btnClear_1051643" type="button">X</button>
+                                </div>   
+                            </fieldset>
+                    </form>
                 </div>
-            </div>
-    			
+            </div>    			
     	</div>    	
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -89,7 +100,7 @@
 
         <!-- Add your site or application content here -->
         <div id="pottingDisplay">
-            <div class="potContainer" id="pot1">
+            <!--<div class="potContainer" id="pot1">
                 <h1>7600</h1>
                 <div class="pot">
                     <div class="potContents"></div>
@@ -131,9 +142,8 @@
                 <h1>7600</h1>
                 <div class="pot">
                     <div class="potContents"></div>
-                </div>    
+                </div>     -->
             </div>
-
         <script src="js/jquery.js"></script>        
         <script src="js/app.js"></script>
         <script>
