@@ -18,7 +18,8 @@
 			console.log("PotInputController::No inputs");
 		}
 
-		return { init: init };
+		return { 	init: init,
+					updateProductList };
 
 		function getEnteredProductAmounts()
         {
@@ -35,16 +36,16 @@
             return selectedProducts;
         }
 
-		function init( availableProducts )
-		{
-			var usedProductIds = availableProducts.reduce( function getProductIds( list, nextProduct )
+        function updateProductList( availableProducts )
+        {
+        	console.log("PotInputController:: checking inputs against " + usedProductIds );
+
+        	var usedProductIds = availableProducts.reduce( function getProductIds( list, nextProduct )
 			{
 				return list + ' ' + nextProduct.id;
 			},'');
 
-			console.log("PotInputController:: checking inputs against " + usedProductIds );
-
-			_inputGroups.forEach( function hideUnusedProducts( inputGroup )
+        	_inputGroups.forEach( function hideUnusedProducts( inputGroup )
 			{
 				var forProduct 		= inputGroup.id.split('_')[1];
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
@@ -56,7 +57,15 @@
 					console.log("Hiding " + forProduct );
 					inputGroup.style.display = "none";
 				}
+			});
+        }
 
+		function init( availableProducts )
+		{
+			updateProductList( availableProducts );
+
+			_inputGroups.forEach( function( inputGroup )
+			{
 				inputGroup.addEventListener("click", function( evt )
 		            {
 		            	var isFillBtn	= evt.target.id.split("_")[0] === "btnFill";

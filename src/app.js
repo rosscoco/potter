@@ -22,7 +22,7 @@
             var data;
             var uiRefs                  = {};
 
-            var availableProducts = [   {id:1051510, density:0.83,name:"Blah"},
+            /*var availableProducts = [   {id:1051510, density:0.83,name:"Blah"},
                                         {id:1051485, density:0.83,name:"Blah"},
                                         {id:1051643, density:0.83,name:"Blah"}] ;
 
@@ -42,12 +42,14 @@
 
             var testProduct =       {id:"1051510", amount:18000, pottingUsed:[] };
 
-            var uiElements  = {};
+            var uiElements  = {};*/
 
             window.onload   = function()
             {
-                potter          = new PottingController( basePots );
+                //potter          = new PottingController( basePots );
+                
                 data            = new PottingData();
+                view            = new PotDisplayController( document.querySelector(".content") );
 
                 data.loadProductData( onProductDataLoaded );
                 
@@ -80,6 +82,7 @@
 
             function onPotTankerSelected( evt )
             {
+                /*
                 console.log("Potting Tanker With: ");
 
                 var products = evt.detail.enteredProducts;
@@ -127,6 +130,7 @@
 
                     return true;
                 });
+                */
             }
 
             function onClearTankerSelected( evt )
@@ -138,7 +142,7 @@
 
             function initUI()
             {
-                var arrayCopy       = Array.prototype.slice;
+                /*var arrayCopy       = Array.prototype.slice;
 
                 var formNode        = document.querySelector("#productInputs");
                 formController  = PotInputController( formNode, availableProducts );
@@ -150,7 +154,7 @@
                 var potDisplayNode  = document.querySelector("#pottingDisplay");
                 pottingDisplay      = PotDisplayController( potDisplayNode );
 
-                pottingDisplay.init( basePots );
+                pottingDisplay.init( basePots );*/
             }
 
 

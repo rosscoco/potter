@@ -2,12 +2,14 @@
 {
 	module.exports = Tabs;
 
-	function Tabs()
+	function Tabs( domNode )
 	{
 		var _tabs = [];
 		var _domElement;
 
-		return { init: init };
+		init( withDom );
+
+		//return { init: init };
 
 		function init( withDom )
 		{
