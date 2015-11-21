@@ -19,7 +19,7 @@
 		}
 
 		return { 	init: init,
-					updateProductList };
+					updateProductList : updateProductList };
 
 		function getEnteredProductAmounts()
         {
@@ -38,12 +38,13 @@
 
         function updateProductList( availableProducts )
         {
-        	console.log("PotInputController:: checking inputs against " + usedProductIds );
 
         	var usedProductIds = availableProducts.reduce( function getProductIds( list, nextProduct )
 			{
 				return list + ' ' + nextProduct.id;
 			},'');
+
+        	console.log("PotInputController:: checking inputs against " + usedProductIds );
 
         	_inputGroups.forEach( function hideUnusedProducts( inputGroup )
 			{
@@ -56,6 +57,11 @@
 				{
 					console.log("Hiding " + forProduct );
 					inputGroup.style.display = "none";
+				}
+				else
+				{
+					console.log("Showing " + forProduct );
+					inputGroup.style.display = "block";
 				}
 			});
         }

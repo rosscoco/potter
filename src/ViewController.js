@@ -1,5 +1,7 @@
 (function()
 {
+	module.exports = ViewController;
+
 	var PotDisplayController    = require("./PotDisplayController.js");
     var PotInputController      = require("./PotInputController.js");
     var Tabs                    = require('./Tabs.js');
@@ -11,6 +13,12 @@
 
 	var _domElements;
 
+	function ViewController( withDom )
+	{
+		_domElements = withDom;
+
+		return {init: init, updateTerminal:updateTerminal};
+	}
 
 	function updateTerminal( withPots, withProducts )
 	{
@@ -19,15 +27,15 @@
 		_pottingDisplay.init( withPots );
 	}
 
-	function init( withDom, usingPots, usingProducts )
+	function init( usingPots, usingProducts )
 	{
-		_domElements 		= withDom;
-
 		//var arrayCopy       = Array.prototype.slice;
 
-        var formNode        = withDom.querySelector("#productInputs");
-		var potDisplayNode  = withDom.querySelector("#pottingDisplay");
-		var tabsNode		= withDom.querySelector(".tabs");
+        var formNode        = _domElements.querySelector("#productInputs");
+		var potDisplayNode  = _domElements.querySelector("#pottingDisplay");
+		var tabsNode		= _domElements.querySelector(".tabs");
+
+		tabsNode.addEventListener("onChangeTerminal", onChangeTerminal );
 
         _formController 	= new PotInputController( formNode, usingProducts );
 		_pottingDisplay     = new PotDisplayController( potDisplayNode );
@@ -35,6 +43,12 @@
        
         formNode.addEventListener("clearTanker", onClearTankerSelected );
 	}
+
+	function onChangeTerminal( evt )
+	{
+		console.log("Changed!" + evt.detail);
+	}
+
 
 	function onClearTankerSelected( evt )
 	{

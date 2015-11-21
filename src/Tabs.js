@@ -7,7 +7,7 @@
 		var _tabs = [];
 		var _domElement;
 
-		init( withDom );
+		init( domNode );
 
 		//return { init: init };
 
@@ -21,7 +21,7 @@
 			{
 				tab.addEventListener('click', function( evt )
 				{
-					onTabClicked( evt );		
+					onTabClicked( evt );	
 				});
 			});
 		}
@@ -34,8 +34,11 @@
 			});
 
 			evt.currentTarget.className = 'tabActive';
+			var terminal = evt.currentTarget.id.split("_")[1];
 
-			//_domElement.dispatchEvent("onChangeProductInputs", {details:})
+			var changeEvent = new CustomEvent("onChangeTerminal",{detail:terminal});
+
+			_domElement.dispatchEvent( changeEvent );
 		}
 	}
 }());

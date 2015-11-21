@@ -23,6 +23,8 @@
 			clear		: clear 
 		};	
 
+		
+
 		function init( allPotData )
 		{
 			//clear();
@@ -138,7 +140,8 @@
 			console.log("PotInputController::No inputs");
 		}
 
-		return { init: init };
+		return { 	init: init,
+					updateProductList : updateProductList };
 
 		function getEnteredProductAmounts()
         {
@@ -155,16 +158,17 @@
             return selectedProducts;
         }
 
-		function init( availableProducts )
-		{
-			var usedProductIds = availableProducts.reduce( function getProductIds( list, nextProduct )
+        function updateProductList( availableProducts )
+        {
+
+        	var usedProductIds = availableProducts.reduce( function getProductIds( list, nextProduct )
 			{
 				return list + ' ' + nextProduct.id;
 			},'');
 
-			console.log("PotInputController:: checking inputs against " + usedProductIds );
+        	console.log("PotInputController:: checking inputs against " + usedProductIds );
 
-			_inputGroups.forEach( function hideUnusedProducts( inputGroup )
+        	_inputGroups.forEach( function hideUnusedProducts( inputGroup )
 			{
 				var forProduct 		= inputGroup.id.split('_')[1];
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
@@ -176,7 +180,20 @@
 					console.log("Hiding " + forProduct );
 					inputGroup.style.display = "none";
 				}
+				else
+				{
+					console.log("Showing " + forProduct );
+					inputGroup.style.display = "block";
+				}
+			});
+        }
 
+		function init( availableProducts )
+		{
+			updateProductList( availableProducts );
+
+			_inputGroups.forEach( function( inputGroup )
+			{
 				inputGroup.addEventListener("click", function( evt )
 		            {
 		            	var isFillBtn	= evt.target.id.split("_")[0] === "btnFill";
@@ -309,7 +326,7 @@
 },{"./PottingSetList.js":6,"./Utils.js":8}],4:[function(require,module,exports){
 (function()
 {
-	var PRODUCT_DATA_URL 	= './resources/products.json';
+	var PRODUCT_DATA_URL 	= './resources/products.json?' + Math.random().toFixed(4);
 	
 	var Terminal 			= require('./data/Terminal.js');
 
@@ -387,7 +404,7 @@
 
 }());
 
-},{"./data/Terminal.js":10}],5:[function(require,module,exports){
+},{"./data/Terminal.js":11}],5:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -655,12 +672,14 @@
 {
 	module.exports = Tabs;
 
-	function Tabs()
+	function Tabs( domNode )
 	{
 		var _tabs = [];
 		var _domElement;
 
-		return { init: init };
+		init( domNode );
+
+		//return { init: init };
 
 		function init( withDom )
 		{
@@ -672,7 +691,7 @@
 			{
 				tab.addEventListener('click', function( evt )
 				{
-					onTabClicked( evt );		
+					onTabClicked( evt );	
 				});
 			});
 		}
@@ -685,8 +704,11 @@
 			});
 
 			evt.currentTarget.className = 'tabActive';
+			var terminal = evt.currentTarget.id.split("_")[1];
 
-			//_domElement.dispatchEvent("onChangeProductInputs", {details:})
+			var changeEvent = new CustomEvent("onChangeTerminal",{detail:terminal});
+
+			_domElement.dispatchEvent( changeEvent );
 		}
 	}
 }());
@@ -745,6 +767,66 @@
 	};
 }());
 },{}],9:[function(require,module,exports){
+(function()
+{
+	module.exports = ViewController;
+
+	var PotDisplayController    = require("./PotDisplayController.js");
+    var PotInputController      = require("./PotInputController.js");
+    var Tabs                    = require('./Tabs.js');
+
+	var _formController;
+	var _pottingDisplay;
+	var _tabController;
+	var _tabs;
+
+	var _domElements;
+
+	function ViewController( withDom )
+	{
+		_domElements = withDom;
+
+		return {init: init, updateTerminal:updateTerminal};
+	}
+
+	function updateTerminal( withPots, withProducts )
+	{
+		_formController.updateProductList( withProducts );
+		_pottingDisplay.clear();
+		_pottingDisplay.init( withPots );
+	}
+
+	function init( usingPots, usingProducts )
+	{
+		//var arrayCopy       = Array.prototype.slice;
+
+        var formNode        = _domElements.querySelector("#productInputs");
+		var potDisplayNode  = _domElements.querySelector("#pottingDisplay");
+		var tabsNode		= _domElements.querySelector(".tabs");
+
+		tabsNode.addEventListener("onChangeTerminal", onChangeTerminal );
+
+        _formController 	= new PotInputController( formNode, usingProducts );
+		_pottingDisplay     = new PotDisplayController( potDisplayNode );
+		_tabs 				= new Tabs( tabsNode );
+       
+        formNode.addEventListener("clearTanker", onClearTankerSelected );
+	}
+
+	function onChangeTerminal( evt )
+	{
+		console.log("Changed!" + evt.detail);
+	}
+
+
+	function onClearTankerSelected( evt )
+	{
+	    console.log("Removing Product from tanker. Products Left: ");
+	    _pottingDisplay.reset();
+	}
+}());
+
+},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./Tabs.js":7}],10:[function(require,module,exports){
 /* globals PottingSetList:false, PottingController:false 
 # sourceMappingURL=./app.js.map
 */
@@ -761,6 +843,7 @@
             var PotInputController      = require("./PotInputController.js");
             var Tabs                    = require('./Tabs.js');
             var PottingData             = require('./PottingData.js');
+            var ViewController          = require("./ViewController.js");
 
             var potter;
             var formController;
@@ -768,8 +851,9 @@
             var tabController;
             var data;
             var uiRefs                  = {};
+            var view;
 
-            var availableProducts = [   {id:1051510, density:0.83,name:"Blah"},
+            /*var availableProducts = [   {id:1051510, density:0.83,name:"Blah"},
                                         {id:1051485, density:0.83,name:"Blah"},
                                         {id:1051643, density:0.83,name:"Blah"}] ;
 
@@ -789,26 +873,40 @@
 
             var testProduct =       {id:"1051510", amount:18000, pottingUsed:[] };
 
-            var uiElements  = {};
+            var uiElements  = {};*/
 
             window.onload   = function()
             {
-                potter          = new PottingController( basePots );
+                //potter          = new PottingController( basePots );
+                
                 data            = new PottingData();
+                view            = new ViewController( document.querySelector(".content") );
 
                 data.loadProductData( onProductDataLoaded );
                 
                 document.addEventListener("fillTanker", onFillTankerSelected );
                 document.addEventListener("potTanker", onPotTankerSelected );
+                document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
 
                 console.log("loading");
 
                 //initUI();
             };
 
+            function onChangeTerminal( evt )
+            {
+                console.log("Changing terminal to " + evt.detail );
+                var terminal = data.getTerminalData(evt.detail);
+
+                view.updateTerminal( terminal.pots, terminal.products );
+            }
+
             function onProductDataLoaded( )
             {
                 console.log("Product Data Loaded!!");
+                var terminal = data.getTerminalData("bramhall");
+
+                view.init( terminal.pots, terminal.products );
             }
 
             function onFillTankerSelected( evt )
@@ -827,6 +925,7 @@
 
             function onPotTankerSelected( evt )
             {
+                /*
                 console.log("Potting Tanker With: ");
 
                 var products = evt.detail.enteredProducts;
@@ -874,6 +973,7 @@
 
                     return true;
                 });
+                */
             }
 
             function onClearTankerSelected( evt )
@@ -885,7 +985,7 @@
 
             function initUI()
             {
-                var arrayCopy       = Array.prototype.slice;
+                /*var arrayCopy       = Array.prototype.slice;
 
                 var formNode        = document.querySelector("#productInputs");
                 formController  = PotInputController( formNode, availableProducts );
@@ -897,13 +997,13 @@
                 var potDisplayNode  = document.querySelector("#pottingDisplay");
                 pottingDisplay      = PotDisplayController( potDisplayNode );
 
-                pottingDisplay.init( basePots );
+                pottingDisplay.init( basePots );*/
             }
 
 
 
 }());            
-},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./PottingController.js":3,"./PottingData.js":4,"./Tabs.js":7}],10:[function(require,module,exports){
+},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./PottingController.js":3,"./PottingData.js":4,"./Tabs.js":7,"./ViewController.js":9}],11:[function(require,module,exports){
 (function()
 {	
 
@@ -937,13 +1037,14 @@
 			this.potIds += data.pot_configs[0].pots[i];
 		}
 
-		this.products = data.products;
+		this.products = [];//data.products;
 
-		for ( var productName in this.products )
+		for ( var product in data.products )
 		{
-			if ( this.products.hasOwnProperty(productName))
+			if ( data.products.hasOwnProperty(product))
 			{
-				this.productIds += productName + " ";	
+				this.products.push({id:product, name:data.products[product].name,density:data.products[product].density });
+				this.productIds += product + " ";	
 			}
 			
 		}
@@ -966,5 +1067,5 @@
 		return s;
 	};
 }());
-},{}]},{},[9])
+},{}]},{},[10])
 //# sourceMappingURL=app.js.map

@@ -14,6 +14,7 @@
             var PotInputController      = require("./PotInputController.js");
             var Tabs                    = require('./Tabs.js');
             var PottingData             = require('./PottingData.js');
+            var ViewController          = require("./ViewController.js");
 
             var potter;
             var formController;
@@ -21,6 +22,7 @@
             var tabController;
             var data;
             var uiRefs                  = {};
+            var view;
 
             /*var availableProducts = [   {id:1051510, density:0.83,name:"Blah"},
                                         {id:1051485, density:0.83,name:"Blah"},
@@ -49,21 +51,33 @@
                 //potter          = new PottingController( basePots );
                 
                 data            = new PottingData();
-                view            = new PotDisplayController( document.querySelector(".content") );
+                view            = new ViewController( document.querySelector(".content") );
 
                 data.loadProductData( onProductDataLoaded );
                 
                 document.addEventListener("fillTanker", onFillTankerSelected );
                 document.addEventListener("potTanker", onPotTankerSelected );
+                document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
 
                 console.log("loading");
 
                 //initUI();
             };
 
+            function onChangeTerminal( evt )
+            {
+                console.log("Changing terminal to " + evt.detail );
+                var terminal = data.getTerminalData(evt.detail);
+
+                view.updateTerminal( terminal.pots, terminal.products );
+            }
+
             function onProductDataLoaded( )
             {
                 console.log("Product Data Loaded!!");
+                var terminal = data.getTerminalData("bramhall");
+
+                view.init( terminal.pots, terminal.products );
             }
 
             function onFillTankerSelected( evt )

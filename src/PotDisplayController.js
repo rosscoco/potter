@@ -22,6 +22,8 @@
 			clear		: clear 
 		};	
 
+		
+
 		function init( allPotData )
 		{
 			//clear();

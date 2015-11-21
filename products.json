@@ -34,6 +34,14 @@
             "1051643": {
                 "name": "Super Unleaded",
                 "density": "0.71"
+            },
+            "1058700": {
+                "name": "Kerosene",
+                "density": "0.71"
+            },
+            "1051643": {
+                "name": "Super Unleaded",
+                "density": "0.71"
             }
         }
     },

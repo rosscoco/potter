@@ -34,6 +34,14 @@
             "1051643": {
                 "name": "Super Unleaded",
                 "density": "0.71"
+            },
+            "1058700": {
+                "name": "Gas Oil",
+                "density": "0.71"
+            },
+            "1051521": {
+                "name": "Kerosene",
+                "density": "0.71"
             }
         }
     },
@@ -64,14 +72,6 @@
             "1051485": {
                 "name": "Petrol",
                 "density": "0.71"
-            },
-            "1051512": {
-                "name": "Diesel",
-                "density": "0.71"
-            },
-            "1051643": {
-                "name": "Super Unleaded",
-                "density": "0.71"
             }
         }
     },
@@ -99,16 +99,12 @@
             }
         ],
         "products": {
-            "1051485": {
+            "1051510": {
                 "name": "Petrol",
                 "density": "0.71"
             },
             "1051512": {
                 "name": "Diesel",
-                "density": "0.71"
-            },
-            "1051643": {
-                "name": "Super Unleaded",
                 "density": "0.71"
             }
         }
@@ -136,16 +132,12 @@
                 "max_weight": "44000"
             }
         ],
-        "products": {
-            "1051485": {
-                "name": "Petrol",
-                "density": "0.71"
-            },
-            "1051512": {
+        "products": {        
+            "1051510": {
                 "name": "Diesel",
                 "density": "0.71"
             },
-            "1051643": {
+            "1058700": {
                 "name": "Super Unleaded",
                 "density": "0.71"
             }
@@ -175,7 +167,7 @@
             }
         ],
         "products": {
-            "1051485": {
+            "1051510": {
                 "name": "Petrol",
                 "density": "0.71"
             },
@@ -183,7 +175,7 @@
                 "name": "Diesel",
                 "density": "0.71"
             },
-            "1051643": {
+            "1051485": {
                 "name": "Super Unleaded",
                 "density": "0.71"
             }

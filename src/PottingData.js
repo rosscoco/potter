@@ -1,6 +1,6 @@
 (function()
 {
-	var PRODUCT_DATA_URL 	= './resources/products.json';
+	var PRODUCT_DATA_URL 	= './resources/products.json?' + Math.random().toFixed(4);
 	
 	var Terminal 			= require('./data/Terminal.js');
 

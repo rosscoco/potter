@@ -31,13 +31,14 @@
 			this.potIds += data.pot_configs[0].pots[i];
 		}
 
-		this.products = data.products;
+		this.products = [];//data.products;
 
-		for ( var productName in this.products )
+		for ( var product in data.products )
 		{
-			if ( this.products.hasOwnProperty(productName))
+			if ( data.products.hasOwnProperty(product))
 			{
-				this.productIds += productName + " ";	
+				this.products.push({id:product, name:data.products[product].name,density:data.products[product].density });
+				this.productIds += product + " ";	
 			}
 			
 		}
