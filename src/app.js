@@ -7,15 +7,17 @@
             
             var permMax     = 2;
             var permCurrent = 0;
-            var currentProduct;
+            var currentProduct;            
 
             var PottingController       = require("./PottingController.js");
             var PotDisplayController    = require("./PotDisplayController.js");
             var PotInputController      = require("./PotInputController.js");
+            var Tabs                    = require('./Tabs.js');
 
             var potter;
             var formController;
             var pottingDisplay;
+            var tabController;
 
             var uiRefs      = {};
 
@@ -43,8 +45,11 @@
 
             window.onload   = function()
             {
-                potter = new PottingController( basePots );
+                potter          = new PottingController( basePots );
+                tabController   = Tabs();
 
+                tabController.init( document.querySelector('.tabs'));
+                
                 console.log("loading");
                 initUI();
             };
@@ -117,7 +122,7 @@
             function onClearTankerSelected( evt )
             {
                 console.log("Removing Product from tanker. Products Left: ");
-                potDisplay.reset();
+                pottingDisplay.reset();
                 
             }
 
