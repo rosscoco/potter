@@ -13,12 +13,13 @@
             var PotDisplayController    = require("./PotDisplayController.js");
             var PotInputController      = require("./PotInputController.js");
             var Tabs                    = require('./Tabs.js');
+            var PottingData             = require('./PottingData.js');
 
             var potter;
             var formController;
             var pottingDisplay;
             var tabController;
-
+            var data;
             var uiRefs                  = {};
 
             var availableProducts = [   {id:1051510, density:0.83,name:"Blah"},

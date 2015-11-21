@@ -58,13 +58,11 @@
 
 		//# sourceMappingURL=./app.js.map
 	});
-	
+
 	desc("Deploy files to public folder");
 	task("deploy",["clean",DEPLOY_DIR,DEPLOY_DIR + "js","lint","bundlejs"], {async:true}, function()
 	{
-
-
-		jake.exec('node_modules/browserify/bin/cmd.js ./src/app.js -o ' + DEPLOY_DIR + "js/app.js", complete );
+		//jake.exec('node_modules/browserify/bin/cmd.js ./src/app.js -o ' + DEPLOY_DIR + "js/app.js", complete );
 
 		console.log("Copying content files: .");
 		shelljs.cp("-R", "./src/content/*", DEPLOY_DIR );
@@ -75,7 +73,7 @@
 	{
 		console.log("Linting JS: .");
 
-		jshint.checkFiles({files:["Jakefile.js", "./src/*.js"],
+		jshint.checkFiles({files:["Jakefile.js", "./src/**/*.js"],
 		//jshint.checkFiles({files:["Jakefile.js", "./public/js/*.js","!./public/js/jquery.js"],
 						options:lintOptions(),
 						globals:lintGlobals()}, complete, fail );

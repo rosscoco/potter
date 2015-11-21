@@ -33,7 +33,7 @@
 
 			evt.currentTarget.className = 'tabActive';
 
-			_domElement.dispatchEvent("onChangeProductInputs", {details:})
+			//_domElement.dispatchEvent("onChangeProductInputs", {details:})
 		}
 	}
 }());
