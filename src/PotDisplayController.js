@@ -16,9 +16,10 @@
 		//init();
 
 		return {
-			init	: init,
-			updatePot: updatePot,
-			reset: reset 
+			init		: init,
+			updatePot	: updatePot,
+			reset		: reset,
+			clear		: clear 
 		};	
 
 		function init( allPotData )
@@ -65,7 +66,6 @@
 			return _displayNode;
 			
 			//intoDomNode.appendChild( potDisplay );
-
 		} 
 
 	    function updatePot( potData )
@@ -94,9 +94,12 @@
 
 			if ( _displayNode )
 			{
-				_displayNode.parentNode.removeChild( _displayNode );	
+				while( _displayNode.firstChild )
+				{
+					_displayNode.removeChild( _displayNode.firstChild );
+				}
+				//_displayNode.parentNode.removeChild( _displayNode );	
 			}
-			
 		}
 
 		function reset()
@@ -109,12 +112,6 @@
 					_potContents[ potId ].style.height = 0;
 				}
 			}
-
-/*			_potContents.forEach( function( potDOMDisplay )
-			{
-				potDOMDisplay.setAttribute('data-product','none');
-				potDOMDisplay.style.height = 0;
-			});*/
 		}
 	};
 

@@ -19,7 +19,7 @@
             var pottingDisplay;
             var tabController;
 
-            var uiRefs      = {};
+            var uiRefs                  = {};
 
             var availableProducts = [   {id:1051510, density:0.83,name:"Blah"},
                                         {id:1051485, density:0.83,name:"Blah"},
@@ -46,13 +46,22 @@
             window.onload   = function()
             {
                 potter          = new PottingController( basePots );
-                tabController   = Tabs();
+                data            = new PottingData();
 
-                tabController.init( document.querySelector('.tabs'));
+                data.loadProductData( onProductDataLoaded );
                 
+                document.addEventListener("fillTanker", onFillTankerSelected );
+                document.addEventListener("potTanker", onPotTankerSelected );
+
                 console.log("loading");
-                initUI();
+
+                //initUI();
             };
+
+            function onProductDataLoaded( )
+            {
+                console.log("Product Data Loaded!!");
+            }
 
             function onFillTankerSelected( evt )
             {

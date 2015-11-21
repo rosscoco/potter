@@ -1,92 +1,105 @@
 {
-
-		'bramhall':
+		"bramhall":
 		{
-			'pot_configs':
+			"pot_configs":
 			[{
-				'name':'default',
-				'pots':[7,7,7,7,7,7],
-				'max_weight':44000
-			}],
-
-			'products':
-			[{
-				'name':'Petrol',
-				'code':1051485,
-				'density':0.71
-			},
-			{
-				'name':'Add Diesel',
-				'code':1051512,
-				'density':0.77
-			},
-			{
-				'name':'UnAdd Diesel',
-				'code':1051510,
-				'density':0.77
-			}]
-		},
-		'kingsbury':
-		{
-			'pot_configs':
-			[{
-				'name':'default',
-				'pots':[7,7,7,7,7,7],
+				"name":"default",
+				"pots":"[7,7,7,7,7,7]",
+				"potMinimums":"[69,6,35,35,35,6]",
 				"max_weight":"44000"
-			},
-			{
-				'name':'Lomax',
-				'pots':[7,7,7,7,7],
-				'max_weight':44000
 			}],
 
-			'products':
-			[{
-				'name':'Petrol',
-				'code':1051485,
-				'density':0.71
-			},
+			"products":
 			{
-				'name':'Add Diesel',
-				'code':1051512,
-				'density':0.77
-			},
-			{
-				'name':'UnAdd Diesel',
-				'code':1051510,
-				'density':0.77
-			}]
+				"1051485":{"name":"Petrol", "density":"0.71"},
+				"1051512":{"name":"Diesel", "density":"0.71"},
+				"1051643":{"name":"Super Unleaded", "density":"0.71"}
+			}
 		},
-		'IPC':
+		"grangemouth":
 		{
-			'pot_configs':
+			"pot_configs":
 			[{
-				'name':'default',
-				'pots':[7,7,7,7,7,7],
-				'max_weight':44000
-			},
-			{
-				'name':'Lomax',
-				'pots':[7,7,7,7,7],
-				'max_weight':44000
+				"name":"default",
+				"pots":"[7,7,7,7,7,7]",
+				"potMinimums":"[69,6,35,35,35,6]",
+				"max_weight":"44000"
 			}],
 
-			'products':
+			"products":
+			{
+				"1051485":{"name":"Petrol", "density":"0.71"},
+				"1051512":{"name":"Diesel", "density":"0.71"},
+				"1051643":{"name":"Super Unleaded", "density":"0.71"}
+			}
+		},
+		"IPC":
+		{
+			"pot_configs":
 			[{
-				'name':'Petrol',
-				'code':1051485,
-				'density':0.71
-			},
+				"name":"default",
+				"pots":"[7,7,7,7,7,7]",
+				"potMinimums":"[69,6,35,35,35,6]",
+				"max_weight":"44000"
+			}],
+
+			"products":
 			{
-				'name':'Add Diesel',
-				'code':1051512,
-				'density':0.77
-			},
+				"1051485":{"name":"Petrol", "density":"0.71"},
+				"1051512":{"name":"Diesel", "density":"0.71"},
+				"1051643":{"name":"Super Unleaded", "density":"0.71"}
+			}
+		},
+		"kingsbury":
+		{
+			"pot_configs":
+			[{
+				"name":"default",
+				"pots":"[7,7,7,7,7,7]",
+				"potMinimums":"[69,6,35,35,35,6]",
+				"max_weight":"44000"
+			}],
+
+			"products":
 			{
-				'name':'UnAdd Diesel',
-				'code':1051510,
-				'density':0.77
-			}]
-		}
+				"1051485":{"name":"Petrol", "density":"0.71"},
+				"1051512":{"name":"Diesel", "density":"0.71"},
+				"1051643":{"name":"Super Unleaded", "density":"0.71"}
+			}
+		},
+		"southeast":
+		{
+			"pot_configs":
+			[{
+				"name":"default",
+				"pots":"[7,7,7,7,7,7]",
+				"potMinimums":"[69,6,35,35,35,6]",
+				"max_weight":"44000"
+			}],
+
+			"products":
+			{
+				"1051485":{"name":"Petrol", "density":"0.71"},
+				"1051512":{"name":"Diesel", "density":"0.71"},
+				"1051643":{"name":"Super Unleaded", "density":"0.71"}
+			}
+		},
+		"teesside":
+		{
+			"pot_configs":
+			[{
+				"name":"default",
+				"pots":"[7,7,7,7,7,7]",
+				"potMinimums":"[69,6,35,35,35,6]",
+				"max_weight":"44000"
+			}],
+
+			"products":
+			{
+				"1051485":{"name":"Petrol", "density":"0.71"},
+				"1051512":{"name":"Diesel", "density":"0.71"},
+				"1051643":{"name":"Super Unleaded", "density":"0.71"}
+			}
+		},
 	
 }

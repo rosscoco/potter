@@ -22,15 +22,6 @@
 					onTabClicked( evt );		
 				});
 			});
-
-			/*_domElement.addEventListener( 'click', function( evt )
-			{
-				console.log('click');
-				if ( evt.target.id.split('_')[0] === 'tab')
-				{
-					onTabClicked( evt.target );	
-				}
-			});*/
 		}
 
 		function onTabClicked( evt )
@@ -42,8 +33,7 @@
 
 			evt.currentTarget.className = 'tabActive';
 
-
+			_domElement.dispatchEvent("onChangeProductInputs", {details:})
 		}
-
 	}
 }());

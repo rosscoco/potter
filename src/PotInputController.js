@@ -2,10 +2,6 @@
 {
 	module.exports = function PotInputController( usingDom, availableProducts )
 	{
-		
-
-		
-
 		var _domElement 	= usingDom;
 		var _inputGroups	= [].slice.call( _domElement.querySelectorAll( "[id^='input']" ));
 		var _products		= availableProducts;

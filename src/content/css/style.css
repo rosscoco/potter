@@ -4,6 +4,14 @@
 	padding:0;
 }
 
+a {
+   outline: 0;
+}
+
+a:focus,a:active
+{
+	outline:0;
+}
 @font-face {
   font-family: 'Montserrat';
   font-style: normal;
@@ -32,6 +40,7 @@
 
 body
 {
+	font-family: 'Montserrat';
 	background: #3f4c6b; /* Old browsers */
 	background: -webkit-linear-gradient(#3f4c6b 0%, #1f3568 100%);
     background: -o-linear-gradient(#3f4c6b 0%, #1f3568 100%);
@@ -84,7 +93,7 @@ h1
 {
 	color:#FFF;
 	text-align:center;
-	margin-bottom:20px;
+	margin-bottom: 0;
 }
 
 #wrapper a
