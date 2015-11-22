@@ -57,6 +57,7 @@
 
 				potContents.className = "potContents";
 				potContents.setAttribute('data-product', 'none');
+
 				_potContents[ '' + ( i + 1 ) ] = potContents;
 				
 				container.appendChild( header );
@@ -68,6 +69,16 @@
 				_displayNode.appendChild( container );
 			});
 
+			insertSpacesBetweenPots();
+
+			_container.appendChild( _displayNode );
+
+			return _displayNode;
+		} 
+
+
+		function insertSpacesBetweenPots()
+		{
 			var pots = [].slice.call(_displayNode.children);
 
 			var l = pots.length;
@@ -78,21 +89,15 @@
 				space.innerHTML = ' ';
 				_displayNode.insertBefore( space, pots[i]);
 			}
-
-			_container.appendChild( _displayNode );
-
-			return _displayNode;
-		} 
+		}
 
 	    function updatePot( potData )
         {
         	console.log( "PotDisplayController::Filling " + potData.id + " with " + potData.contents + "/" + potData.capacity + " of " + potData.product );
 
             var potId = potData.id;
-
-            //var potDisplay = document.getElementById( 'pot' + potData.id );
             
-            var potContents = _potContents[ potData.id ];//potDisplay.querySelector(".potContents");
+            var potContents = _potContents[ potData.id ];
 
             potContents.setAttribute( "data-product", potData.product );
 
@@ -114,7 +119,6 @@
 				{
 					_displayNode.removeChild( _displayNode.firstChild );
 				}
-				//_displayNode.parentNode.removeChild( _displayNode );	
 			}
 		}
 
