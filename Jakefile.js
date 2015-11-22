@@ -9,6 +9,7 @@
 	var path = require('path');
 	var fs = require('fs');
 	var exorcist = require('exorcist');
+	var through2 = require('through2');
 
 	var DEPLOY_DIR = "./deploy/";
 
@@ -50,10 +51,25 @@
 		console.log("Broserifying JS Modules: .");
 
 		var mapfile = path.join(DEPLOY_DIR,"js","app.js.map");
+		var flag = 0;
+		var sourceDirective ="//# sourceMappingURL=./app.js.map";
 
 		browserify({debug:true}).require(require.resolve('./src/app.js'), {entry:true})
 					.bundle()
 					.pipe(exorcist(mapfile))
+					.pipe(through2( {"decodeStrings" : false, "encoding": "utf8"},function(chunk, enc) 
+						{
+				        	if(flag===0) 
+				        	{
+					            var tempChunk=chunk;
+					            chunk=sourceDirective;
+					            chunk+= "\n";
+					            chunk+=tempChunk;
+					            
+					            flag=1;
+				        	}
+        					this.push( chunk );
+        				}))
 					.pipe(fs.createWriteStream( path.join(DEPLOY_DIR,"js","app.js")), 'utf8');
 
 		//# sourceMappingURL=./app.js.map

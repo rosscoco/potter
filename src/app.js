@@ -3,11 +3,6 @@
 */
 (function()
 {   
-            //
-            //var PotDisplayController    = require("./PotDisplayController.js");
-            //var PotInputController      = require("./PotInputController.js");
-            //var Tabs                    = require('./Tabs.js');
-
             var PottingController       = require("./PottingController.js");
             var PottingData             = require('./PottingData.js');
             var ViewController          = require("./ViewController.js");
@@ -15,29 +10,28 @@
             var potter;
             var data;
             var view;
+            var currentTerminal;
 
             window.onload   = function()
             {
-                //potter          = new PottingController( basePots );
-                
                 data            = new PottingData();
                 view            = new ViewController( document.querySelector(".content") );
 
                 data.loadProductData( onProductDataLoaded );
                 
-                document.addEventListener("fillTanker", onFillTankerSelected );
-                document.addEventListener("potTanker", onPotTankerSelected );
+                document.querySelector("#productInputs").addEventListener("fillTanker", onFillTankerSelected );
+                document.querySelector("#productInputs").addEventListener("potTanker", onPotTankerSelected );                
                 document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
-
-                console.log("loading");
             };
 
             function onChangeTerminal( evt )
             {
                 console.log("Changing terminal to " + evt.detail );
-                var terminal = data.getTerminalData(evt.detail);
+                currentTerminal = data.getTerminalData( evt.detail );
 
-                view.updateTerminal( terminal.pots, terminal.products );
+                potter          = new PottingController( currentTerminal.pots );                
+                    
+                view.updateTerminal( currentTerminal.pots, currentTerminal.products );
             }
 
             function onProductDataLoaded( )
@@ -64,22 +58,15 @@
 
             function onPotTankerSelected( evt )
             {
-                /*
                 console.log("Potting Tanker With: ");
 
-                var products = evt.detail.enteredProducts;
-
-                console.table( evt.detail.enteredProducts );
-
-                var availablePots = basePots.slice();
+                var products        = evt.detail.enteredProducts;
+                var availablePots   = currentTerminal.pots.slice();
                 var usedPottingSets;
                 var bestPottingSet;
                 var usedPotIds;
-
                 var filledPotsToShow;
-
-                pottingDisplay.reset();
-
+                
                 products.every( function( productData )
                 {
                     console.log("Available Pots: " + getPotString(availablePots));
@@ -92,7 +79,7 @@
                     console.log("Next product. Potting " + productData.amount + " of " + productData.id );
 
                     usedPottingSets     = potter.doPottingWithProduct( productData, availablePots.slice() );
-                    bestPottingSet      = usedPottingSets[0];
+                    bestPottingSet      = usedPottingSets[ 0 ];
                     usedPotIds          = bestPottingSet.getUsedPotsById();
 
                     availablePots       = availablePots.filter( function getRemainingPots( potData )
@@ -105,13 +92,10 @@
 
                     filledPotsToShow = bestPottingSet.getUsedPots();
 
-                    filledPotsToShow.forEach( function( singlePotData )
-                    {
-                        pottingDisplay.updatePot( singlePotData );
-                    });
+                    view.updatePotting( filledPotsToShow );
 
                     return true;
                 });
-                */
+                
             }
 }());            

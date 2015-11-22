@@ -31,6 +31,7 @@
 
 			_displayNode = document.createElement('div');
 			_displayNode.className = "pottingDisplay";
+
 			var lastnode;
 			allPotData.forEach( function( potData, i )
 			{
@@ -44,7 +45,7 @@
 	            */
 
 				var container 		= document.createElement('div');
-				var header 			= document.createElement('h1');
+				var header 			= document.createElement('h2');
 				var pot 			= document.createElement('div');
 				var potContents 	= document.createElement('div');
 
@@ -63,8 +64,6 @@
 				container.appendChild( header );
 				container.appendChild( pot );
 				pot.appendChild( potContents );
-
-				container.innerHTML = "1";
 
 				_displayNode.appendChild( container );
 			});
@@ -119,6 +118,9 @@
 				{
 					_displayNode.removeChild( _displayNode.firstChild );
 				}
+
+				_displayNode.parentNode.removeChild( _displayNode );
+				_displayNode = undefined;
 			}
 		}
 

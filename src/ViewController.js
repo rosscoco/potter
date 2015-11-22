@@ -17,7 +17,17 @@
 	{
 		_domElements = withDom;
 
-		return { init: init, updateTerminal:updateTerminal };
+		return { 	init: init, 
+					updateTerminal:updateTerminal,
+					updatePotting: updatePotting };
+	}
+
+	function updatePotting( potDataArray )
+	{
+		potDataArray.forEach( function( singlePotData )
+        {
+            _pottingDisplay.updatePot( singlePotData );
+        });
 	}
 
 	function updateTerminal( withPots, withProducts )

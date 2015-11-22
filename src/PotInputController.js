@@ -6,11 +6,6 @@
 		var _inputGroups	= [].slice.call( _domElement.querySelectorAll( "[id^='input']" ));
 		var _products		= availableProducts;
 
-		var testElement = _domElement.querySelector( "[id=input_1051510]");
-		var textElement = testElement.querySelector("[id^=product]");
-
-		console.log(textElement);
-
 		init( availableProducts );
 
 		if ( _inputGroups.length === 0 )

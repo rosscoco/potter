@@ -112,6 +112,13 @@ h1
 	margin-bottom: 0;
 }
 
+h2
+{
+	text-align:center;
+	color:#FFF;
+	margin-top:0;
+}
+
 #wrapper a
 {
 	text-decoration: none;
@@ -164,51 +171,11 @@ ul
 	background-color: #FFFFFF;
 }
 
-/*#pottingDisplay
-{
-	width:100%;
-	position: relative;
-	border:1px solid black;
-	text-align: justify;
-}
-
-#pottingDisplay:after 
-{
-    display:inline-block;
-    width:100%;
-    content:'';
-}
-
-.potContainer
-{
-	display:inline-block;
-	width:100px;
-	height:200px;
-	margin-right: 5px;
-	background-color:#CCCCCC;
-}*/
-
-
-
-
-
-
-
 .pottingDisplay
 {
+	padding-top: 25px;
 	width:100%;
 	margin:auto;
-	padding-top: 75px;
-	border:1px solid yellow;
-	text-align: justify;
-}
-
-.wrap
-{
-	width:100%;
-	margin:auto;
-	padding-top: 75px;
-	border:1px solid yellow;
 	text-align: justify;
 }
 
@@ -219,26 +186,11 @@ ul
     content:'';
 }
 
-.wrap:after
-{
-	content:'';
-	display: inline-block;
-	width:100%;
-}
-
 .potContainer
 {
-	width:75px;
-	height:200px;
+	width:100px;
 	display:inline-block;
-	border:1px solid red;
 }
-
-.potContainer:after
-{
-    content: "Hello ";
-}
-
 
 .potContents
 {
@@ -254,12 +206,11 @@ ul
 {
 	position: relative;
 	width:100%;
-	height:100%;	
+	height:150px;	
 	border-radius: 3px;
 	border: solid 2px #CCC;		
 	background-color: #EEEEEE;
 }
-
 
 .potContents[data-product="1051510"]
 {
