@@ -1,0 +1,54 @@
+span 
+{
+	width:75px;
+	height:200px;
+	display:inline-block;
+	border:1px solid red;
+}
+
+
+
+
+.wrap
+{
+	width:800px;
+	margin:auto;
+	padding-top: 75px;
+	border:1px solid yellow;
+	text-align: justify;
+}
+
+.wrap:after
+{
+	content:'';
+	display: inline-block;
+	width:100%;
+}
+
+
+#pottingDisplay
+{
+	width:800px;
+	margin:auto;
+	padding-top: 1px;
+	border:1px solid black;
+	text-align: justify;
+}
+
+
+#pottingDisplay:after 
+{
+    display:inline-block;
+    width:100%;
+    content:'';
+}
+
+.potContainer
+{
+	width:100px;
+	height:200px;
+	display:inline-block;
+	border:1px solid red;
+}
+
+

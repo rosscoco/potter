@@ -37,15 +37,28 @@
             function onProductDataLoaded( )
             {
                 console.log("Product Data Loaded!!");
-                var terminal = data.getTerminalData("bramhall");
+                currentTerminal = data.getTerminalData("bramhall");
 
-                view.init( terminal.pots, terminal.products );
+                view.init( currentTerminal.pots, currentTerminal.products );
             }
 
             function onFillTankerSelected( evt )
             {
                 console.log("Filling Tanker With: " + evt.detail.productToFill + ". Other Products: ");
-                console.table( evt.detail.enteredProducts );
+
+                var maxWeight = 440000;
+                var productData = currentTerminal.getProductData( evt.detail.productToFill );
+
+                var maxLitres = 44000 * productData.density;
+                var maxCapacity = currentTerminal.getTankerCapacity();
+
+                var amountToFill = Math.min( maxLitres, currentTerminal.getTankerCapacity() );
+                console.log("Max L by weight = " + maxLitres + ": Max Capacity by L " + maxCapacity );
+
+                var pottingUsed = potter.doPottingWithProduct( {id:evt.detail.productToFill, amount:amountToFill }, currentTerminal.pots.slice() );
+                var bestPotting = pottingUsed[ 0 ];
+
+                view.updatePotting( bestPotting.getUsedPots() );
             }
 
             function getPotString( pots )

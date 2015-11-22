@@ -10,6 +10,9 @@
 
 	module.exports = Terminal;
 
+
+
+
 	function Terminal( id, data )
 	{
 		this.name 		= id;
@@ -38,9 +41,8 @@
 			if ( data.products.hasOwnProperty(product))
 			{
 				this.products.push({id:product, name:data.products[product].name,density:data.products[product].density });
-				this.productIds += product + " ";	
+				this.productIds += product + " ";
 			}
-			
 		}
 	}
 
@@ -60,4 +62,27 @@
 		
 		return s;
 	};
+
+
+	Terminal.prototype.getProductData = function( forProduct )
+	{
+		for ( var i = 0; i < this.products.length;i++ )
+		{
+			if ( this.products[i].id === forProduct )
+			{
+				return this.products[i];
+			}
+		}
+	};
+
+	Terminal.prototype.getTankerCapacity = function()
+	{
+		var capacity = this.pots.reduce( function( amount, potData )
+		{
+			return amount + potData.capacity;
+		},0);
+
+		return capacity;
+	};
+
 }());
