@@ -41,12 +41,28 @@ a:focus,a:active
 body
 {
 	font-family: 'Montserrat';
-	background: #3f4c6b; /* Old browsers */
+	background: #3f4c6b; 
 	background: -webkit-linear-gradient(#3f4c6b 0%, #1f3568 100%);
     background: -o-linear-gradient(#3f4c6b 0%, #1f3568 100%);
     background: linear-gradient(#3f4c6b 0%, #1f3568 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f4c6b', endColorstr='#1f3568',GradientType=0 ); /* IE6-9 */
-								
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3f4c6b', endColorstr='#1f3568',GradientType=0 ); 					
+}
+
+
+.wrap
+{
+	width:800px;
+	margin:auto;
+	padding-top: 75px;
+	border:1px solid yellow;
+	text-align: justify;
+}
+
+.wrap:after
+{
+	content:'';
+	display: inline-block;
+	width:100%;
 }
 
 #wrapper
@@ -146,12 +162,83 @@ ul
 	clear:both;
 	padding-top:50px;
 	background-color: #FFFFFF;
-	/*border-radius: 0 4px 4px 4px;
-	padding: 10px 10px 25px;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(90%,#FFFFFF), color-stop(100%,#e4e9ed)); 
-	margin:0;
-	color:#333; */
 }
+
+/*#pottingDisplay
+{
+	width:100%;
+	position: relative;
+	border:1px solid black;
+	text-align: justify;
+}
+
+#pottingDisplay:after 
+{
+    display:inline-block;
+    width:100%;
+    content:'';
+}
+
+.potContainer
+{
+	display:inline-block;
+	width:100px;
+	height:200px;
+	margin-right: 5px;
+	background-color:#CCCCCC;
+}*/
+
+
+
+
+
+
+
+.pottingDisplay
+{
+	width:100%;
+	margin:auto;
+	padding-top: 75px;
+	border:1px solid yellow;
+	text-align: justify;
+}
+
+.wrap
+{
+	width:100%;
+	margin:auto;
+	padding-top: 75px;
+	border:1px solid yellow;
+	text-align: justify;
+}
+
+.pottingDisplay:after 
+{
+    display:inline-block;
+    width:100%;
+    content:'';
+}
+
+.wrap:after
+{
+	content:'';
+	display: inline-block;
+	width:100%;
+}
+
+.potContainer
+{
+	width:75px;
+	height:200px;
+	display:inline-block;
+	border:1px solid red;
+}
+
+.potContainer:after
+{
+    content: "Hello ";
+}
+
 
 .potContents
 {
@@ -162,6 +249,17 @@ ul
 	width:100%;
 	background-color: #EEEEEE;
 }
+
+.pot
+{
+	position: relative;
+	width:100%;
+	height:100%;	
+	border-radius: 3px;
+	border: solid 2px #CCC;		
+	background-color: #EEEEEE;
+}
+
 
 .potContents[data-product="1051510"]
 {
@@ -183,21 +281,4 @@ ul
 	background-color:pink;
 }
 
-.potContainer
-{
-	display:inline-block;
-	width:100px;
-	height:200px;
-	margin:20px;
-}
-
-.pot
-{
-	position: relative;
-	width:100%;
-	height:100%;	
-	border-radius: 3px;
-	border: solid 2px #CCC;		
-	background-color: #EEEEEE;
-}
 

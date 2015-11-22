@@ -1,9 +1,10 @@
 (function()
 {
-	module.exports = function PotDisplayController( _domElement )
+	module.exports = function PotDisplayController( domElement )
 	{
-		var _potContents = {};	//cache of all .potContents elements
-		var _displayNode = _domElement;
+		var _potContents 	= {};	//cache of all .potContents elements
+		var _container		= domElement;
+		var _displayNode;// 	= domElement;
 
 		var alreadyCreated = document.querySelectorAll("#pottingDisplay").length !==0;
 
@@ -28,9 +29,9 @@
 		{
 			//clear();
 
-			//_displayNode = document.createElement('div');
-			//_displayNode.id = "pottingDisplay";
-
+			_displayNode = document.createElement('div');
+			_displayNode.className = "pottingDisplay";
+			var lastnode;
 			allPotData.forEach( function( potData, i )
 			{
 				/*
@@ -62,12 +63,25 @@
 				container.appendChild( pot );
 				pot.appendChild( potContents );
 
+				container.innerHTML = "1";
+
 				_displayNode.appendChild( container );
 			});
 
+			var pots = [].slice.call(_displayNode.children);
+
+			var l = pots.length;
+
+			for ( var i = 1; i  < l; i++ )
+			{
+				var space = document.createElement( "span" );
+				space.innerHTML = ' ';
+				_displayNode.insertBefore( space, pots[i]);
+			}
+
+			_container.appendChild( _displayNode );
+
 			return _displayNode;
-			
-			//intoDomNode.appendChild( potDisplay );
 		} 
 
 	    function updatePot( potData )

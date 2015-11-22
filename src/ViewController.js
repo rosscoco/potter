@@ -17,7 +17,7 @@
 	{
 		_domElements = withDom;
 
-		return {init: init, updateTerminal:updateTerminal};
+		return { init: init, updateTerminal:updateTerminal };
 	}
 
 	function updateTerminal( withPots, withProducts )
@@ -29,18 +29,17 @@
 
 	function init( usingPots, usingProducts )
 	{
-		//var arrayCopy       = Array.prototype.slice;
-
-        var formNode        = _domElements.querySelector("#productInputs");
-		var potDisplayNode  = _domElements.querySelector("#pottingDisplay");
+		var formNode        = _domElements.querySelector("#productInputs");
+		var potDisplayNode  = _domElements.querySelector("#pottingContainer");
 		var tabsNode		= _domElements.querySelector(".tabs");
 
-		tabsNode.addEventListener("onChangeTerminal", onChangeTerminal );
-
-        _formController 	= new PotInputController( formNode, usingProducts );
+		_formController 	= new PotInputController( formNode, usingProducts );
 		_pottingDisplay     = new PotDisplayController( potDisplayNode );
 		_tabs 				= new Tabs( tabsNode );
        
+		updateTerminal( usingPots, usingProducts );
+       	
+       	tabsNode.addEventListener("onChangeTerminal", onChangeTerminal );
         formNode.addEventListener("clearTanker", onClearTankerSelected );
 	}
 

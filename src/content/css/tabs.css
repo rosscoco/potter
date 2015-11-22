@@ -1,66 +1,54 @@
-html, body, div, span, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, em, img, strong, sub, sup, b, i, dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, figure, figcaption, footer, header, hgroup, 
-menu, nav, output, section, time {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    vertical-align: baseline;
-}
-
-#content
+span 
 {
-	border: 1px solid;
-	clear:both;
-	padding:10px;
-}
-
-h1
-{
-	padding:0 0 10px 0;
-}
-
-nav ul
-{
-	list-style: none;
-	padding:0;
-	margin:0;
-}
-
-
-
-header li
-{
-	float: left;
-	border: 1px solid;
-	border-bottom-width: 0;
-	margin: 0 5px 0 0;
-	background: white;
+	width:75px;
+	height:200px;
 	display:inline-block;
+	border:1px solid red;
 }
 
-nav
+
+
+
+.wrap
 {
-
+	width:800px;
+	margin:auto;
+	padding-top: 75px;
+	border:1px solid yellow;
+	text-align: justify;
 }
 
-header li a
+.wrap:after
 {
-	position: relative;
-	top:2px;
-	text-decoration: none;
+	content:'';
+	display: inline-block;
+	width:100%;
 }
 
-#selected a
+
+#pottingDisplay
 {
-	background: #ffffff;
+	width:800px;
+	margin:auto;
+	padding-top: 1px;
+	border:1px solid black;
+	text-align: justify;
 }
 
-nav li a 
+
+#pottingDisplay:after 
 {
-	padding: 0 10px;
+    display:inline-block;
+    width:100%;
+    content:'';
 }
+
+.potContainer
+{
+	width:100px;
+	height:200px;
+	display:inline-block;
+	border:1px solid red;
+}
+
+
