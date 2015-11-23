@@ -31,13 +31,17 @@
 	        } 
 	        else
 	        {
-	            fillLastPot();
+	        	var fillData = getPotToFill();
+	            return fillLastPot( fillData.potToFill, fillData.otherPots );
 	        }
 	    }
 
 	    function checkPotCapacityAgainstContents( isWithinRules, potData )
 	    {
-	        return isWithinRules && potData.capacity > potData.minimum;
+	    	var willPot = potData.contents > potData.minimum;
+	    	console.log( potData.contents, potData.minimum, potData.contents > potData.minimum );
+
+	        return isWithinRules && willPot;
 	    }
 
 	    function fillSinglePot( withProduct, pot )
@@ -134,6 +138,34 @@
 	        }
 	    }
 
+
+	    function getPotToFill()
+	    {
+	    	var potToFill;
+	    	var pot;
+	    	var otherPots = [];
+	    	for (var i = _availablePots.length - 1; i >= 0; i--) 
+	    	{
+	    		pot = _availablePots[i];
+
+	    		if ( pot.contents > pot.minimum )
+	    		{
+	    			otherPots.push( pot );
+	    		}
+	    		else
+	    		{
+	    			if ( potToFill )
+	    			{
+	    				console.log("SOMETHIGN HAS GONE WRONG!!");
+	    			}
+
+	    			potToFill = pot;
+	    		}
+	    	}
+
+	    	return {potToFill:potToFill, otherPots:otherPots};
+	    }
+
 	    function IsGreaterThan( checkAgainst )
 	    {
 	        var mustBeGreaterThan = checkAgainst;
@@ -143,10 +175,10 @@
 	            return amountToCheck > checkAgainst;
 	        };
 	    }
-
-	    function fillLastPot( lastPot, remainingPots )
+ 
+	    function fillLastPot( lastPot, remainingPots)
 	    {
-	        var needed = lastPot.minimum - lastPot.contents;
+			var needed = lastPot.minimum - lastPot.contents;
 
 	        var amountToMove;
 	        var helperPot;
@@ -173,7 +205,7 @@
 
 	            if ( lastPot.contents >= lastPot.minimum ) 
 	            {
-	                break;
+	            	return true;	                
 	            }
 	        }
 	    }

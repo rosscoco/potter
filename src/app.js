@@ -27,9 +27,10 @@
             function onChangeTerminal( evt )
             {
                 console.log("Changing terminal to " + evt.detail );
+
                 currentTerminal = data.getTerminalData( evt.detail );
 
-                potter          = new PottingController( currentTerminal.pots );                
+                potter          = new PottingController( currentTerminal.pots );
                     
                 view.updateTerminal( currentTerminal.pots, currentTerminal.products );
             }
@@ -38,6 +39,8 @@
             {
                 console.log("Product Data Loaded!!");
                 currentTerminal = data.getTerminalData("bramhall");
+
+                potter          = new PottingController( currentTerminal.pots );
 
                 view.init( currentTerminal.pots, currentTerminal.products );
             }
