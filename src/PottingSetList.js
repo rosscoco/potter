@@ -77,7 +77,7 @@
 
 	    function getBestPottingSet()
 	    {
-	    	if ( _validPottingSets )
+	    	if ( _validPottingSets.length > 0 )
 	    	{
 	    		return _validPottingSets[ 0 ];
 	    	}

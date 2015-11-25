@@ -16,17 +16,36 @@
 		return { 	init: init,
 					updateProductList: updateProductList };
 
-		function getEnteredProductAmounts()
+		function getEnteredProductAmounts( putLast )
         {
+        	var lastProduct;
+
         	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
                 {
+					var amount = inputGroup.querySelector("[id^=productInput").value;
+
+                	//if ( amount < 1000 ) amount = potifyNumber( amount );
+
                     return {    id      :inputGroup.getAttribute("id").split("_")[1], 
-                                amount  :potifyNumber( inputGroup.querySelector("[id^=productInput").value ) };
+                                amount  :potifyNumber( amount ) };
                 })
+
                 .filter( function removeZeroValues( inputValues )
                 {
-                    if ( inputValues.amount > 0 ) return true;
+                    if ( inputValues.amount > 0 ) return true;                                  	
+                })
+                .filter( function removeSpecificProduct( inputValues )
+                {
+                	if ( inputValues.id === putLast )
+                	{
+                		lastProduct = inputValues;
+                		return false;                		
+                	} 
+
+                	return true;
                 });
+
+            if ( lastProduct ) selectedProducts.push( lastProduct );
 
             return selectedProducts;
         }
@@ -118,17 +137,11 @@
 
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
-            var enteredProducts	= getEnteredProductAmounts();
+            var enteredProducts	= getEnteredProductAmounts( productToFill );
 
-            enteredProducts.sort( function putJustEnteredLast( productDetails )
-            {
-            	if ( productDetails.id === productToFill )
-            	{
-            		return -1;
-            	}
+            if ( txtInput.value < 1000 ) return;
 
-            	return 0;
-            });
+            console.log("After Sort:" + enteredProducts );
 
             var detail			= { enteredProducts : enteredProducts };
 
@@ -162,7 +175,9 @@
 
 		function potifyNumber( number )
 		{
-			if ( String( Number( number ) ).length === 4 ) return number;
+			var numberLength = String( Number( number ) ).length;
+
+			if ( String( Number( number ) ).length >= 4 ) return number;
 
 			return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
 		}

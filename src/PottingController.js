@@ -26,7 +26,7 @@
 	        _activePots             = withPots;        
 
 	        var productRemainder    = {};
-	        var pottingUsed			//PottingSet;
+	        var pottingUsed;			//PottingSet;
 	        var usedPottingSet      = '';
 
 	         var spaceAvailable     = _activePots.reduce( function ( count, potData )
@@ -40,7 +40,7 @@
 	            productRemainder[ withProduct.id ] = withProduct.amount - spaceAvailable;
 	         }
 
-	        usedPottingSet = getBestPotsForProduct( _activePots, withProduct );
+	        pottingUsed = getBestPotsForProduct( _activePots, withProduct );
 
 	        return pottingUsed;
 	    }
@@ -49,14 +49,12 @@
 	    {
 	        var allPotPermutations  = Utils.getPotPermutations( withPots );
 
-	        //var allPottingSets      = new PottingSetList( allPotPermutations );
+	        var allPottingSets      = new PottingSetList( allPotPermutations );
 	        //var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
-	        var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
+	        //var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
 	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
 
 	        var bestPottingSet      = allPottingSets.getBestPottingSet();
-
-	        console.log( "Best Potting Set: ");
 	        
 	        return bestPottingSet;
 	    }

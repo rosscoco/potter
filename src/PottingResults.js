@@ -12,7 +12,8 @@
 	{
 		return {
 			noPotsLeft: 		noPotsLeft,
-			pottedProduct: 		pottedProduct,
+			pottingSuccess: 	pottingSuccess,
+			pottingFail: 		pottingFail, 
 			pottedSomeProduct: 	pottedSomeProduct,
 			overMaxWeight: 		overMaxWeight,
 			isAlreadyPotted: 	isAlreadyPotted,
@@ -27,13 +28,13 @@
 
 	function getPottedProducts()
 	{
-		return 
+		return; 
 	}
 
 	function isAlreadyPotted( product, availablePots )
 	{
-		return false;
 
+		/*
 		if ( pottedProduct.hasOwnProperty( product.id ) )
 		{
 			var cachedResults = pottedProduct[ product.id ];
@@ -63,7 +64,7 @@
 
 			return cachedResults;
 		}
-
+		*/
 		return false;
 	}
 
@@ -74,7 +75,7 @@
 		data.pottingStatus 	= this.ERROR;
 		data.message 		= product.amount + " of " + product.id + " is over max allowed weight. Reducing to " + limitTo;
 
-		return data;	
+		return data;
 	}
 
 	function noPotsLeft( product )
@@ -97,7 +98,7 @@
 		data.amount 		= product.amount;
 		data.pottingStatus 	= this.ERROR;
 		data.potsUsed		= pots.join('');
-		data.message 		= "Could not pot " product.amount " of " + product.id;
+		data.message 		= "Could not pot " + product.amount + " of " + product.id;
 		data.message 		+= "Need " + amountNeeded + "L in Pot " + failedPot.id;
 
 		return data;
@@ -115,7 +116,7 @@
 		data.amount 		= product.amount;
 		data.pottingStatus 	= this.SUCCESS;
 		data.potsUsed		= pots.join('');
-		data.message 		= product.id + " successfully potted in pots " + potsUsed;
+		data.message 		= product.id + " successfully potted in pots " + data.potsUsed;
 
 		return data;
 	}

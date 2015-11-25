@@ -112,7 +112,8 @@
 			strict:false,
 			undef:true,
 			node:true,
-			browser:true
+			browser:true,
+			debug:true
 		};
 	}
 

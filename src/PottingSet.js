@@ -1,3 +1,4 @@
+/* globals debugger:false */
 (function()
 {
 	"use strict";
@@ -38,16 +39,13 @@
 
 	    function checkPotCapacityAgainstContents( isWithinRules, potData )
 	    {
-	    	var willPot = potData.contents > potData.minimum;
-	    	console.log( potData.contents, potData.minimum, potData.contents > potData.minimum );
+	    	var willPot = potData.contents >= potData.minimum;
 
 	        return isWithinRules && willPot;
 	    }
 
 	    function fillSinglePot( withProduct, pot )
 	    {
-	        console.log("Filling Pot " + pot.id + " with " + withProduct.amount + " of " + withProduct.id );
-
 	        pot.product = withProduct.id;
 
 	        if ( pot.capacity > withProduct.amount )
@@ -145,11 +143,11 @@
 	    	var pot;
 	    	var otherPots = [];
 	    	
-	    	for (var i = _availablePots.length - 1; i >= 0; i--) 
+	    	for ( var i = _availablePots.length - 1; i >= 0; i--) 
 	    	{
 	    		pot = _availablePots[i];
 
-	    		if ( pot.contents > pot.minimum )
+	    		if ( pot.contents >= pot.minimum )
 	    		{
 	    			otherPots.push( pot );
 	    		}
@@ -157,6 +155,7 @@
 	    		{
 	    			if ( potToFill )
 	    			{
+	    				debugger;
 	    				console.log("SOMETHIGN HAS GONE WRONG!!");
 	    			}
 
@@ -209,6 +208,8 @@
 	            	return true;	                
 	            }
 	        }
+
+	        return false;
 	    }
 	};
 }());

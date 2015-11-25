@@ -49,8 +49,7 @@
                 view.init( currentTerminal.pots, currentTerminal.products );
             }
 
-            function getMaxPottingByWeight(  )
-
+            
             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
             function onFillTankerSelected( evt )
             {
@@ -97,8 +96,10 @@
                 var usedPotIds;
                 var filledPotsToShow;
 
-                var messages = [];
-                
+                var messages        = [];
+                var filledPots      = [];
+                view.updatePotting( null );
+
                 products.forEach( function( productDetails )
                 {
                     var alreadyPotted = results.isAlreadyPotted( productDetails, availablePots );
@@ -111,11 +112,11 @@
 
                     if ( availablePots.length === 0 )
                     {
-                        messages.push( PottingResults.noPotsLeft( productDetails ));
+                        messages.push( results.noPotsLeft( productDetails ));
                         return;
                     }
 
-                    var usedPottingSet = potter.doPottingWithProduct( productDetails, availablePots );
+                    var usedPottingSet = potter.doPottingWithProduct( productDetails, availablePots.slice() );
                     var potsUsed = usedPottingSet.getUsedPots();
 
                     if ( usedPottingSet.isValid() )
@@ -127,7 +128,9 @@
                         messages.push( results.pottingFail( productDetails, potsUsed ));
                     }
 
-                    usedPotIds          = potsUsed.getUsedPotsById();
+                    usedPotIds          = usedPottingSet.getUsedPotsById();
+
+                    filledPots  = filledPots.concat( potsUsed );
 
                     availablePots       = availablePots.filter( function getRemainingPots( potData )
                     {
@@ -135,41 +138,11 @@
                         {
                             return true;
                         }
-                    });
-
-                     view.updatePotting( potsUsed );
-
+                    });                     
                 });
 
-                products.every( function( productData )
-                {
-                    console.log("Available Pots: " + getPotString(availablePots));
-
-                    if ( availablePots.length < 1 )
-                    {
-                        return false;
-                    }
-
-                    console.log("Next product. Potting " + productData.amount + " of " + productData.id );
-
-                    usedPottingSets     = potter.doPottingWithProduct( productData, availablePots.slice() );
-                    bestPottingSet      = usedPottingSets[ 0 ];
-                    usedPotIds          = bestPottingSet.getUsedPotsById();
-
-                    availablePots       = availablePots.filter( function getRemainingPots( potData )
-                    {
-                        if (  usedPotIds.indexOf( potData.id ) === -1 )
-                        {
-                            return true;
-                        }
-                    });
-
-                    filledPotsToShow = bestPottingSet.getUsedPots();
-
-                    view.updatePotting( filledPotsToShow );
-
-                    return true;
-                });*/
+                view.updatePotting( filledPots );
+                //view.showResults( messages );
                 
             }
 }());            

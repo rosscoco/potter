@@ -24,10 +24,15 @@
 
 	function updatePotting( potDataArray )
 	{
-		potDataArray.forEach( function( singlePotData )
-        {
-            _pottingDisplay.updatePot( singlePotData );
-        });
+		_pottingDisplay.reset();
+
+		if ( potDataArray )
+		{
+			potDataArray.forEach( function( singlePotData )
+	        {
+	            _pottingDisplay.updatePot( singlePotData );
+	        });
+		}
 	}
 
 	function updateTerminal( withPots, withProducts )

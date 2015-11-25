@@ -23,8 +23,6 @@
 			clear		: clear 
 		};	
 
-		
-
 		function init( allPotData )
 		{
 			//clear();
@@ -44,26 +42,43 @@
 	            </div>
 	            */
 
+	            /*
+				<div class="potContainer" id="pot1">
+	                <h1>7600</h1>
+	                <div class="pot">
+	                    <div class="potContents"></div>
+	                </div> 
+	                <h1>7600</h1>   
+	            </div>
+	            */
+
 				var container 		= document.createElement('div');
-				var header 			= document.createElement('h2');
+				var txtContents 	= document.createElement('h2');
 				var pot 			= document.createElement('div');
 				var potContents 	= document.createElement('div');
+				var txtCapacity 	= document.createElement('h2');
 
 				container.className = "potContainer";
 				container.id 		= "pot" + ( i + 1 );
 
-				header.innerHTML	= potData.capacity;
+				txtContents.innerHTML = 0;
+				txtCapacity.innerHTML = potData.capacity;
+
+
+				txtContents.className = 'potText';
+				txtCapacity.className = 'potText';
 
 				pot.className 		= "pot";
 
 				potContents.className = "potContents";
 				potContents.setAttribute('data-product', 'none');
 
-				_potContents[ '' + ( i + 1 ) ] = potContents;
+				_potContents[ '' + ( i + 1 ) ] = { pot:potContents, text:txtContents };
 				
-				container.appendChild( header );
+				container.appendChild( txtContents );
 				container.appendChild( pot );
 				pot.appendChild( potContents );
+				container.appendChild( txtCapacity );
 
 				_displayNode.appendChild( container );
 			});
@@ -94,9 +109,15 @@
         {
         	console.log( "PotDisplayController::Filling " + potData.id + " with " + potData.contents + "/" + potData.capacity + " of " + potData.product );
 
-            var potId = potData.id;
-            
-            var potContents = _potContents[ potData.id ];
+            var potContents = _potContents[ potData.id ].pot;
+            var potTextContents = _potContents[ potData.id ].text;
+
+            potTextContents.innerHTML = potData.contents;
+
+            if ( potData.contents < potData.minimum )
+            {
+				potTextContents.className += " warningText";
+            }
 
             potContents.setAttribute( "data-product", potData.product );
 
@@ -106,7 +127,7 @@
 		function update( withProductData )
 		{
 
-		}
+		}	
 
 		function clear()
 		{
@@ -130,8 +151,11 @@
 			{
 				if ( _potContents.hasOwnProperty( potId ))
 				{	
-					_potContents[ potId ].setAttribute('data-product','none');
-					_potContents[ potId ].style.height = 0;
+					_potContents[ potId ].pot.setAttribute('data-product','none');
+					_potContents[ potId ].pot.style.height = 0;
+
+					_potContents[ potId ].text.innerHTML = 0;
+					_potContents[ potId ].className = "potText";
 				}
 			}
 		}
