@@ -49,6 +49,8 @@
                 view.init( currentTerminal.pots, currentTerminal.products );
             }
 
+            function getMaxPottingByWeight(  )
+
             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
             function onFillTankerSelected( evt )
             {
@@ -94,18 +96,49 @@
                 var bestPottingSet;
                 var usedPotIds;
                 var filledPotsToShow;
-             
-                var results = [];
 
-                /*products.forEach( function( productDetails )
+                var messages = [];
+                
+                products.forEach( function( productDetails )
                 {
-                    if ( availablePots.length === 0 )
+                    var alreadyPotted = results.isAlreadyPotted( productDetails, availablePots );
+
+                    if ( alreadyPotted )
                     {
-                        results.push( PottingResults.noPotsLeft( productDetails ));
+                        messages.push( alreadyPotted );
                         return;
                     }
 
-                    if ( pottingResults.alreadyPotted( productDetails ) )
+                    if ( availablePots.length === 0 )
+                    {
+                        messages.push( PottingResults.noPotsLeft( productDetails ));
+                        return;
+                    }
+
+                    var usedPottingSet = potter.doPottingWithProduct( productDetails, availablePots );
+                    var potsUsed = usedPottingSet.getUsedPots();
+
+                    if ( usedPottingSet.isValid() )
+                    {
+                        messages.push( results.pottingSuccess( productDetails, potsUsed  ));
+                    }
+                    else
+                    {
+                        messages.push( results.pottingFail( productDetails, potsUsed ));
+                    }
+
+                    usedPotIds          = potsUsed.getUsedPotsById();
+
+                    availablePots       = availablePots.filter( function getRemainingPots( potData )
+                    {
+                        if (  usedPotIds.indexOf( potData.id ) === -1 )
+                        {
+                            return true;
+                        }
+                    });
+
+                     view.updatePotting( potsUsed );
+
                 });
 
                 products.every( function( productData )

@@ -827,8 +827,6 @@
 
 	    function sendProductToPottingSets( product, potCombinations )
 	    {   
-	    	
-	    	     
 	        _listOfPottingSets.forEach( function( pottingSet )
 	        {  
 	        	pottingSet.putProductIntoPots( {id:product.id, amount:product.amount });

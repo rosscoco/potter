@@ -26,7 +26,7 @@
 	        _activePots             = withPots;        
 
 	        var productRemainder    = {};
-	        var pottingUsed         = [];
+	        var pottingUsed			//PottingSet;
 	        var usedPottingSet      = '';
 
 	         var spaceAvailable     = _activePots.reduce( function ( count, potData )
@@ -42,8 +42,6 @@
 
 	        usedPottingSet = getBestPotsForProduct( _activePots, withProduct );
 
-	        pottingUsed.push( usedPottingSet );
-
 	        return pottingUsed;
 	    }
 
@@ -55,9 +53,6 @@
 	        //var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
 	        var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
 	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
-
-	        var validPottingSets    = [];
-	        var invalidPottingSets  = [];
 
 	        var bestPottingSet      = allPottingSets.getBestPottingSet();
 

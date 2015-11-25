@@ -25,15 +25,43 @@
 		pottedProducts = {};
 	}
 
-	function isAlreadyPotted( product, usedPotIds )
+	function getPottedProducts()
 	{
+		return 
+	}
+
+	function isAlreadyPotted( product, availablePots )
+	{
+		return false;
+
 		if ( pottedProduct.hasOwnProperty( product.id ) )
 		{
 			var cachedResults = pottedProduct[ product.id ];
-			if ( cachedResults.potsUsed === usedPotIds )
+
+			if ( product.amount !== cachedResults.amount )
 			{
-				return cachedResults;
+				delete cachedResults[ product.id ];
+				return false;
 			}
+
+			var potsNeeded	= cachedResults.potsUsed.length;
+			var foundPots	= 0;
+
+			availablePots.forEach( function( potDetails )
+			{
+				if ( potsNeeded.indexOf( potDetails.id ) !== -1 )
+				{
+					foundPots++ ;
+				};
+			});
+
+			if ( cachedResults.potsUsed !== usedPotIds )
+			{
+				delete cachedResults[ product.id ];
+				return false;				
+			}
+
+			return cachedResults;
 		}
 
 		return false;
@@ -59,18 +87,37 @@
 		return data;
 	}
 
-	function pottedProduct( product, pots )
+	function pottingFail( product, pots )
 	{
-		var potsUsed = pots.reduce( function(id, pot )
-		{
-			return id + pot.id + " ";
-		},'');
+		var failedPot 		= pots[ pots.length - 1 ];
+		var amountNeeded 	= failedPot.minimum - failedPot.contents;
 
 		var data 			= {};
 		data.product		= product.id;
+		data.amount 		= product.amount;
+		data.pottingStatus 	= this.ERROR;
+		data.potsUsed		= pots.join('');
+		data.message 		= "Could not pot " product.amount " of " + product.id;
+		data.message 		+= "Need " + amountNeeded + "L in Pot " + failedPot.id;
+
+		return data;
+	}
+
+	function pottingSuccess( product, pots )
+	{
+		/*var potsUsed = pots.reduce( function(id, pot )
+		{
+			return id + pot.id + " ";
+		},'');*/
+
+		var data 			= {};
+		data.product		= product.id;
+		data.amount 		= product.amount;
 		data.pottingStatus 	= this.SUCCESS;
 		data.potsUsed		= pots.join('');
 		data.message 		= product.id + " successfully potted in pots " + potsUsed;
+
+		return data;
 	}
 
 	function pottedSomeProduct( product, pots )
@@ -96,5 +143,7 @@
 		data.message 		= potSummary.remainingProduct + " of " + product.id + " put into pots " + potSummary.potsUsed;
 		data.message 		+= ". " + potSummary.remainingProduct  + " could not be potted.";
 		data.potSummary 	= potSummary;
+
+		return data;
 	}
 }());	

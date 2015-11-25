@@ -12,6 +12,8 @@
 	        return new PottingSet( potArray );
 	    });
 
+	   var _validPottingSets;
+
 	    return {
 	        sendProductToPottingSets    : sendProductToPottingSets,
 	        getBestPottingSet:getBestPottingSet 
@@ -45,9 +47,7 @@
 	    }
 
 	    function sendProductToPottingSets( product, potCombinations )
-	    {   
-	    	
-	    	     
+	    {  
 	        _listOfPottingSets.forEach( function( pottingSet )
 	        {  
 	        	pottingSet.putProductIntoPots( {id:product.id, amount:product.amount });
@@ -64,19 +64,29 @@
 
 	    function removeInvalid()
 	    {
-	        _listOfPottingSets = _listOfPottingSets.filter( function( pottingSet )
+	        _validPottingSets = _listOfPottingSets.filter( function( pottingSet )
 	        {
 	            if ( pottingSet.isValid() )
 	            {
 	                return true;
 	            }
 	        });
+
+	        _validPottingSets.sort( PotSorter.sortPotSetsByRemainder );
 	    }
 
 	    function getBestPottingSet()
 	    {
-	        _listOfPottingSets.sort( PotSorter.sortPotSetsByRemainder );
-	        return _listOfPottingSets[ 0 ];
-	    }
+	    	if ( _validPottingSets )
+	    	{
+	    		return _validPottingSets[ 0 ];
+	    	}
+	    	else
+	    	{
+	    		//best failure;
+	    		_listOfPottingSets.sort( PotSorter.sortPotSetsByRemainder );
+	    		return _listOfPottingSets[ 0 ];
+	    	}
+		}
 	};
 }());
