@@ -14,14 +14,14 @@
 		}
 
 		return { 	init: init,
-					updateProductList : updateProductList };
+					updateProductList: updateProductList };
 
 		function getEnteredProductAmounts()
         {
         	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
                 {
                     return {    id      :inputGroup.getAttribute("id").split("_")[1], 
-                                amount  :inputGroup.querySelector("[id^=productInput").value };
+                                amount  :potifyNumber( inputGroup.querySelector("[id^=productInput").value ) };
                 })
                 .filter( function removeZeroValues( inputValues )
                 {
@@ -33,7 +33,6 @@
 
         function updateProductList( availableProducts )
         {
-
         	var usedProductIds = availableProducts.reduce( function getProductIds( list, nextProduct )
 			{
 				return list + ' ' + nextProduct.id;
@@ -85,12 +84,22 @@
 		                	return;
 		                }
 		            });
+
+				inputGroup.addEventListener("input", function( evt )
+				{
+					if ( evt.target.id.split("_")[0] === "productInput" )
+					{
+						evt.stopPropagation();
+						onPotTanker( this );
+					}
+				});
 			});
 		}
 
 		function onFillTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onFillTanker()");
+
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             txtInput.value      = 0;
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
@@ -99,6 +108,31 @@
             var detail			= { enteredProducts:otherProducts, productToFill:productToFill };
 
 			var fillEvent 		= new CustomEvent("fillTanker",{ detail:detail });
+
+            _domElement.dispatchEvent( fillEvent );
+		}
+
+		function onPotTanker( selectedInputGroup )
+		{
+			console.log("PotInputController::onPotTanker()");
+
+			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
+            var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
+            var enteredProducts	= getEnteredProductAmounts();
+
+            enteredProducts.sort( function putJustEnteredLast( productDetails )
+            {
+            	if ( productDetails.id === productToFill )
+            	{
+            		return -1;
+            	}
+
+            	return 0;
+            });
+
+            var detail			= { enteredProducts : enteredProducts };
+
+			var fillEvent 		= new CustomEvent( "potTanker",{ detail:detail });
 
             _domElement.dispatchEvent( fillEvent );
 		}
@@ -123,7 +157,14 @@
             	evt = new CustomEvent("potTanker", { detail:detail } );
             }
 
-            _domElement.dispatchEvent( evt );	
+            _domElement.dispatchEvent( evt );
+		}
+
+		function potifyNumber( number )
+		{
+			if ( String( Number( number ) ).length === 4 ) return number;
+
+			return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
 		}
 	};
 }());

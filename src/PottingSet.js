@@ -10,7 +10,7 @@
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
-	        willPotWithinRules      : willPotWithinRules,
+	        //willPotWithinRules      : willPotWithinRules,
 	        getRemainingSpace       : getRemainingSpace,
 	        getUsedPots             : getUsedPots,
 	        isValid                 : isValid
@@ -103,7 +103,7 @@
 	        }, '');
 	    }
 
-	    function willPotWithinRules( potCombination )
+	    /*function willPotWithinRules( potCombination )
 	    {
 	        var potToFill;
 	        var otherPots = potCombination.filter( function( potData )
@@ -136,7 +136,7 @@
 	        {
 	            return false;   //cannot pot within rules
 	        }
-	    }
+	    }*/
 
 
 	    function getPotToFill()
@@ -144,6 +144,7 @@
 	    	var potToFill;
 	    	var pot;
 	    	var otherPots = [];
+	    	
 	    	for (var i = _availablePots.length - 1; i >= 0; i--) 
 	    	{
 	    		pot = _availablePots[i];

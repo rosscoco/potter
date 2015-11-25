@@ -157,14 +157,14 @@
 		}
 
 		return { 	init: init,
-					updateProductList : updateProductList };
+					updateProductList: updateProductList };
 
 		function getEnteredProductAmounts()
         {
         	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
                 {
                     return {    id      :inputGroup.getAttribute("id").split("_")[1], 
-                                amount  :inputGroup.querySelector("[id^=productInput").value };
+                                amount  :potifyNumber( inputGroup.querySelector("[id^=productInput").value ) };
                 })
                 .filter( function removeZeroValues( inputValues )
                 {
@@ -176,7 +176,6 @@
 
         function updateProductList( availableProducts )
         {
-
         	var usedProductIds = availableProducts.reduce( function getProductIds( list, nextProduct )
 			{
 				return list + ' ' + nextProduct.id;
@@ -228,12 +227,22 @@
 		                	return;
 		                }
 		            });
+
+				inputGroup.addEventListener("input", function( evt )
+				{
+					if ( evt.target.id.split("_")[0] === "productInput" )
+					{
+						evt.stopPropagation();
+						onPotTanker( this );
+					}
+				});
 			});
 		}
 
 		function onFillTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onFillTanker()");
+
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             txtInput.value      = 0;
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
@@ -242,6 +251,31 @@
             var detail			= { enteredProducts:otherProducts, productToFill:productToFill };
 
 			var fillEvent 		= new CustomEvent("fillTanker",{ detail:detail });
+
+            _domElement.dispatchEvent( fillEvent );
+		}
+
+		function onPotTanker( selectedInputGroup )
+		{
+			console.log("PotInputController::onPotTanker()");
+
+			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
+            var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
+            var enteredProducts	= getEnteredProductAmounts();
+
+            enteredProducts.sort( function putJustEnteredLast( productDetails )
+            {
+            	if ( productDetails.id === productToFill )
+            	{
+            		return -1;
+            	}
+
+            	return 0;
+            });
+
+            var detail			= { enteredProducts : enteredProducts };
+
+			var fillEvent 		= new CustomEvent( "potTanker",{ detail:detail });
 
             _domElement.dispatchEvent( fillEvent );
 		}
@@ -266,7 +300,14 @@
             	evt = new CustomEvent("potTanker", { detail:detail } );
             }
 
-            _domElement.dispatchEvent( evt );	
+            _domElement.dispatchEvent( evt );
+		}
+
+		function potifyNumber( number )
+		{
+			if ( String( Number( number ) ).length === 4 ) return number;
+
+			return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
 		}
 	};
 }());
@@ -291,7 +332,7 @@
 
 	    function putProductIntoPots( product )
 	    {
-	    		
+	    	
 	    }
 
 	    function doPottingWithProduct( withProduct, withPots )
@@ -326,7 +367,7 @@
 
 	        //var allPottingSets      = new PottingSetList( allPotPermutations );
 	        //var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
-	        var allPottingSets      = new PottingSetList( [JSON.parse( JSON.stringify( withPots ))]);
+	        var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
 	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
 
 	        var validPottingSets    = [];
@@ -340,7 +381,7 @@
 	    }
 	};
 }());
-},{"./PottingSetList.js":6,"./Utils.js":8}],4:[function(require,module,exports){
+},{"./PottingSetList.js":7,"./Utils.js":9}],4:[function(require,module,exports){
 (function()
 {
 	var PRODUCT_DATA_URL 	= './resources/products.json?' + Math.random().toFixed(4);
@@ -421,7 +462,108 @@
 
 }());
 
-},{"./data/Terminal.js":11}],5:[function(require,module,exports){
+},{"./data/Terminal.js":12}],5:[function(require,module,exports){
+(function(){
+
+	var SUCCESS 	= 1;
+	var ERROR		= -1;
+	var	WARN		= 0;
+
+	var pottedProducts = {};
+
+	module.exports = PottingResults;
+
+	function PottingResults()
+	{
+		return {
+			noPotsLeft: 		noPotsLeft,
+			pottedProduct: 		pottedProduct,
+			pottedSomeProduct: 	pottedSomeProduct,
+			overMaxWeight: 		overMaxWeight,
+			isAlreadyPotted: 	isAlreadyPotted,
+			clearResults: 		clearResults
+		};
+	}
+
+	function clearResults()
+	{
+		pottedProducts = {};
+	}
+
+	function isAlreadyPotted( product, usedPotIds )
+	{
+		if ( pottedProduct.hasOwnProperty( product.id ) )
+		{
+			var cachedResults = pottedProduct[ product.id ];
+			if ( cachedResults.potsUsed === usedPotIds )
+			{
+				return cachedResults;
+			}
+		}
+
+		return false;
+	}
+
+	function overMaxWeight( product, limitTo )
+	{
+		var data 			= {};
+		data.product 		= product.id;
+		data.pottingStatus 	= this.ERROR;
+		data.message 		= product.amount + " of " + product.id + " is over max allowed weight. Reducing to " + limitTo;
+
+		return data;	
+	}
+
+	function noPotsLeft( product )
+	{
+		var data 			= {};
+		data.product 		= product.id;
+		data.pottingStatus 	= this.ERROR;
+		data.message 		= "Could not pot " + product.amount + " of " + product.id + ". No Pots left on tanker";
+
+		return data;
+	}
+
+	function pottedProduct( product, pots )
+	{
+		var potsUsed = pots.reduce( function(id, pot )
+		{
+			return id + pot.id + " ";
+		},'');
+
+		var data 			= {};
+		data.product		= product.id;
+		data.pottingStatus 	= this.SUCCESS;
+		data.potsUsed		= pots.join('');
+		data.message 		= product.id + " successfully potted in pots " + potsUsed;
+	}
+
+	function pottedSomeProduct( product, pots )
+	{
+		var potSummary 			= {};
+		potSummary.potsUsed 	= '';
+		potSummary.amountPotted = 0;
+
+		var potsUsed = pots.reduce( function( data, pot )
+		{
+			data.potsUsed += pot.id;
+			data.amountPotted += pot.contents;
+
+			return data;
+
+		}, potSummary );
+
+		potSummary.remainingProduct = product.amount - potSummary.amountPotted; 
+
+		var data 			= {};
+		data.product		= product.id;
+		data.pottingStatus 	= this.WARN;
+		data.message 		= potSummary.remainingProduct + " of " + product.id + " put into pots " + potSummary.potsUsed;
+		data.message 		+= ". " + potSummary.remainingProduct  + " could not be potted.";
+		data.potSummary 	= potSummary;
+	}
+}());	
+},{}],6:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -434,7 +576,7 @@
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
-	        willPotWithinRules      : willPotWithinRules,
+	        //willPotWithinRules      : willPotWithinRules,
 	        getRemainingSpace       : getRemainingSpace,
 	        getUsedPots             : getUsedPots,
 	        isValid                 : isValid
@@ -527,7 +669,7 @@
 	        }, '');
 	    }
 
-	    function willPotWithinRules( potCombination )
+	    /*function willPotWithinRules( potCombination )
 	    {
 	        var potToFill;
 	        var otherPots = potCombination.filter( function( potData )
@@ -560,7 +702,7 @@
 	        {
 	            return false;   //cannot pot within rules
 	        }
-	    }
+	    }*/
 
 
 	    function getPotToFill()
@@ -568,6 +710,7 @@
 	    	var potToFill;
 	    	var pot;
 	    	var otherPots = [];
+	    	
 	    	for (var i = _availablePots.length - 1; i >= 0; i--) 
 	    	{
 	    		pot = _availablePots[i];
@@ -635,7 +778,7 @@
 	    }
 	};
 }());
-},{"./Utils.js":8}],6:[function(require,module,exports){
+},{"./Utils.js":9}],7:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -683,7 +826,9 @@
 	    }
 
 	    function sendProductToPottingSets( product, potCombinations )
-	    {        
+	    {   
+	    	
+	    	     
 	        _listOfPottingSets.forEach( function( pottingSet )
 	        {  
 	        	pottingSet.putProductIntoPots( {id:product.id, amount:product.amount });
@@ -716,7 +861,7 @@
 	    }
 	};
 }());
-},{"./PottingSet.js":5,"./Utils.js":8}],7:[function(require,module,exports){
+},{"./PottingSet.js":6,"./Utils.js":9}],8:[function(require,module,exports){
 (function()
 {
 	module.exports = Tabs;
@@ -761,7 +906,7 @@
 		}
 	}
 }());
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -815,7 +960,7 @@
 	    }
 	};
 }());
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function()
 {
 	module.exports = ViewController;
@@ -884,7 +1029,7 @@
 	}
 }());
 
-},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./Tabs.js":7}],10:[function(require,module,exports){
+},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./Tabs.js":8}],11:[function(require,module,exports){
 /* globals PottingSetList:false, PottingController:false 
 # sourceMappingURL=./app.js.map
 */
@@ -893,16 +1038,20 @@
             var PottingController       = require("./PottingController.js");
             var PottingData             = require('./PottingData.js');
             var ViewController          = require("./ViewController.js");
+            var PottingResults          = require("./PottingResults.js");
 
+            
             var potter;
             var data;
             var view;
             var currentTerminal;
+            var results;
 
             window.onload   = function()
             {
                 data            = new PottingData();
                 view            = new ViewController( document.querySelector(".content") );
+                results         = PottingResults();
 
                 data.loadProductData( onProductDataLoaded );
                 
@@ -932,36 +1081,44 @@
                 view.init( currentTerminal.pots, currentTerminal.products );
             }
 
+            //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
             function onFillTankerSelected( evt )
             {
+                var maxWeight       = 440000;
+                var productData     = currentTerminal.getProductData( evt.detail.productToFill );
+
+                var maxLitres       = maxWeight * productData.density;
+                var maxCapacity     = currentTerminal.getTankerCapacity();
+
+                var amountToFill    = Math.min( maxLitres, maxCapacity );
+
                 console.log("Filling Tanker With: " + evt.detail.productToFill + ". Other Products: ");
-
-                var maxWeight = 440000;
-                var productData = currentTerminal.getProductData( evt.detail.productToFill );
-
-                var maxLitres = 44000 * productData.density;
-                var maxCapacity = currentTerminal.getTankerCapacity();
-
-                var amountToFill = Math.min( maxLitres, currentTerminal.getTankerCapacity() );
                 console.log("Max L by weight = " + maxLitres + ": Max Capacity by L " + maxCapacity );
 
-                var pottingUsed = potter.doPottingWithProduct( {id:evt.detail.productToFill, amount:amountToFill }, currentTerminal.pots.slice() );
-                var bestPotting = pottingUsed[ 0 ];
-
-                view.updatePotting( bestPotting.getUsedPots() );
+                potProduct( {id:evt.detail.productToFill, amount:amountToFill }, currentTerminal.pots.slice() );
             }
 
             function getPotString( pots )
             {
-                return pots.reduce(function( debugString, potData )
+                return pots.reduce( function( debugString, potData )
                 {   
                     return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
                 },'');
             }
 
+            function potProduct( product, pots )
+            {
+                var pottingUsed = potter.doPottingWithProduct( {id:product.productToFill, amount:product.amountToFill }, pots );
+                var bestPotting = pottingUsed[ 0 ];
+
+                view.updatePotting( bestPotting.getUsedPots() );
+            }
+
             function onPotTankerSelected( evt )
             {
-                console.log("Potting Tanker With: ");
+                console.log( "Potting Tanker With:"  );
+
+                console.table( evt.detail );
 
                 var products        = evt.detail.enteredProducts;
                 var availablePots   = currentTerminal.pots.slice();
@@ -969,7 +1126,20 @@
                 var bestPottingSet;
                 var usedPotIds;
                 var filledPotsToShow;
-                
+             
+                var results = [];
+
+                /*products.forEach( function( productDetails )
+                {
+                    if ( availablePots.length === 0 )
+                    {
+                        results.push( PottingResults.noPotsLeft( productDetails ));
+                        return;
+                    }
+
+                    if ( pottingResults.alreadyPotted( productDetails ) )
+                });
+
                 products.every( function( productData )
                 {
                     console.log("Available Pots: " + getPotString(availablePots));
@@ -998,11 +1168,11 @@
                     view.updatePotting( filledPotsToShow );
 
                     return true;
-                });
+                });*/
                 
             }
 }());            
-},{"./PottingController.js":3,"./PottingData.js":4,"./ViewController.js":9}],11:[function(require,module,exports){
+},{"./PottingController.js":3,"./PottingData.js":4,"./PottingResults.js":5,"./ViewController.js":10}],12:[function(require,module,exports){
 (function()
 {	
 
@@ -1054,7 +1224,7 @@
 	//Convert 3 to 3000, 69 to 6900 etc
 	Terminal.prototype.potifyNumber = function( number )
 	{
-		if ( String( number ).length === 4 ) return number;
+		if ( String( Number( number ) ).length === 4 ) return number;
 
 		return Math.ceil( Number('.' + number ).toFixed(4) * 10000 );
 	};
@@ -1091,5 +1261,5 @@
 	};
 
 }());
-},{}]},{},[10])
+},{}]},{},[11])
 //# sourceMappingURL=app.js.map

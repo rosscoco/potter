@@ -49,7 +49,7 @@
 	//Convert 3 to 3000, 69 to 6900 etc
 	Terminal.prototype.potifyNumber = function( number )
 	{
-		if ( String( number ).length === 4 ) return number;
+		if ( String( Number( number ) ).length === 4 ) return number;
 
 		return Math.ceil( Number('.' + number ).toFixed(4) * 10000 );
 	};

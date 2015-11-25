@@ -18,7 +18,7 @@
 
 	    function putProductIntoPots( product )
 	    {
-	    		
+	    	
 	    }
 
 	    function doPottingWithProduct( withProduct, withPots )
@@ -53,7 +53,7 @@
 
 	        //var allPottingSets      = new PottingSetList( allPotPermutations );
 	        //var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
-	        var allPottingSets      = new PottingSetList( [JSON.parse( JSON.stringify( withPots ))]);
+	        var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
 	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
 
 	        var validPottingSets    = [];
