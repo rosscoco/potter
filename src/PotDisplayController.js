@@ -62,25 +62,13 @@
 				pot.setAttribute('draggable', 'true');
 				pot.setAttribute('data-id', i + 1);
 
-				pot.addEventListener('dragstart', function( evt )
-				{
-					onPotDragStart( evt, this );
-				});
-
-				pot.addEventListener("dragenter", function( evt )
-				{
-					onPotDragEnter( evt );
-				});
-
-				pot.addEventListener("dragleave", function( evt )
-				{
-					onPotDragLeave( evt );
-				});
-
-				pot.addEventListener('dragend', function( evt )
-				{	
-					onPotDragEnd( evt );
-				});
+				pot.addEventListener('dragstart', 	onPotDragStart );
+				pot.addEventListener("dragenter", 	onPotDragEnter );
+				pot.addEventListener("dragover", 	onPotDragOver );
+				pot.addEventListener("dragleave", 	onPotDragLeave );
+				pot.addEventListener('drop', 		onPotDrop );
+				pot.addEventListener('dragdrop', 	onPotDrop );
+				pot.addEventListener('dragend', 	onPotDragEnd );
 
 				potContents.setAttribute('data-id', ( i + 1 ));
 				potContents.className = "potContents";
@@ -108,31 +96,51 @@
 		{
 			evt.dataTransfer.effectAllowed = 'move';
 			evt.dataTransfer.setData('originPotId', evt.target.getAttribute('data-id'));
-  			evt.dataTransfer.setData('text/html', this.innerHTML);
-		}
-
-		function onPotDragEnd( evt, potContents )
-		{
-			var origin = evt.dataTransfer.getData('originPotId');
-			var target = evt.dataTransfer.getData('targetPotId');
-
-			console.log('OnDragOver: Moving from ' + origin + " to " + target );
+  			evt.dataTransfer.setData('text/html', this.innerHTML );
 		}
 
 		function onPotDragEnter( evt, potContents  )
 		{
-			evt.dataTransfer.setData('targetPotId', evt.target.getAttribute('data-id') );
-			_potContents[ evt.dataTransfer.getData('potId') ].container.classList.add('dragOver');
-			console.log("Enter:", potId );
+			evt.preventDefault();  
+			_potContents[ evt.target.getAttribute('data-id') ].container.classList.add('dragOver');
+			console.log("Enter:", evt.target.getAttribute('data-id'));
+		}
+
+		function onPotDragOver( evt )
+		{
+			evt.preventDefault();
 		}
 
 		function onPotDragLeave( evt, potContents  )
 		{
-			evt.dataTransfer.setData('targetPotId', undefined );
+			evt.preventDefault();  
+
 			var potId = evt.target.getAttribute('data-id');
-			_potContents[ potId ].container.classList.remove('dragOver');			
-			console.log("Leave:", potId);
+			_potContents[ potId ].container.classList.remove('dragOver');
+
+			console.log("Leave:", potId );
+ 		}
+
+
+		function onPotDrop( evt, potContents )
+		{
+			//evt.dataTransfer.setData('targetPotId', evt.target.getAttribute('data-id'));
+
+			console.log('OnDragDrop: Moving from ' + evt.dataTransfer.getData('originPotId') + " to " + evt.target.getAttribute('data-id') );
 		}
+
+		function onPotDragEnd( evt, potContents )
+		{
+			console.log("DragEnd:" + evt.target.getAttribute('data-id'));
+
+			var origin = evt.dataTransfer.getData('originPotId');
+
+			evt.dataTransfer.getData('targetPotId');
+		}
+
+
+
+
 
 		function insertSpacesBetweenPots()
 		{
