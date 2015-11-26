@@ -218,7 +218,7 @@ ul
 
 .potContents[data-product="1051510"]
 {
-	background-color:#009900;
+	background-color:#00AA00;
 }
 
 .potContents[data-product="1051512"]
@@ -236,4 +236,12 @@ ul
 	background-color:pink;
 }
 
+.potContents[data-product="1058700"]
+{
+	background-color:#006600;
+}
 
+.potContents[data-product="1051521"]
+{
+	background-color:yellow;
+}

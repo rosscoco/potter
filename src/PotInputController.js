@@ -80,7 +80,6 @@
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
             	txtInput.value      = 0;
 
-
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
 				{
 					console.log("Hiding " + forProduct );
