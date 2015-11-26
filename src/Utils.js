@@ -33,6 +33,24 @@
 	    return permute( fromList );
 	};
 
+    exports.filterRemainingPots = function( usedPots, availablePots )
+    {
+    	var usedPotIds = usedPots.reduce( function( idString, potData )
+		{	
+			return idString + potData.id;
+    	}, '');
+
+        return availablePots.filter( function( potData )
+        {
+            if (  usedPotIds.indexOf( potData.id ) === -1 )
+            {
+                return true;
+            }
+        });
+    };
+
+
+
 	exports.PotSorter = {
 
 	    sortPotsByAmountMoveable: function sortPotSetByAmountMoveable( aPot, bPot )

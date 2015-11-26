@@ -11,6 +11,10 @@
 	function PottingResults()
 	{
 		return {
+			getPottingResults: getPottingResults
+		};
+
+		/*return {
 			noPotsLeft: 		noPotsLeft,
 			pottingSuccess: 	pottingSuccess,
 			pottingFail: 		pottingFail, 
@@ -18,8 +22,34 @@
 			overMaxWeight: 		overMaxWeight,
 			isAlreadyPotted: 	isAlreadyPotted,
 			clearResults: 		clearResults
-		};
+		};*/
 	}
+
+	function getPottingResults( forProduct, result  )
+	{
+		var message;
+
+		var usedPottingSet = result.pottingUsed;
+
+		if ( usedPottingSet.isValid() )
+		{
+			if ( forProduct.remainder > 0 || result.remainder > 0 )
+			{
+				message = pottedSomeProduct( forProduct, usedPottingSet.getUsedPots() );
+			}
+			else
+			{
+				message = pottingSuccess( forProduct, usedPottingSet.getUsedPots() );			
+			}
+		}
+		else
+		{
+			message = pottingFail( forProduct, usedPottingSet.getUsedPots() );
+		}
+
+		return message;
+	}
+
 
 	function clearResults()
 	{
@@ -99,7 +129,7 @@
 		data.pottingStatus 	= this.ERROR;
 		data.potsUsed		= pots.join('');
 		data.message 		= "Could not pot " + product.amount + " of " + product.id;
-		data.message 		+= "Need " + amountNeeded + "L in Pot " + failedPot.id;
+		data.message 		+= "Need " + amountNeeded + "L more in Pot " + failedPot.id;
 
 		return data;
 	}
@@ -123,27 +153,13 @@
 
 	function pottedSomeProduct( product, pots )
 	{
-		var potSummary 			= {};
-		potSummary.potsUsed 	= '';
-		potSummary.amountPotted = 0;
-
-		var potsUsed = pots.reduce( function( data, pot )
-		{
-			data.potsUsed += pot.id;
-			data.amountPotted += pot.contents;
-
-			return data;
-
-		}, potSummary );
-
-		potSummary.remainingProduct = product.amount - potSummary.amountPotted; 
-
 		var data 			= {};
 		data.product		= product.id;
+		data.amount 		= product.amount;
+		data.remainder		= product.remainder;
 		data.pottingStatus 	= this.WARN;
-		data.message 		= potSummary.remainingProduct + " of " + product.id + " put into pots " + potSummary.potsUsed;
-		data.message 		+= ". " + potSummary.remainingProduct  + " could not be potted.";
-		data.potSummary 	= potSummary;
+		data.message 		= product.amount + " of " + product.id + " put into pots " + pots.join(' & ');
+		data.message 		+= ". " + product.remainder  + " could not be potted.";
 
 		return data;
 	}

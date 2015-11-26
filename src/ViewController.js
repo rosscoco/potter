@@ -17,12 +17,17 @@
 	{
 		_domElements = withDom;
 
-		return { 	init: init, 
-					updateTerminal:updateTerminal,
-					updatePotting: updatePotting };
+		return { 	init: 			init, 
+					updateTerminal: updateTerminal,
+					showResults: 	showResults };
 	}
 
 	function updatePotting( potDataArray )
+	{
+		
+	}
+
+	function showResults( potDataArray, messages  )
 	{
 		_pottingDisplay.reset();
 

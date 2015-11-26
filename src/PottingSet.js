@@ -11,7 +11,6 @@
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
-	        //willPotWithinRules      : willPotWithinRules,
 	        getRemainingSpace       : getRemainingSpace,
 	        getUsedPots             : getUsedPots,
 	        isValid                 : isValid
@@ -32,8 +31,8 @@
 	        } 
 	        else
 	        {
-	        	var fillData = getPotToFill();
-	            return fillLastPot( fillData.potToFill, fillData.otherPots );
+	        	var fillData = getPotToFix();
+	            return fixLastPot( fillData.potToFill, fillData.otherPots );
 	        }
 	    }
 
@@ -76,9 +75,6 @@
 	        });
 
 	        _availablePots = usedPots;
-	        //console.log( _availablePots );
-
-	       // return product;        
 	    }
 
 	    function getRemainingSpace()
@@ -101,43 +97,7 @@
 	        }, '');
 	    }
 
-	    /*function willPotWithinRules( potCombination )
-	    {
-	        var potToFill;
-	        var otherPots = potCombination.filter( function( potData )
-	        {
-	            if ( potData.contents > potData.minimum )
-	            {
-	                return true;
-	            }
-	            else
-	            {
-	                potToFill = potData;
-	            }
-	        });
-
-	        //count how much product is over each pots minimum amount. This will give us the total we can move to the last pot
-	        var available = otherPots.reduce( function( productAvailable, nextPotToCheck )
-	        {
-	            return productAvailable + ( nextPotToCheck.contents - nextPotToCheck.minimum );
-	        }, 0 );
-
-	        //check there's enough product to move away from other pots
-	        if ( potToFill.contents + available >= potToFill.minimum ) 
-	        {
-	            //If product available then move from other pots into the last pot
-	            fillLastPot( potToFill, otherPots );
-
-	            return true;
-	        }
-	        else
-	        {
-	            return false;   //cannot pot within rules
-	        }
-	    }*/
-
-
-	    function getPotToFill()
+	    function getPotToFix()
 	    {
 	    	var potToFill;
 	    	var pot;
@@ -166,17 +126,7 @@
 	    	return {potToFill:potToFill, otherPots:otherPots};
 	    }
 
-	    function IsGreaterThan( checkAgainst )
-	    {
-	        var mustBeGreaterThan = checkAgainst;
-
-	        return function( amountToCheck )
-	        {
-	            return amountToCheck > checkAgainst;
-	        };
-	    }
- 
-	    function fillLastPot( lastPot, remainingPots)
+	    function fixLastPot( lastPot, remainingPots)
 	    {
 			var needed = lastPot.minimum - lastPot.contents;
 
@@ -195,7 +145,6 @@
 	            } 
 	            else
 	            {
-	                //amountToMove = helperPot.contents - ( helperPot.contents - helperPot.minimum );
 	                amountToMove = helperPot.contents  - helperPot.minimum;
 	            }
 

@@ -12,20 +12,14 @@
 	    var _activePots,_products;
 	    
 	    return {
-	        doPottingWithProduct   : doPottingWithProduct,
-	        usedPots :_basePots
+	        doPottingWithProduct   : doPottingWithProduct
 	    };
-
-	    function putProductIntoPots( product )
-	    {
-	    	
-	    }
 
 	    function doPottingWithProduct( withProduct, withPots )
 	    {
 	        _activePots             = withPots;        
 
-	        var productRemainder    = {};
+	        var productNotPotted 	= 0;
 	        var pottingUsed;			//PottingSet;
 	        var usedPottingSet      = '';
 
@@ -36,13 +30,13 @@
 
 	         if ( spaceAvailable < withProduct.amount )
 	         {
-	            withProduct.amount = spaceAvailable;
-	            productRemainder[ withProduct.id ] = withProduct.amount - spaceAvailable;
+	            withProduct.amount 	= spaceAvailable;
+	            productNotPotted 	= withProduct.amount - spaceAvailable;
 	         }
 
 	        pottingUsed = getBestPotsForProduct( _activePots, withProduct );
 
-	        return pottingUsed;
+	        return { pottingUsed:pottingUsed, remainder: productNotPotted };
 	    }
 
 	    function getBestPotsForProduct( withPots, product )
