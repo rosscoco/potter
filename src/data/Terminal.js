@@ -65,7 +65,7 @@
 
 	Terminal.prototype.getMaxWeight = function()
 	{
-		return 32000;
+		return 30000;
 	};
 
 
@@ -75,7 +75,7 @@
 		{
 			if ( this.products[i].id === forProduct )
 			{
-				return this.products[i];
+				return this.products[ i ];
 			}
 		}
 	};
@@ -96,7 +96,7 @@
 
         if ( toPotDensity * productToPot.amount + currentWeight > this.getMaxWeight() )
         {
-            var litresAvailable = Math.max( this.getMaxWeight() - currentWeight, 0 ) * toPotDensity;   // * ( 1 / toPotDensity );
+            var litresAvailable = Math.max( this.getMaxWeight() - currentWeight, 0 ) *  ( 1 / toPotDensity );   // * ( 1 / toPotDensity );
             
             productToPot.remainder = productToPot.amount - litresAvailable;
             productToPot.amount = litresAvailable;

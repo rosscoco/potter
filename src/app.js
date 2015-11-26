@@ -53,16 +53,20 @@
             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
             function onFillTankerSelected( evt )
             {
-                var maxWeight       = 440000;
-                var productData     = currentTerminal.getProductData( evt.detail.productToFill );
+                var weightUsed = 0;
 
-                var maxLitres       = maxWeight * productData.density;
-                var maxCapacity     = currentTerminal.getTankerCapacity();
+                evt.detail.enteredProducts.forEach( function( productData )
+                {
+                    weightUsed += productData.amount * currentTerminal.getProductData( productData.id ).density;
+                });
 
-                var amountToFill    = Math.min( maxLitres, maxCapacity );
+                var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
 
-                console.log("Filling Tanker With: " + evt.detail.productToFill + ". Other Products: ");
-                console.log("Max L by weight = " + maxLitres + ": Max Capacity by L " + maxCapacity );
+                evt.detail.enteredProducts.push( { id: evt.detail.productToFill, amount: litresAvailable });
+
+                console.log("Filling Tanker With: " + litresAvailable + " of " + evt.detail.productToFill );    
+
+                onPotTankerSelected( evt );                
 
                 //potProduct( {id:evt.detail.productToFill, amount:amountToFill }, currentTerminal.pots.slice() );
             }
@@ -108,17 +112,10 @@
                     pottingResult       = potter.doPottingWithProduct( productDetails, availablePots.slice() );
                     currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
 
-                    //pottingResult       = results.getPottingResults( forProduct, bestPottingSet );
-                    
                     messages.push( results.getPottingResults( productDetails, pottingResult ) );
 
                     currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
                     {
-                        var density = currentTerminal.getProductData( potData.product ).density;
-                        var amount = potData.contents;
-                        var potWeight = density * amount;
-                        var tally = total + potWeight;
-
                         return total + potData.contents * currentTerminal.getProductData( potData.product ).density;
                     }, 0 );
 
