@@ -95,7 +95,6 @@
 						options:lintOptions(),
 						globals:lintGlobals()}, complete, fail );
 	});
-
 	
 	function lintOptions()
 	{

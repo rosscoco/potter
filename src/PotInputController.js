@@ -14,7 +14,21 @@
 		}
 
 		return { 	init: init,
-					updateProductList: updateProductList };
+					updateProductList: updateProductList,
+					updateInput:updateInput };
+
+		function updateInput( withInfo )
+		{
+			var txtInput = _domElement.querySelector('#productInput_' + withInfo.id );
+
+			if ( !txtInput )
+			{
+				console.error("Tried to update value of #productInput_" + withInfo.id + '. Does not exist.');
+				return;
+			}
+
+			txtInput.value = parseInt( withInfo.amount );
+		}
 
 		function getEnteredProductAmounts( putLast )
         {

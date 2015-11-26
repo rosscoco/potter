@@ -181,7 +181,21 @@
 		}
 
 		return { 	init: init,
-					updateProductList: updateProductList };
+					updateProductList: updateProductList,
+					updateInput:updateInput };
+
+		function updateInput( withInfo )
+		{
+			var txtInput = _domElement.querySelector('#productInput_' + withInfo.id );
+
+			if ( !txtInput )
+			{
+				console.error("Tried to update value of #productInput_" + withInfo.id + '. Does not exist.');
+				return;
+			}
+
+			txtInput.value = withInfo.amount;
+		}
 
 		function getEnteredProductAmounts( putLast )
         {
@@ -1053,7 +1067,8 @@
 
 		return { 	init: 			init, 
 					updateTerminal: updateTerminal,
-					showResults: 	showResults };
+					showResults: 	showResults,
+					updateProductInputs:updateProductInputs };
 	}
 
 	function updatePotting( potDataArray )
@@ -1072,6 +1087,11 @@
 	            _pottingDisplay.updatePot( singlePotData );
 	        });
 		}
+	}
+
+	function updateProductInputs( productData )
+	{
+		productData.forEach( _formController.updateInput );
 	}
 
 	function updateTerminal( withPots, withProducts )
@@ -1174,14 +1194,15 @@
                 });
 
                 var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
+                var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
 
-                evt.detail.enteredProducts.push( { id: evt.detail.productToFill, amount: litresAvailable });
+                evt.detail.enteredProducts.push( fillProductData );
 
-                console.log("Filling Tanker With: " + litresAvailable + " of " + evt.detail.productToFill );    
+                console.log("Filling Tanker With: " + litresAvailable + " of " + evt.detail.productToFill );
 
-                onPotTankerSelected( evt );                
+                view.updateProductInputs([ fillProductData ]);
 
-                //potProduct( {id:evt.detail.productToFill, amount:amountToFill }, currentTerminal.pots.slice() );
+                onPotTankerSelected( evt );
             }
 
             function getPotString( pots )
@@ -1385,7 +1406,7 @@
 		{
 			if ( this.products[i].id === forProduct )
 			{
-				return this.products[i];
+				return this.products[ i ];
 			}
 		}
 	};

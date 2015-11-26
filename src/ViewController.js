@@ -19,7 +19,8 @@
 
 		return { 	init: 			init, 
 					updateTerminal: updateTerminal,
-					showResults: 	showResults };
+					showResults: 	showResults,
+					updateProductInputs:updateProductInputs };
 	}
 
 	function updatePotting( potDataArray )
@@ -38,6 +39,11 @@
 	            _pottingDisplay.updatePot( singlePotData );
 	        });
 		}
+	}
+
+	function updateProductInputs( productData )
+	{
+		productData.forEach( _formController.updateInput );
 	}
 
 	function updateTerminal( withPots, withProducts )

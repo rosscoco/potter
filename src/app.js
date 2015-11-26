@@ -61,14 +61,15 @@
                 });
 
                 var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
+                var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
 
-                evt.detail.enteredProducts.push( { id: evt.detail.productToFill, amount: litresAvailable });
+                evt.detail.enteredProducts.push( fillProductData );
 
-                console.log("Filling Tanker With: " + litresAvailable + " of " + evt.detail.productToFill );    
+                console.log("Filling Tanker With: " + litresAvailable + " of " + evt.detail.productToFill );
 
-                onPotTankerSelected( evt );                
+                view.updateProductInputs([ fillProductData ]);
 
-                //potProduct( {id:evt.detail.productToFill, amount:amountToFill }, currentTerminal.pots.slice() );
+                onPotTankerSelected( evt );
             }
 
             function getPotString( pots )
