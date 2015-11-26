@@ -96,7 +96,7 @@
 
         if ( toPotDensity * productToPot.amount + currentWeight > this.getMaxWeight() )
         {
-            var litresAvailable = Math.max( this.getMaxWeight() - currentWeight, 0 ) / toPotDensity;   // * ( 1 / toPotDensity );
+            var litresAvailable = Math.max( this.getMaxWeight() - currentWeight, 0 ) * toPotDensity;   // * ( 1 / toPotDensity );
             
             productToPot.remainder = productToPot.amount - litresAvailable;
             productToPot.amount = litresAvailable;
