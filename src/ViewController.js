@@ -39,6 +39,11 @@
 	            _pottingDisplay.updatePot( singlePotData );
 	        });
 		}
+
+		if ( messages )
+		{
+			
+		}
 	}
 
 	function updateProductInputs( productData )

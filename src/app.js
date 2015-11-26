@@ -26,6 +26,7 @@
                 document.querySelector("#productInputs").addEventListener("fillTanker", onFillTankerSelected );
                 document.querySelector("#productInputs").addEventListener("potTanker", onPotTankerSelected );                
                 document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
+                document.querySelector("#pottingContainer").addEventListener("swapPots", onSwapPotContents );
             };
 
             function onChangeTerminal( evt )
@@ -47,6 +48,12 @@
                 potter          = new PottingController( currentTerminal.pots );
 
                 view.init( currentTerminal.pots, currentTerminal.products );
+            }
+
+            function onSwapPotContents( evt )
+            {
+                var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
+                view.showResults( allUsedPots );
             }
 
             
@@ -127,6 +134,7 @@
                 //view.updatePotting( filledPots );
 
                 view.showResults( allUsedPots, messages );
+                data.setPotting( allUsedPots );
             }
 
            /* function checkWeight( productToPot, alreadyPotted )
