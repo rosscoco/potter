@@ -67,7 +67,6 @@
 				pot.addEventListener("dragover", 	onPotDragOver );
 				pot.addEventListener("dragleave", 	onPotDragLeave );
 				pot.addEventListener('drop', 		onPotDrop );
-				pot.addEventListener('dragdrop', 	onPotDrop );
 				pot.addEventListener('dragend', 	onPotDragEnd );
 
 				potContents.setAttribute('data-id', ( i + 1 ));
@@ -132,7 +131,7 @@
 
 		function swapPots( pot1, pot2 )
 		{
-			var swapEvent = new CustomEvent("swapPots", {detail.pot1:pot1, detail.pot2:pot2});
+			var swapEvent = new CustomEvent("swapPots", { detail:{pot1:pot1, pot2:pot2 }});
 
 			_container.dispatchEvent( swapEvent );
 		}

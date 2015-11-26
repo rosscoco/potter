@@ -69,7 +69,6 @@
 				pot.addEventListener("dragover", 	onPotDragOver );
 				pot.addEventListener("dragleave", 	onPotDragLeave );
 				pot.addEventListener('drop', 		onPotDrop );
-				pot.addEventListener('dragdrop', 	onPotDrop );
 				pot.addEventListener('dragend', 	onPotDragEnd );
 
 				potContents.setAttribute('data-id', ( i + 1 ));
@@ -115,7 +114,7 @@
 
 		function onPotDragLeave( evt, potContents  )
 		{
-			evt.preventDefault();  
+			evt.preventDefault();
 
 			var potId = evt.target.getAttribute('data-id');
 			_potContents[ potId ].container.classList.remove('dragOver');
@@ -127,9 +126,18 @@
 		function onPotDrop( evt, potContents )
 		{
 			//evt.dataTransfer.setData('targetPotId', evt.target.getAttribute('data-id'));
-
+			evt.target.classList.remove('dragOver');
 			console.log('OnDragDrop: Moving from ' + evt.dataTransfer.getData('originPotId') + " to " + evt.target.getAttribute('data-id') );
+			swapPots( evt.dataTransfer.getData('originPotId'),  evt.target.getAttribute('data-id'));
 		}
+
+		function swapPots( pot1, pot2 )
+		{
+			var swapEvent = new CustomEvent("swapPots", { detail:{pot1:pot1, pot2:pot2 }});
+
+			_container.dispatchEvent( swapEvent );
+		}
+
 
 		function onPotDragEnd( evt, potContents )
 		{
@@ -475,11 +483,12 @@
 },{"./PottingSetList.js":7,"./Utils.js":9}],4:[function(require,module,exports){
 (function()
 {
+	"use strict";
 	var PRODUCT_DATA_URL 	= './resources/products.json?' + Math.random().toFixed(4);
 	
 	var Terminal 			= require('./data/Terminal.js');
 
-	var availableProducts 	= [   	{id:1051510, density:0.83,name:"Blah"},
+	/*var availableProducts 	= [   	{id:1051510, density:0.83,name:"Blah"},
 	                                {id:1051485, density:0.83,name:"Blah"},
 	                                {id:1051643, density:0.83,name:"Blah"}] ;
 
@@ -497,17 +506,42 @@
                                     {id:2,capacity:7600, contents:0, product:"", minimum:6600},
                                     {id:4,capacity:7600, contents:0, product:"", minimum:3800}];
 
-	var testProduct 		=       {id:"1051510", amount:18000, pottingUsed:[] };
+	var testProduct 		=       {id:"1051510", amount:18000, pottingUsed:[] };*/
 	var _terminals;
+	var _potting;
 
 	module.exports = PottingData;
 
 	function PottingData()
 	{	
 		_terminals = [];
+		_potting = [];
 
-		return { 	loadProductData: loadProductData,
-					getTerminalData: getTerminalData };
+		return { 	loadProductData: 	loadProductData,
+					getTerminalData: 	getTerminalData,
+					setPotting: 		setPotting,
+					movePots: 			movePots};
+	}
+
+	function setPotting( potting )
+	{
+		_potting = potting;
+	}
+
+	function movePots( pot1Id, pot2Id )
+	{
+		var pot1 		= _potting[ pot1Id - 1 ];
+		var pot2 		= _potting[ pot2Id - 1 ];
+
+		var pot1Copy 	= JSON.parse( JSON.stringify( pot1 ));
+
+		pot1.contents 	= pot2.contents;
+		pot1.product 	= pot2.product;
+		
+		pot2.contents 	= pot1Copy.contents;
+		pot2.product 	= pot1Copy.product;
+
+		return _potting;
 	}
 
 	function getTerminalData( terminalName )
@@ -1137,6 +1171,11 @@
 	            _pottingDisplay.updatePot( singlePotData );
 	        });
 		}
+
+		if ( messages )
+		{
+			
+		}
 	}
 
 	function updateProductInputs( productData )
@@ -1209,6 +1248,7 @@
                 document.querySelector("#productInputs").addEventListener("fillTanker", onFillTankerSelected );
                 document.querySelector("#productInputs").addEventListener("potTanker", onPotTankerSelected );                
                 document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
+                document.querySelector("#pottingContainer").addEventListener("swapPots", onSwapPotContents );
             };
 
             function onChangeTerminal( evt )
@@ -1230,6 +1270,12 @@
                 potter          = new PottingController( currentTerminal.pots );
 
                 view.init( currentTerminal.pots, currentTerminal.products );
+            }
+
+            function onSwapPotContents( evt )
+            {
+                var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
+                view.showResults( newPotting );
             }
 
             
@@ -1310,6 +1356,7 @@
                 //view.updatePotting( filledPots );
 
                 view.showResults( allUsedPots, messages );
+                data.setPotting( allUsedPots );
             }
 
            /* function checkWeight( productToPot, alreadyPotted )

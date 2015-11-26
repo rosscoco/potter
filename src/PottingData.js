@@ -34,8 +34,10 @@
 		_terminals = [];
 		_potting = [];
 
-		return { 	loadProductData: loadProductData,
-					getTerminalData: getTerminalData };
+		return { 	loadProductData: 	loadProductData,
+					getTerminalData: 	getTerminalData,
+					setPotting: 		setPotting,
+					movePots: 			movePots};
 	}
 
 	function setPotting( potting )

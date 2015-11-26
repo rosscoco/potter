@@ -53,7 +53,7 @@
             function onSwapPotContents( evt )
             {
                 var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
-                view.showResults( allUsedPots );
+                view.showResults( newPotting );
             }
 
             
