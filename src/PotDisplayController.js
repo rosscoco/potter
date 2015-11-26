@@ -112,7 +112,7 @@
             var potContents = _potContents[ potData.id ].pot;
             var potTextContents = _potContents[ potData.id ].text;
 
-            potTextContents.innerHTML = potData.contents;
+            potTextContents.innerHTML = parseInt(potData.contents);
 
             if ( potData.contents < potData.minimum )
             {

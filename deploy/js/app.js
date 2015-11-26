@@ -114,7 +114,7 @@
             var potContents = _potContents[ potData.id ].pot;
             var potTextContents = _potContents[ potData.id ].text;
 
-            potTextContents.innerHTML = potData.contents;
+            potTextContents.innerHTML = parseInt(potData.contents);
 
             if ( potData.contents < potData.minimum )
             {
@@ -1226,6 +1226,11 @@
 
                     currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
                     {
+                        var density = currentTerminal.getProductData( potData.product ).density;
+                        var amount = potData.contents;
+                        var potWeight = density * amount;
+                        var tally = total + potWeight;
+
                         return total + potData.contents * currentTerminal.getProductData( potData.product ).density;
                     }, 0 );
 
@@ -1372,7 +1377,7 @@
 
 	Terminal.prototype.getMaxWeight = function()
 	{
-		return 44000;
+		return 32000;
 	};
 
 
@@ -1403,7 +1408,7 @@
 
         if ( toPotDensity * productToPot.amount + currentWeight > this.getMaxWeight() )
         {
-            var litresAvailable = Math.max( this.getMaxWeight() - currentWeight, 0 ) / toPotDensity;   // * ( 1 / toPotDensity );
+            var litresAvailable = Math.max( this.getMaxWeight() - currentWeight, 0 ) * toPotDensity;   // * ( 1 / toPotDensity );
             
             productToPot.remainder = productToPot.amount - litresAvailable;
             productToPot.amount = litresAvailable;

@@ -114,6 +114,11 @@
 
                     currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
                     {
+                        var density = currentTerminal.getProductData( potData.product ).density;
+                        var amount = potData.contents;
+                        var potWeight = density * amount;
+                        var tally = total + potWeight;
+
                         return total + potData.contents * currentTerminal.getProductData( potData.product ).density;
                     }, 0 );
 

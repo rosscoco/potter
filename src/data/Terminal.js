@@ -65,7 +65,7 @@
 
 	Terminal.prototype.getMaxWeight = function()
 	{
-		return 44000;
+		return 32000;
 	};
 
 

@@ -45,7 +45,8 @@
                 	return true;
                 });
 
-            if ( lastProduct ) selectedProducts.push( lastProduct );
+            //if ( lastProduct ) selectedProducts.push( lastProduct );
+            if ( lastProduct ) selectedProducts.push( unshift );
 
             return selectedProducts;
         }
