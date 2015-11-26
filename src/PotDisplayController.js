@@ -106,30 +106,31 @@
 
 		function onPotDragStart( evt, potContainer )
 		{
-			this.opacity = 0.4;
 			evt.dataTransfer.effectAllowed = 'move';
+			evt.dataTransfer.setData('originPotId', evt.target.getAttribute('data-id'));
   			evt.dataTransfer.setData('text/html', this.innerHTML);
 		}
 
 		function onPotDragEnd( evt, potContents )
 		{
+			var origin = evt.dataTransfer.getData('originPotId');
+			var target = evt.dataTransfer.getData('targetPotId');
 
+			console.log('OnDragOver: Moving from ' + origin + " to " + target );
 		}
 
 		function onPotDragEnter( evt, potContents  )
 		{
-			var potId = evt.target.getAttribute('data-id');
-			_potContents[ potId ].container.classList.add('dragOver');
-			//evt.target.classList.add('dragOver');
+			evt.dataTransfer.setData('targetPotId', evt.target.getAttribute('data-id') );
+			_potContents[ evt.dataTransfer.getData('potId') ].container.classList.add('dragOver');
 			console.log("Enter:", potId );
 		}
 
 		function onPotDragLeave( evt, potContents  )
 		{
-
+			evt.dataTransfer.setData('targetPotId', undefined );
 			var potId = evt.target.getAttribute('data-id');
-			_potContents[ potId ].container.classList.remove('dragOver');
-			//evt.target.classList.remove('dragOver');
+			_potContents[ potId ].container.classList.remove('dragOver');			
 			console.log("Leave:", potId);
 		}
 
