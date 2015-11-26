@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+		/* Prevent the text contents of draggable elements from being selectable. */
+		[draggable] {
+		  -moz-user-select: none;
+		  -khtml-user-select: none;
+		  -webkit-user-select: none;
+		  user-select: none;
+		  /* Required to make elements draggable in old WebKit */
+		  -khtml-user-drag: element;
+		  -webkit-user-drag: element;
+		}
+		.column {
+		  height: 150px;
+		  width: 150px;
+		  float: left;
+		  border: 2px solid #666666;
+		  background-color: #ccc;
+		  margin-right: 5px;
+		  border-radius: 10px;
+		  -webkit-box-shadow: inset 0 0 3px #000;
+		  -ms-box-shadow: inset 0 0 3px #000;
+		  box-shadow: inset 0 0 3px #000;
+		  text-align: center;
+		  cursor: move;
+		}
+
+		.over
+		{
+			border:10px solid black;
+		}
+
+		.column header {
+		  color: #fff;
+		  text-shadow: #000 0 1px;
+		  box-shadow: 5px;
+		  padding: 5px;
+		  background: -moz-linear-gradient(left center, rgb(0,0,0), rgb(79,79,79), rgb(21,21,21));
+		  background: -webkit-gradient(linear, left top, right top,
+		                               color-stop(0, rgb(0,0,0)),
+		                               color-stop(0.50, rgb(79,79,79)),
+		                               color-stop(1, rgb(21,21,21)));
+		  background: -webkit-linear-gradient(left center, rgb(0,0,0), rgb(79,79,79), rgb(21,21,21));
+		  background: -ms-linear-gradient(left center, rgb(0,0,0), rgb(79,79,79), rgb(21,21,21));
+		  border-bottom: 1px solid #ddd;
+		  border-radius:10px;
+		
+		}
+		</style>
+		<script>
+			window.onload = function()
+			{
+				var columns = [].slice.call( document.querySelectorAll('.column'));
+
+				columns.forEach( function( column )
+				{
+					column.addEventListener('dragstart', function( evt )
+					{
+						evt.dataTransfer.setData('somedata', this.innerHTML);						
+					})
+
+					column.addEventListener("dragenter", function( evt )
+					{
+						evt.target.classList.add("over");
+					})
+
+					column.addEventListener("dragleave", function( evt )
+					{
+						evt.target.classList.remove("over");
+					})
+				})
+			}
+
+		</script>
+		<div id="columns">
+			<div class="column" draggable="true"><header>A</header></div>
+			<div class="column" draggable="true"><header>B</header></div>
+			<div class="column" draggable="true"><header>C</header></div>
+		</div>
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <p>Hello world! This is HTML5 Boilerplate.</p>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+    </body>
+</html>

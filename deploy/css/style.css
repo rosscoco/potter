@@ -204,6 +204,7 @@ ul
 	height:100%;
 	width:100%;
 	background-color: #EEEEEE;
+	pointer-events:none;
 }
 
 .pot
@@ -214,6 +215,11 @@ ul
 	border-radius: 3px;
 	border: solid 2px #CCC;		
 	background-color: #EEEEEE;
+}
+
+.dragOver
+{
+	border:3px solid red;
 }
 
 .potContents[data-product="1051510"]

@@ -21,7 +21,7 @@
 			updatePot	: updatePot,
 			reset		: reset,
 			clear		: clear 
-		};	
+		};
 
 		function init( allPotData )
 		{
@@ -33,15 +33,6 @@
 			var lastnode;
 			allPotData.forEach( function( potData, i )
 			{
-				/*
-				<div class="potContainer" id="pot1">
-	                <h1>7600</h1>
-	                <div class="pot">
-	                    <div class="potContents"></div>
-	                </div>    
-	            </div>
-	            */
-
 	            /*
 				<div class="potContainer" id="pot1">
 	                <h1>7600</h1>
@@ -64,16 +55,39 @@
 				txtContents.innerHTML = 0;
 				txtCapacity.innerHTML = potData.capacity;
 
-
 				txtContents.className = 'potText';
 				txtCapacity.className = 'potText';
 
 				pot.className 		= "pot";
+				pot.setAttribute('draggable', 'true');
+				pot.setAttribute('data-id', i + 1);
 
+				pot.addEventListener('dragstart', function( evt )
+				{
+					onPotDragStart( evt, this );
+				});
+
+				pot.addEventListener("dragenter", function( evt )
+				{
+					onPotDragEnter( evt );
+				});
+
+				pot.addEventListener("dragleave", function( evt )
+				{
+					onPotDragLeave( evt );
+				});
+
+				pot.addEventListener('dragend', function( evt )
+				{	
+					onPotDragEnd( evt );
+				});
+
+				potContents.setAttribute('data-id', ( i + 1 ));
 				potContents.className = "potContents";
 				potContents.setAttribute('data-product', 'none');
+				
 
-				_potContents[ '' + ( i + 1 ) ] = { pot:potContents, text:txtContents };
+				_potContents[ '' + ( i + 1 ) ] = { pot:potContents, text:txtContents, container:pot };
 				
 				container.appendChild( txtContents );
 				container.appendChild( pot );
@@ -90,6 +104,34 @@
 			return _displayNode;
 		} 
 
+		function onPotDragStart( evt, potContainer )
+		{
+			this.opacity = 0.4;
+			evt.dataTransfer.effectAllowed = 'move';
+  			evt.dataTransfer.setData('text/html', this.innerHTML);
+		}
+
+		function onPotDragEnd( evt, potContents )
+		{
+
+		}
+
+		function onPotDragEnter( evt, potContents  )
+		{
+			var potId = evt.target.getAttribute('data-id');
+			_potContents[ potId ].container.classList.add('dragOver');
+			//evt.target.classList.add('dragOver');
+			console.log("Enter:", potId );
+		}
+
+		function onPotDragLeave( evt, potContents  )
+		{
+
+			var potId = evt.target.getAttribute('data-id');
+			_potContents[ potId ].container.classList.remove('dragOver');
+			//evt.target.classList.remove('dragOver');
+			console.log("Leave:", potId);
+		}
 
 		function insertSpacesBetweenPots()
 		{
