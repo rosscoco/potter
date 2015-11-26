@@ -1,4 +1,4 @@
-/* globals desc:false, task:false, complete:false, fail:false, jake:false, directory:false */
+/* globals desc:false, task:false, complete:false, fail:false, jake:false, directory:false, process:false */
 (function()
 {
 	"use strict";
@@ -87,7 +87,8 @@
 	desc("Lint Javascript");
 	task("lint", function()
 	{
-		console.log("Linting JS: .");
+		//console.log("Linting JS: .");
+		process.stdout.write("Linting JS: .");
 
 		jshint.checkFiles({files:["Jakefile.js", "./src/**/*.js"],
 		//jshint.checkFiles({files:["Jakefile.js", "./public/js/*.js","!./public/js/jquery.js"],
