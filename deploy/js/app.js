@@ -157,7 +157,7 @@
 					_potContents[ potId ].pot.style.height = 0;
 
 					_potContents[ potId ].text.innerHTML = 0;
-					_potContents[ potId ].className = "potText";
+					_potContents[ potId ].text.className = "potText";
 				}
 			}
 		}
@@ -194,7 +194,7 @@
 				return;
 			}
 
-			txtInput.value = withInfo.amount;
+			txtInput.value = parseInt( withInfo.amount );
 		}
 
 		function getEnteredProductAmounts( putLast )
@@ -246,7 +246,6 @@
 				var forProduct 		= inputGroup.id.split('_')[1];
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
             	txtInput.value      = 0;
-
 
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
 				{

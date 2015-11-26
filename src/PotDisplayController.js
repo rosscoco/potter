@@ -155,7 +155,7 @@
 					_potContents[ potId ].pot.style.height = 0;
 
 					_potContents[ potId ].text.innerHTML = 0;
-					_potContents[ potId ].className = "potText";
+					_potContents[ potId ].text.className = "potText";
 				}
 			}
 		}
