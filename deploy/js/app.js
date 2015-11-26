@@ -535,10 +535,10 @@
 
 		var pot1Copy 	= JSON.parse( JSON.stringify( pot1 ));
 
-		pot1.contents 	= pot2.contents;
+		pot1.contents 	= Math.min( pot1.capacity, pot2.contents );
 		pot1.product 	= pot2.product;
 		
-		pot2.contents 	= pot1Copy.contents;
+		pot2.contents 	= Math.min( pot2.capacity, pot1Copy.contents );
 		pot2.product 	= pot1Copy.product;
 
 		return _potting;
@@ -1085,7 +1085,7 @@
 	            
 	            input.splice(i, 0, ch);
 	            usedChars.pop();
-	        }
+	        }	
 	        
 	        return permArr;
 	    }

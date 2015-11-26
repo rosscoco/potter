@@ -25,7 +25,7 @@
 	            
 	            input.splice(i, 0, ch);
 	            usedChars.pop();
-	        }
+	        }	
 	        
 	        return permArr;
 	    }
