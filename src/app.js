@@ -67,7 +67,7 @@
                     weightUsed += productData.amount * currentTerminal.getProductData( productData.id ).density;
                 });
 
-                
+                   
 
                 var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
                 var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
@@ -81,13 +81,7 @@
                 onPotTankerSelected( evt );
             }
 
-            function getPotString( pots )
-            {
-                return pots.reduce( function( debugString, potData )
-                {   
-                    return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
-                },'');
-            }
+
 
             function potProduct( product, pots )
             {

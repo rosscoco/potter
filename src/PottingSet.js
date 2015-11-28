@@ -12,11 +12,11 @@
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
 	        getRemainingSpace       : getRemainingSpace,
-	        getPotArray             : getUsedPots,
+	        getPotArray             : getPotArray,
 	        isValid                 : isValid
 	    };
 
-	    function getUsedPots()
+	    function getPotArray()
 	    {
 	        return _availablePots;
 	    }

@@ -73,6 +73,18 @@
 	        });
 
 	        _validPottingSets.sort( PotSorter.sortPotSetsByRemainder );
+
+	        var debugResult = _validPottingSets.map( function( pottingSet )
+	        {
+	        	return pottingSet.getUsedPotsById() + ": " + pottingSet.getRemainingSpace();  
+
+				/*return pottingSet.getPotArray.reduce( function( potString, pots )
+				{
+					return 
+				}, )	        	*/
+	        })
+
+	        console.table( debugResult );
 	    }
 
 	    function getBestPottingSet()
@@ -80,6 +92,7 @@
 	    	if ( _validPottingSets.length > 0 )
 	    	{
 	    		return _validPottingSets[ 0 ];
+
 	    	}
 	    	else
 	    	{

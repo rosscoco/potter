@@ -49,6 +49,14 @@
         });
     };
 
+	exports.getPotString = function getPotString( pots )
+    {
+        return pots.reduce( function( debugString, potData )
+        {   
+            return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
+        },'');
+    }
+
 
 
 	exports.PotSorter = {
@@ -63,9 +71,27 @@
 	        return a.id - b.id;
 	    },
 
-	    sortPotSetsByRemainder: function sortPotSetsByRemainder( aPottingList, bPottingList  )
+	    sortPotSetsByRemainder: function sortPotSetsByRemainder( aPottingSet, bPottingSet  )
 	    {   
-	        return aPottingList.getRemainingSpace() - bPottingList.getRemainingSpace();
+	    	var aRemainder = aPottingSet.getRemainingSpace();
+	    	var bRemainder = bPottingSet.getRemainingSpace();
+
+	    	/*if ( aRemainder === bRemainder )
+	    	{
+	    		return getClosenessRating( aPottingSet ) - getClosenessRating( bPottingSet )
+	    	}*/
+
+	        return aRemainder - bRemainder;
+	    },
+
+	    getClosenessRating: function getClosenessRating( forPottingList )
+	    {
+	    	/*var pots = forPottingList.getUsedPotsById().split("");
+	    	var count = 0;
+	    	
+	    	for ( var i = 0 i < pots.length - 1; i++)*/
 	    }
+
+
 	};
 }());
