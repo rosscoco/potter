@@ -53,11 +53,8 @@
 			if ( productData.hasOwnProperty( prodId ))
 			{
 				_formController.updateInput( { id:prodId, amount: productData[ prodId ] });	
-			}
-			
+			}			
 		}
-
-		//productData.forEach( _formController.updateInput );
 	}
 
 	function updateTerminal( withPots, withProducts )

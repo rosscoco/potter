@@ -64,6 +64,10 @@
 				pot.setAttribute('draggable', 'true');
 				pot.setAttribute('data-id', i + 1);
 
+				potContents.setAttribute('data-id', ( i + 1 ));
+				potContents.className = "potContents";
+				potContents.setAttribute('data-product', 'none');
+				
 				pot.addEventListener('dragstart', 	onPotDragStart );
 				pot.addEventListener("dragenter", 	onPotDragEnter );
 				pot.addEventListener("dragover", 	onPotDragOver );
@@ -71,17 +75,15 @@
 				pot.addEventListener('drop', 		onPotDrop );
 				pot.addEventListener('dragend', 	onPotDragEnd );
 
-				potContents.setAttribute('data-id', ( i + 1 ));
-				potContents.className = "potContents";
-				potContents.setAttribute('data-product', 'none');
-				
 
 				_potContents[ '' + ( i + 1 ) ] = { pot:potContents, text:txtContents, container:pot };
 				
+
 				container.appendChild( txtContents );
 				container.appendChild( pot );
 				pot.appendChild( potContents );
 				container.appendChild( txtCapacity );
+
 
 				_displayNode.appendChild( container );
 			});
@@ -138,7 +140,6 @@
 			_container.dispatchEvent( swapEvent );
 		}
 
-
 		function onPotDragEnd( evt, potContents )
 		{
 			console.log("DragEnd:" + evt.target.getAttribute('data-id'));
@@ -147,10 +148,6 @@
 
 			evt.dataTransfer.getData('targetPotId');
 		}
-
-
-
-
 
 		function insertSpacesBetweenPots()
 		{
@@ -187,7 +184,7 @@
 
 		function update( withProductData )
 		{
-
+			
 		}	
 
 		function clear()
@@ -485,7 +482,7 @@
 	    }
 	};
 }());
-},{"./PottingSetList.js":7,"./Utils.js":9,"./data/PottingResult.js":12}],4:[function(require,module,exports){
+},{"./PottingSetList.js":6,"./Utils.js":8,"./data/PottingResult.js":11}],4:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -572,7 +569,6 @@
             availablePots      	= Utils.filterRemainingPots( _potting, availablePots );
 
             _potConfiguration.push( pottingResult );
-
         });
 
         return _potting;
@@ -638,174 +634,7 @@
 	}
 }());
 
-},{"./PottingController.js":3,"./Utils.js":9,"./data/Terminal.js":13}],5:[function(require,module,exports){
-(function(){
-
-	var SUCCESS 	= 1;
-	var ERROR		= -1;
-	var	WARN		= 0;
-
-	var pottedProducts = {};
-
-	module.exports = PottingResponse;
-
-	function PottingResponse()
-	{
-		return {
-			getPottingResponse: getPottingResponse
-		};
-
-		/*return {
-			noPotsLeft: 		noPotsLeft,
-			pottingSuccess: 	pottingSuccess,
-			pottingFail: 		pottingFail, 
-			pottedSomeProduct: 	pottedSomeProduct,
-			overMaxWeight: 		overMaxWeight,
-			isAlreadyPotted: 	isAlreadyPotted,
-			clearResults: 		clearResults
-		};*/
-	}
-
-	function getPottingResponse( forProduct, result  )
-	{
-		var message;
-
-		var usedPottingSet = result.pottingUsed;
-
-		if ( usedPottingSet.isValid() )
-		{
-			if ( forProduct.remainder > 0 || result.remainder > 0 )
-			{
-				message = pottedSomeProduct( forProduct, usedPottingSet.getUsedPots() );
-			}
-			else
-			{
-				message = pottingSuccess( forProduct, usedPottingSet.getUsedPots() );			
-			}
-		}
-		else
-		{
-			message = pottingFail( forProduct, usedPottingSet.getUsedPots() );
-		}
-
-		return message;
-	}
-
-
-	function clearResults()
-	{
-		pottedProducts = {};
-	}
-
-	function getPottedProducts()
-	{
-		return; 
-	}
-
-	function isAlreadyPotted( product, availablePots )
-	{
-
-		/*
-		if ( pottedProduct.hasOwnProperty( product.id ) )
-		{
-			var cachedResults = pottedProduct[ product.id ];
-
-			if ( product.amount !== cachedResults.amount )
-			{
-				delete cachedResults[ product.id ];
-				return false;
-			}
-
-			var potsNeeded	= cachedResults.potsUsed.length;
-			var foundPots	= 0;
-
-			availablePots.forEach( function( potDetails )
-			{
-				if ( potsNeeded.indexOf( potDetails.id ) !== -1 )
-				{
-					foundPots++ ;
-				};
-			});
-
-			if ( cachedResults.potsUsed !== usedPotIds )
-			{
-				delete cachedResults[ product.id ];
-				return false;				
-			}
-
-			return cachedResults;
-		}
-		*/
-		return false;
-	}
-
-	function overMaxWeight( product, limitTo )
-	{
-		var data 			= {};
-		data.product 		= product.id;
-		data.pottingStatus 	= this.ERROR;
-		data.message 		= product.amount + " of " + product.id + " is over max allowed weight. Reducing to " + limitTo;
-
-		return data;
-	}
-
-	function noPotsLeft( product )
-	{
-		var data 			= {};
-		data.product 		= product.id;
-		data.pottingStatus 	= this.ERROR;
-		data.message 		= "Could not pot " + product.amount + " of " + product.id + ". No Pots left on tanker";
-
-		return data;
-	}
-
-	function pottingFail( product, pots )
-	{
-		var failedPot 		= pots[ pots.length - 1 ];
-		var amountNeeded 	= failedPot.minimum - failedPot.contents;
-
-		var data 			= {};
-		data.product		= product.id;
-		data.amount 		= product.amount;
-		data.pottingStatus 	= this.ERROR;
-		data.potsUsed		= pots.join('');
-		data.message 		= "Could not pot " + product.amount + " of " + product.id;
-		data.message 		+= "Need " + amountNeeded + "L more in Pot " + failedPot.id;
-
-		return data;
-	}
-
-	function pottingSuccess( product, pots )
-	{
-		/*var potsUsed = pots.reduce( function(id, pot )
-		{
-			return id + pot.id + " ";
-		},'');*/
-
-		var data 			= {};
-		data.product		= product.id;
-		data.amount 		= product.amount;
-		data.pottingStatus 	= this.SUCCESS;
-		data.potsUsed		= pots.join('');
-		data.message 		= product.id + " successfully potted in pots " + data.potsUsed;
-
-		return data;
-	}
-
-	function pottedSomeProduct( product, pots )
-	{
-		var data 			= {};
-		data.product		= product.id;
-		data.amount 		= product.amount;
-		data.remainder		= product.remainder;
-		data.pottingStatus 	= this.WARN;
-		data.message 		= product.amount + " of " + product.id + " put into pots " + pots.join(' & ');
-		data.message 		+= ". " + product.remainder  + " could not be potted.";
-
-		return data;
-	}
-}());	
-},{}],6:[function(require,module,exports){
+},{"./PottingController.js":3,"./Utils.js":8,"./data/Terminal.js":12}],5:[function(require,module,exports){
 /* globals debugger:false */
 (function()
 {
@@ -970,7 +799,7 @@
 	    }
 	};
 }());
-},{"./Utils.js":9}],7:[function(require,module,exports){
+},{"./Utils.js":8}],6:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -1076,7 +905,7 @@
 		}
 	};
 }());
-},{"./PottingSet.js":6,"./Utils.js":9}],8:[function(require,module,exports){
+},{"./PottingSet.js":5,"./Utils.js":8}],7:[function(require,module,exports){
 (function()
 {
 	module.exports = Tabs;
@@ -1121,7 +950,7 @@
 		}
 	}
 }());
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -1219,7 +1048,7 @@
 
 	};
 }());
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function()
 {
 	module.exports = ViewController;
@@ -1275,11 +1104,8 @@
 			if ( productData.hasOwnProperty( prodId ))
 			{
 				_formController.updateInput( { id:prodId, amount: productData[ prodId ] });	
-			}
-			
+			}			
 		}
-
-		//productData.forEach( _formController.updateInput );
 	}
 
 	function updateTerminal( withPots, withProducts )
@@ -1318,33 +1144,26 @@
 	}
 }());
 
-},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./Tabs.js":8}],11:[function(require,module,exports){
+},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./Tabs.js":7}],10:[function(require,module,exports){
 /* globals PottingSetList:false, PottingController:false 
 # sourceMappingURL=./app.js.map
 */
 (function()
 {   
-            var PottingController       = require("./PottingController.js");
             var PottingData             = require('./PottingData.js');
             var ViewController          = require("./ViewController.js");
-            var PottingResponse         = require("./PottingResponse.js");
-            var Utils                   = require("./Utils.js");
             
-            var potter;
             var data;
             var view;
-            var currentTerminal;
-            var pottingResponder;
 
             window.onload   = function()
             {
                 data                = new PottingData();
                 view                = new ViewController( document.querySelector(".content") );
-                pottingResponder    = PottingResponse();
 
                 data.loadProductData( onProductDataLoaded );
                 
-                document.querySelector("#productInputs").addEventListener("fillTanker", onFillTankerSelected );
+                document.querySelector("#productInputs").addEventListener("fillTanker", onBalanceTankerSelected );
                 document.querySelector("#productInputs").addEventListener("potTanker", onPotTankerSelected );                
                 document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
                 document.querySelector("#pottingContainer").addEventListener("swapPots", onSwapPotContents );
@@ -1354,9 +1173,7 @@
             {
                 console.log("Changing terminal to " + evt.detail );
 
-                var newTerminal = data.getTerminalData( evt.detail );
-
-                potter          = new PottingController( currentTerminal.pots );
+                var newTerminal = data.changeTerminal( evt.detail );
                     
                 view.updateTerminal( newTerminal.pots, newTerminal.products );
             }
@@ -1364,9 +1181,7 @@
             function onProductDataLoaded( )
             {
                 console.log("Product Data Loaded!!");
-                currentTerminal = data.changeTerminal("bramhall");
-
-                potter          = new PottingController( currentTerminal.pots );
+                var currentTerminal = data.changeTerminal("bramhall");
 
                 view.init( currentTerminal.pots, currentTerminal.products );
             }
@@ -1375,47 +1190,6 @@
             {
                 var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
                 view.showResults( newPotting );
-            }
-
-            
-            //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
-            function onFillTankerSelected( evt )
-            {
-                var results = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
-                
-                view.showResults( results );
-
-                view.updateProductInputs( data.getProductTotals() );
-
-                /*var weightUsed = 0;
-
-                evt.detail.enteredProducts.forEach( function( productData )
-                {
-                    weightUsed += productData.amount * currentTerminal.getProductData( productData.id ).density;
-                });
-
-                
-
-                var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
-                var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
-
-                evt.detail.enteredProducts.push( fillProductData );
-
-                
-
-                
-
-                onPotTankerSelected( evt );*/
-            }
-
-
-
-            function potProduct( product, pots )
-            {
-                var pottingUsed = potter.doPottingWithProduct( {id:product.productToFill, amount:product.amountToFill }, pots );
-                var bestPotting = pottingUsed[ 0 ];
-
-                view.updatePotting( bestPotting.getUsedPots() );
             }
 
             function onPottingChanged(pots)
@@ -1427,6 +1201,17 @@
                 */
             }
 
+             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
+            function onBalanceTankerSelected( evt )
+            {
+                var results = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
+                
+                view.showResults( results );
+
+                view.updateProductInputs( data.getProductTotals() );
+            }
+
+
             function onPotTankerSelected( evt )
             {
                 var forProducts     = evt.detail.enteredProducts;
@@ -1436,7 +1221,7 @@
                 view.showResults( potList );
             }
 }());            
-},{"./PottingController.js":3,"./PottingData.js":4,"./PottingResponse.js":5,"./Utils.js":9,"./ViewController.js":10}],12:[function(require,module,exports){
+},{"./PottingData.js":4,"./ViewController.js":9}],11:[function(require,module,exports){
 (function()
 {
 	
@@ -1482,7 +1267,7 @@
 		}*/
 	}
 }());
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function()
 {	
 	"use strict";
@@ -1617,5 +1402,5 @@
 	};
 
 }());
-},{}]},{},[11])
+},{}]},{},[10])
 //# sourceMappingURL=app.js.map

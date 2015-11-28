@@ -62,6 +62,10 @@
 				pot.setAttribute('draggable', 'true');
 				pot.setAttribute('data-id', i + 1);
 
+				potContents.setAttribute('data-id', ( i + 1 ));
+				potContents.className = "potContents";
+				potContents.setAttribute('data-product', 'none');
+				
 				pot.addEventListener('dragstart', 	onPotDragStart );
 				pot.addEventListener("dragenter", 	onPotDragEnter );
 				pot.addEventListener("dragover", 	onPotDragOver );
@@ -69,17 +73,15 @@
 				pot.addEventListener('drop', 		onPotDrop );
 				pot.addEventListener('dragend', 	onPotDragEnd );
 
-				potContents.setAttribute('data-id', ( i + 1 ));
-				potContents.className = "potContents";
-				potContents.setAttribute('data-product', 'none');
-				
 
 				_potContents[ '' + ( i + 1 ) ] = { pot:potContents, text:txtContents, container:pot };
 				
+
 				container.appendChild( txtContents );
 				container.appendChild( pot );
 				pot.appendChild( potContents );
 				container.appendChild( txtCapacity );
+
 
 				_displayNode.appendChild( container );
 			});
@@ -136,7 +138,6 @@
 			_container.dispatchEvent( swapEvent );
 		}
 
-
 		function onPotDragEnd( evt, potContents )
 		{
 			console.log("DragEnd:" + evt.target.getAttribute('data-id'));
@@ -145,10 +146,6 @@
 
 			evt.dataTransfer.getData('targetPotId');
 		}
-
-
-
-
 
 		function insertSpacesBetweenPots()
 		{
@@ -185,7 +182,7 @@
 
 		function update( withProductData )
 		{
-
+			
 		}	
 
 		function clear()

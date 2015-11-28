@@ -3,27 +3,20 @@
 */
 (function()
 {   
-            var PottingController       = require("./PottingController.js");
             var PottingData             = require('./PottingData.js');
             var ViewController          = require("./ViewController.js");
-            var PottingResponse         = require("./PottingResponse.js");
-            var Utils                   = require("./Utils.js");
             
-            var potter;
             var data;
             var view;
-            var currentTerminal;
-            var pottingResponder;
 
             window.onload   = function()
             {
                 data                = new PottingData();
                 view                = new ViewController( document.querySelector(".content") );
-                pottingResponder    = PottingResponse();
 
                 data.loadProductData( onProductDataLoaded );
                 
-                document.querySelector("#productInputs").addEventListener("fillTanker", onFillTankerSelected );
+                document.querySelector("#productInputs").addEventListener("fillTanker", onBalanceTankerSelected );
                 document.querySelector("#productInputs").addEventListener("potTanker", onPotTankerSelected );                
                 document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
                 document.querySelector("#pottingContainer").addEventListener("swapPots", onSwapPotContents );
@@ -33,9 +26,7 @@
             {
                 console.log("Changing terminal to " + evt.detail );
 
-                var newTerminal = data.getTerminalData( evt.detail );
-
-                potter          = new PottingController( currentTerminal.pots );
+                var newTerminal = data.changeTerminal( evt.detail );
                     
                 view.updateTerminal( newTerminal.pots, newTerminal.products );
             }
@@ -43,9 +34,7 @@
             function onProductDataLoaded( )
             {
                 console.log("Product Data Loaded!!");
-                currentTerminal = data.changeTerminal("bramhall");
-
-                potter          = new PottingController( currentTerminal.pots );
+                var currentTerminal = data.changeTerminal("bramhall");
 
                 view.init( currentTerminal.pots, currentTerminal.products );
             }
@@ -56,47 +45,6 @@
                 view.showResults( newPotting );
             }
 
-            
-            //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
-            function onFillTankerSelected( evt )
-            {
-                var results = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
-                
-                view.showResults( results );
-
-                view.updateProductInputs( data.getProductTotals() );
-
-                /*var weightUsed = 0;
-
-                evt.detail.enteredProducts.forEach( function( productData )
-                {
-                    weightUsed += productData.amount * currentTerminal.getProductData( productData.id ).density;
-                });
-
-                
-
-                var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
-                var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
-
-                evt.detail.enteredProducts.push( fillProductData );
-
-                
-
-                
-
-                onPotTankerSelected( evt );*/
-            }
-
-
-
-            function potProduct( product, pots )
-            {
-                var pottingUsed = potter.doPottingWithProduct( {id:product.productToFill, amount:product.amountToFill }, pots );
-                var bestPotting = pottingUsed[ 0 ];
-
-                view.updatePotting( bestPotting.getUsedPots() );
-            }
-
             function onPottingChanged(pots)
             {
                 /*I want to respond to potting changing manually, without invoking the potting controller
@@ -105,6 +53,17 @@
                         Product
                 */
             }
+
+             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
+            function onBalanceTankerSelected( evt )
+            {
+                var results = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
+                
+                view.showResults( results );
+
+                view.updateProductInputs( data.getProductTotals() );
+            }
+
 
             function onPotTankerSelected( evt )
             {

@@ -84,7 +84,6 @@
             availablePots      	= Utils.filterRemainingPots( _potting, availablePots );
 
             _potConfiguration.push( pottingResult );
-
         });
 
         return _potting;
