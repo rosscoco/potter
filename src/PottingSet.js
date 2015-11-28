@@ -12,7 +12,7 @@
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
 	        getRemainingSpace       : getRemainingSpace,
-	        getUsedPots             : getUsedPots,
+	        getPotArray             : getUsedPots,
 	        isValid                 : isValid
 	    };
 

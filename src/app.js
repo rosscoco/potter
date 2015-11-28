@@ -33,17 +33,17 @@
             {
                 console.log("Changing terminal to " + evt.detail );
 
-                currentTerminal = data.getTerminalData( evt.detail );
+                var newTerminal = data.getTerminalData( evt.detail );
 
                 potter          = new PottingController( currentTerminal.pots );
                     
-                view.updateTerminal( currentTerminal.pots, currentTerminal.products );
+                view.updateTerminal( newTerminal.pots, newTerminal.products );
             }
 
             function onProductDataLoaded( )
             {
                 console.log("Product Data Loaded!!");
-                currentTerminal = data.getTerminalData("bramhall");
+                currentTerminal = data.changeTerminal("bramhall");
 
                 potter          = new PottingController( currentTerminal.pots );
 
@@ -66,6 +66,8 @@
                 {
                     weightUsed += productData.amount * currentTerminal.getProductData( productData.id ).density;
                 });
+
+                
 
                 var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
                 var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
@@ -106,27 +108,25 @@
 
             function onPotTankerSelected( evt )
             {
-                var products        = evt.detail.enteredProducts;
-                var availablePots   = currentTerminal.pots.slice();
-                var messages        = [];
-                var allUsedPots     = [];
-                var currentWeight   = 0;
-                
-                var currentUsedPots;                
-                var bestPottingSet;
-                var pottingResult;
+                var forProducts     = evt.detail.enteredProducts;
+                var results         = [];
+                var potList         = data.getPotting( forProducts );
 
-                view.showResults( null );
-                
-                products.forEach( function( productDetails )
+                view.showResults( potList );
+                //data.setPotting( allUsedPots );
+
+
+/*                products.forEach( function( productDetails )
                 {
                     if ( availablePots.length === 0 ) return;
 
                     productDetails      = currentTerminal.checkWeight( productDetails, currentWeight );
                     pottingResult       = potter.doPottingWithProduct( productDetails, availablePots.slice() );
-                    currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
 
-                    messages.push( pottingResponder.getPottingResponse( productDetails, pottingResult ) );
+
+                    //currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
+
+                    //messages.push( pottingResponder.getPottingResponse( productDetails, pottingResult ) );
 
                     currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
                     {
@@ -135,13 +135,11 @@
                     
                     allUsedPots         = allUsedPots.concat( currentUsedPots );
                     availablePots       = Utils.filterRemainingPots( allUsedPots, availablePots );
-                });
+                });*/
 
+                //updatePotting( messages )
                 
 
                 //view.updatePotting( filledPots );
-
-                view.showResults( allUsedPots, messages );
-                data.setPotting( allUsedPots );
             }
 }());            

@@ -431,6 +431,7 @@
 
 	var Utils 			= require("./Utils.js");
 	var PottingSetList	= require("./PottingSetList.js");
+	var PottingResult 	= require("./data/PottingResult.js");
 
 	module.exports = function PottingController( listOfPots )
 	{
@@ -446,7 +447,7 @@
 	        _activePots             = withPots;        
 
 	        var productNotPotted 	= 0;
-	        var pottingUsed;			//PottingSet;
+	        var pottingSetUsed;			//PottingSet;
 	        var usedPottingSet      = '';
 
 	         var spaceAvailable     = _activePots.reduce( function ( count, potData )
@@ -460,9 +461,12 @@
 	            productNotPotted 	= withProduct.amount - spaceAvailable;
 	         }
 
-	        pottingUsed = getBestPotsForProduct( _activePots, withProduct );
+	        pottingSetUsed = getBestPotsForProduct( _activePots, withProduct );
 
-	        return { pottingUsed:pottingUsed, remainder: productNotPotted };
+	        withProduct.remainder = productNotPotted;
+	        //return { pottingSetUsed:pottingSetUsed, remainder: productNotPotted, product:withProduct };
+	        var result = new PottingResult( withProduct, pottingSetUsed );
+	        return result;
 	    }
 
 	    function getBestPotsForProduct( withPots, product )
@@ -480,53 +484,34 @@
 	    }
 	};
 }());
-},{"./PottingSetList.js":7,"./Utils.js":9}],4:[function(require,module,exports){
+},{"./PottingSetList.js":7,"./Utils.js":9,"./data/PottingResult.js":12}],4:[function(require,module,exports){
 (function()
 {
 	"use strict";
 	var PRODUCT_DATA_URL 	= './resources/products.json?' + Math.random().toFixed(4);
 	
 	var Terminal 			= require('./data/Terminal.js');
-
-	/*var availableProducts 	= [   	{id:1051510, density:0.83,name:"Blah"},
-	                                {id:1051485, density:0.83,name:"Blah"},
-	                                {id:1051643, density:0.83,name:"Blah"}] ;
-
-    var products    		= [     {id:"1051512", amount:22800, pottingUsed:[] },
-									{id:"1051510", amount:12000, pottingUsed:[] }];
-
-    var basePots    		= [     {id:1,capacity:7600, contents:0, product:"", minimum:7500},
-		                            {id:2,capacity:7600, contents:0, product:"", minimum:6600},
-		                            {id:3,capacity:7000, contents:0, product:"", minimum:3500},
-		                            {id:4,capacity:7600, contents:0, product:"", minimum:3800},
-		                            {id:5,capacity:6000, contents:0, product:"", minimum:3000},
-		                            {id:6,capacity:7000, contents:0, product:"", minimum:6000}];
-
-	var testPots		    =  [    {id:1,capacity:7600, contents:0, product:"", minimum:7500},
-                                    {id:2,capacity:7600, contents:0, product:"", minimum:6600},
-                                    {id:4,capacity:7600, contents:0, product:"", minimum:3800}];
-
-	var testProduct 		=       {id:"1051510", amount:18000, pottingUsed:[] };*/
+	var Utils				= require('./Utils.js');
+	var PottingController 	= require('./PottingController.js');
 	var _terminals;
 	var _potting;
+	var _currentTerminal;
+	var _potConfiguration;
+	var _potter;
 
 	module.exports = PottingData;
 
 	function PottingData()
 	{	
-		_terminals = [];
-		_potting = [];
+		_terminals 	= [];
+		_potting 	= [];
 
 		return { 	loadProductData: 	loadProductData,
-					getTerminalData: 	getTerminalData,
-					setPotting: 		setPotting,
-					movePots: 			movePots};
+					changeTerminal: 	changeTerminal,
+					getPotting: 		getPotting,
+					movePots: 			movePots };
 	}
 
-	function setPotting( potting )
-	{
-		_potting = potting;
-	}
 
 	function movePots( pot1Id, pot2Id )
 	{
@@ -544,23 +529,60 @@
 		return _potting;
 	}
 
-	function getTerminalData( terminalName )
+	function changeTerminal( terminalName )
 	{
-		return _terminals[terminalName];
+		_currentTerminal 	= _terminals[ terminalName ];
+		_potter 			= new PottingController( _currentTerminal.pots );
+
+		return _currentTerminal;
+	}
+
+	function getPotConfig( potting )
+	{
+		return _potConfiguration;
+	}
+
+	function getPotting( forProducts, limitToPots )
+	{
+		_potConfiguration 	=[];
+
+		var potsUsed 		= [];
+		var availablePots 	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
+		var pottingResult;
+		var currentWeight;
+
+		forProducts.forEach( function( productDetails )
+        {
+            if ( availablePots.length === 0 ) return;
+
+            productDetails      = _currentTerminal.checkWeight( productDetails, potsUsed );
+            pottingResult       = _potter.doPottingWithProduct( productDetails, availablePots.slice() );
+            potsUsed			= potsUsed.concat( pottingResult.pottingUsed.getPotArray() );
+            availablePots      	= Utils.filterRemainingPots( potsUsed, availablePots );
+
+            _potConfiguration.push( pottingResult );
+
+        });
+
+        return potsUsed;
+	}
+
+	function updatePotting( newPotConfiguration )
+	{
+
 	}
 
 	function onProductDataLoaded( data, onComplete )
 	{
 		var terminalData = JSON.parse( data );
-		console.log('onProductDataLoaded');
-		console.log(terminalData);
+		
 		for ( var id in terminalData )
 		{
 			if ( terminalData.hasOwnProperty( id ) )
 			{
-				var terminal = new Terminal( id, terminalData[id]);
-				_terminals[id] = terminal;	
-				console.log( _terminals[id].toString());
+				var terminal = new Terminal( id, terminalData[ id ]);
+				_terminals[ id ] = terminal;	
+				console.log( _terminals[ id ].toString());
 			}
 		}
 
@@ -583,11 +605,9 @@
 
     	xobj.send( null );  
 	}
-
-
 }());
 
-},{"./data/Terminal.js":12}],5:[function(require,module,exports){
+},{"./PottingController.js":3,"./Utils.js":9,"./data/Terminal.js":13}],5:[function(require,module,exports){
 (function(){
 
 	var SUCCESS 	= 1;
@@ -596,12 +616,12 @@
 
 	var pottedProducts = {};
 
-	module.exports = PottingResults;
+	module.exports = PottingResponse;
 
-	function PottingResults()
+	function PottingResponse()
 	{
 		return {
-			getPottingResults: getPottingResults
+			getPottingResponse: getPottingResponse
 		};
 
 		/*return {
@@ -615,7 +635,7 @@
 		};*/
 	}
 
-	function getPottingResults( forProduct, result  )
+	function getPottingResponse( forProduct, result  )
 	{
 		var message;
 
@@ -769,7 +789,7 @@
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
 	        getRemainingSpace       : getRemainingSpace,
-	        getUsedPots             : getUsedPots,
+	        getPotArray             : getUsedPots,
 	        isValid                 : isValid
 	    };
 
@@ -931,7 +951,7 @@
 	{
 	   var _listOfPottingSets = withListOfPots.map( function( potArray ) 
 	    {
-	        return new PottingSet( potArray );
+	        return PottingSet( potArray );
 	    });
 
 	   var _validPottingSets;
@@ -1228,20 +1248,20 @@
             var PottingController       = require("./PottingController.js");
             var PottingData             = require('./PottingData.js');
             var ViewController          = require("./ViewController.js");
-            var PottingResults          = require("./PottingResults.js");
+            var PottingResponse         = require("./PottingResponse.js");
             var Utils                   = require("./Utils.js");
             
             var potter;
             var data;
             var view;
             var currentTerminal;
-            var results;
+            var pottingResponder;
 
             window.onload   = function()
             {
                 data            = new PottingData();
                 view            = new ViewController( document.querySelector(".content") );
-                results         = PottingResults();
+                pottingResponder        = PottingResponse();
 
                 data.loadProductData( onProductDataLoaded );
                 
@@ -1255,17 +1275,17 @@
             {
                 console.log("Changing terminal to " + evt.detail );
 
-                currentTerminal = data.getTerminalData( evt.detail );
+                var newTerminal = data.getTerminalData( evt.detail );
 
                 potter          = new PottingController( currentTerminal.pots );
                     
-                view.updateTerminal( currentTerminal.pots, currentTerminal.products );
+                view.updateTerminal( newTerminal.pots, newTerminal.products );
             }
 
             function onProductDataLoaded( )
             {
                 console.log("Product Data Loaded!!");
-                currentTerminal = data.getTerminalData("bramhall");
+                currentTerminal = data.changeTerminal("bramhall");
 
                 potter          = new PottingController( currentTerminal.pots );
 
@@ -1288,6 +1308,8 @@
                 {
                     weightUsed += productData.amount * currentTerminal.getProductData( productData.id ).density;
                 });
+
+                
 
                 var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
                 var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
@@ -1317,117 +1339,102 @@
                 view.updatePotting( bestPotting.getUsedPots() );
             }
 
+            function onPottingChanged(pots)
+            {
+                /*I want to respond to potting changing manually, without invoking the potting controller
+                    -accept a list of potting results
+                        PottingSet
+                        Product
+                */
+            }
+
             function onPotTankerSelected( evt )
             {
-                var products        = evt.detail.enteredProducts;
-                var availablePots   = currentTerminal.pots.slice();
-                var messages        = [];
-                var allUsedPots     = [];
-                var currentWeight   = 0;
-                
-                var currentUsedPots;                
-                var bestPottingSet;
-                var pottingResult;
+                var forProducts     = evt.detail.enteredProducts;
+                var results         = [];
+                var potList         = data.getPotting( forProducts );
 
-                view.showResults( null );
+                view.showResults( potList );
+                //data.setPotting( allUsedPots );
 
-                products.forEach( function( productDetails )
+
+/*                products.forEach( function( productDetails )
                 {
-                    console.log("onPotTankerSelected()::Potting " + productDetails.id + " using " + availablePots.join(" & "));
-
                     if ( availablePots.length === 0 ) return;
 
                     productDetails      = currentTerminal.checkWeight( productDetails, currentWeight );
-
                     pottingResult       = potter.doPottingWithProduct( productDetails, availablePots.slice() );
-                    currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
 
-                    messages.push( results.getPottingResults( productDetails, pottingResult ) );
+
+                    //currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
+
+                    //messages.push( pottingResponder.getPottingResponse( productDetails, pottingResult ) );
 
                     currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
                     {
                         return total + potData.contents * currentTerminal.getProductData( potData.product ).density;
                     }, 0 );
-
-                    allUsedPots         = allUsedPots.concat( currentUsedPots );                    
+                    
+                    allUsedPots         = allUsedPots.concat( currentUsedPots );
                     availablePots       = Utils.filterRemainingPots( allUsedPots, availablePots );
-                });
+                });*/
+
+                //updatePotting( messages )
+                
 
                 //view.updatePotting( filledPots );
-
-                view.showResults( allUsedPots, messages );
-                data.setPotting( allUsedPots );
             }
-
-           /* function checkWeight( productToPot, alreadyPotted )
-            {
-                var currentWeight = alreadyPotted.reduce( function countProductWeight(total, product )
-                {
-                    return total + product.amount * currentTerminal.getProductData( product.id ).density;
-                },0);
-
-                var toPotDensity =  currentTerminal.getProductData( productToPot.id ).density;
-
-                if ( toPotDensity * productToPot.amount + currentWeight > currentTerminal.getMaxWeight() )
-                {
-                    var litresAvailable = Math.max( currentTerminal.getMaxWeight() - currentWeight, 0 ) / toPotDensity;   // * ( 1 / toPotDensity );
-                    
-                    productToPot.remainder = productToPot.amount - litresAvailable;
-                    productToPot.amount = litresAvailable;
-                }
-
-                return productToPot;
-            }*/
-
-                    /*var alreadyPotted = results.isAlreadyPotted( productDetails, availablePots );
-
-                    if ( alreadyPotted )
-                    {
-                        messages.push( alreadyPotted );
-                        return;
-                    }
-
-                    if ( availablePots.length === 0 )
-                    {
-                        messages.push( results.noPotsLeft( productDetails ));
-                        return;
-                    }
-
-                    var usedPottingSet = potter.doPottingWithProduct( productDetails, availablePots.slice() );
-                    var potsUsed = usedPottingSet.getUsedPots();
-
-
-
-                    if ( usedPottingSet.isValid() )
-                    {
-                        messages.push( results.pottingSuccess( productDetails, potsUsed  ));
-                    }
-                    else
-                    {
-                        messages.push( results.pottingFail( productDetails, potsUsed ));
-                    }
-
-                    usedPotIds          = usedPottingSet.getUsedPotsById();
-
-                    filledPots  = filledPots.concat( potsUsed );
-
-                    availablePots       = availablePots.filter( function getRemainingPots( potData )
-                    {
-                        if (  usedPotIds.indexOf( potData.id ) === -1 )
-                        {
-                            return true;
-                        }
-                    });                     
-                });
-
-                view.updatePotting( filledPots );
-                //view.showResults( messages );
-                
-            }*/
 }());            
-},{"./PottingController.js":3,"./PottingData.js":4,"./PottingResults.js":5,"./Utils.js":9,"./ViewController.js":10}],12:[function(require,module,exports){
+},{"./PottingController.js":3,"./PottingData.js":4,"./PottingResponse.js":5,"./Utils.js":9,"./ViewController.js":10}],12:[function(require,module,exports){
+(function()
+{
+	
+
+	module.exports = PottingResult;
+
+	function PottingResult(forProduct, pottingSetUsed )
+	{
+
+
+		/*
+
+		var _pottingSet;
+		var _isValidPottingSet;
+		var _productDetails;
+		var _potsUsed;
+		var _potIds;
+
+		*/
+		
+		this.pottingUsed 	= pottingSetUsed;
+		this.product 		= forProduct;
+
+/*
+		function movePots( potToInsert, pot2Move )
+		{
+
+		}
+
+		function getPotsUsed()
+		{
+
+		}
+
+		function isUsingPot( potId )
+		{
+			var results = _potsUsed.filter( function( pot )
+			{
+				return pot.id === potId;
+			});
+
+			return results.length === 1; 
+		}*/
+	}
+}());
+},{}],13:[function(require,module,exports){
 (function()
 {	
+	"use strict";
 
             /*var basePots    = [     {id:1,capacity:7600, contents:0, product:"", minimum:7500},
                                     {id:2,capacity:7600, contents:0, product:"", minimum:6600},
@@ -1439,13 +1446,12 @@
 	module.exports = Terminal;
 
 
-
-
 	function Terminal( id, data )
 	{
 		this.name 		= id;
 		this.pots 		= [];
 		this.products 	= {};
+		this.maxWeight 	= 30000;
 
 		this.potIds 	= '';
 		this.productIds = '';
@@ -1491,11 +1497,6 @@
 		return s;
 	};
 
-	Terminal.prototype.getMaxWeight = function()
-	{
-		return 30000;
-	};
-
 
 	Terminal.prototype.getProductData = function( forProduct )
 	{
@@ -1518,16 +1519,49 @@
 		return capacity;
 	};
 
-	Terminal.prototype.checkWeight = function( productToPot, currentWeight )
-	{
-        var toPotDensity =  this.getProductData( productToPot.id ).density;
 
-        if ( toPotDensity * productToPot.amount + currentWeight > this.getMaxWeight() )
+
+	//Checks the weight of an amount of product and will reduce it to a number of litres that is below the maximum weight.
+	//If products have already been potted then this function will subtract the already potted weight from the maximum allowed weight first.
+	Terminal.prototype.checkWeight = function( productToPot, productsPotted )
+	{
+		var currentWeight = 0;
+		var maxWeight;
+		var toPotDensity;
+		var litresAvailable;
+
+		if ( productsPotted )
+		{	
+			for ( var i = 0; i < productsPotted.length; i++ )
+			{
+				currentWeight += this.getProductData( productsPotted[ i ].product ).density * productsPotted[ i ].contents;
+			}
+		}
+
+		/*
+		function reduceToProductWeight( total, potData )
         {
-            var litresAvailable = Math.max( this.getMaxWeight() - currentWeight, 0 ) *  ( 1 / toPotDensity );   // * ( 1 / toPotDensity );
+            return total + potData.contents * this.getProductData( potData.product ).density;
+        }
+
+		currentWeight = productsPotted.reduce.call( this, reduceToProductWeight, 0 );
+	
+		if ( productsPotted )
+		{
+			currentWeight = productsPotted.reduce( function reduceToProductWeight( total, potData )
+            {
+                return total + potData.contents * this.getProductData( potData.product ).density;
+            }, 0 );
+		}*/
+
+        toPotDensity 	= this.getProductData( productToPot.id ).density;
+
+        if ( toPotDensity * productToPot.amount + currentWeight > this.maxWeight )
+        {
+            litresAvailable = Math.max( this.maxWeight - currentWeight, 0 ) *  ( 1 / toPotDensity );
             
-            productToPot.remainder = productToPot.amount - litresAvailable;
-            productToPot.amount = litresAvailable;
+            productToPot.remainder 	= productToPot.amount - litresAvailable;
+            productToPot.amount 	= litresAvailable;
         }
 
         return productToPot;

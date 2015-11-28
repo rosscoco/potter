@@ -5,6 +5,7 @@
 
 	var Utils 			= require("./Utils.js");
 	var PottingSetList	= require("./PottingSetList.js");
+	var PottingResult 	= require("./data/PottingResult.js");
 
 	module.exports = function PottingController( listOfPots )
 	{
@@ -20,7 +21,7 @@
 	        _activePots             = withPots;        
 
 	        var productNotPotted 	= 0;
-	        var pottingUsed;			//PottingSet;
+	        var pottingSetUsed;			//PottingSet;
 	        var usedPottingSet      = '';
 
 	         var spaceAvailable     = _activePots.reduce( function ( count, potData )
@@ -34,9 +35,12 @@
 	            productNotPotted 	= withProduct.amount - spaceAvailable;
 	         }
 
-	        pottingUsed = getBestPotsForProduct( _activePots, withProduct );
+	        pottingSetUsed = getBestPotsForProduct( _activePots, withProduct );
 
-	        return { pottingUsed:pottingUsed, remainder: productNotPotted };
+	        withProduct.remainder = productNotPotted;
+	        //return { pottingSetUsed:pottingSetUsed, remainder: productNotPotted, product:withProduct };
+	        var result = new PottingResult( withProduct, pottingSetUsed );
+	        return result;
 	    }
 
 	    function getBestPotsForProduct( withPots, product )

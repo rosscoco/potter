@@ -4,46 +4,27 @@
 	var PRODUCT_DATA_URL 	= './resources/products.json?' + Math.random().toFixed(4);
 	
 	var Terminal 			= require('./data/Terminal.js');
-
-	/*var availableProducts 	= [   	{id:1051510, density:0.83,name:"Blah"},
-	                                {id:1051485, density:0.83,name:"Blah"},
-	                                {id:1051643, density:0.83,name:"Blah"}] ;
-
-    var products    		= [     {id:"1051512", amount:22800, pottingUsed:[] },
-									{id:"1051510", amount:12000, pottingUsed:[] }];
-
-    var basePots    		= [     {id:1,capacity:7600, contents:0, product:"", minimum:7500},
-		                            {id:2,capacity:7600, contents:0, product:"", minimum:6600},
-		                            {id:3,capacity:7000, contents:0, product:"", minimum:3500},
-		                            {id:4,capacity:7600, contents:0, product:"", minimum:3800},
-		                            {id:5,capacity:6000, contents:0, product:"", minimum:3000},
-		                            {id:6,capacity:7000, contents:0, product:"", minimum:6000}];
-
-	var testPots		    =  [    {id:1,capacity:7600, contents:0, product:"", minimum:7500},
-                                    {id:2,capacity:7600, contents:0, product:"", minimum:6600},
-                                    {id:4,capacity:7600, contents:0, product:"", minimum:3800}];
-
-	var testProduct 		=       {id:"1051510", amount:18000, pottingUsed:[] };*/
+	var Utils				= require('./Utils.js');
+	var PottingController 	= require('./PottingController.js');
 	var _terminals;
 	var _potting;
+	var _currentTerminal;
+	var _potConfiguration;
+	var _potter;
 
 	module.exports = PottingData;
 
 	function PottingData()
 	{	
-		_terminals = [];
-		_potting = [];
+		_terminals 	= [];
+		_potting 	= [];
 
 		return { 	loadProductData: 	loadProductData,
-					getTerminalData: 	getTerminalData,
-					setPotting: 		setPotting,
-					movePots: 			movePots};
+					changeTerminal: 	changeTerminal,
+					getPotting: 		getPotting,
+					movePots: 			movePots };
 	}
 
-	function setPotting( potting )
-	{
-		_potting = potting;
-	}
 
 	function movePots( pot1Id, pot2Id )
 	{
@@ -61,23 +42,60 @@
 		return _potting;
 	}
 
-	function getTerminalData( terminalName )
+	function changeTerminal( terminalName )
 	{
-		return _terminals[ terminalName ];
+		_currentTerminal 	= _terminals[ terminalName ];
+		_potter 			= new PottingController( _currentTerminal.pots );
+
+		return _currentTerminal;
+	}
+
+	function getPotConfig( potting )
+	{
+		return _potConfiguration;
+	}
+
+	function getPotting( forProducts, limitToPots )
+	{
+		_potConfiguration 	=[];
+
+		var potsUsed 		= [];
+		var availablePots 	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
+		var pottingResult;
+		var currentWeight;
+
+		forProducts.forEach( function( productDetails )
+        {
+            if ( availablePots.length === 0 ) return;
+
+            productDetails      = _currentTerminal.checkWeight( productDetails, potsUsed );
+            pottingResult       = _potter.doPottingWithProduct( productDetails, availablePots.slice() );
+            potsUsed			= potsUsed.concat( pottingResult.pottingUsed.getPotArray() );
+            availablePots      	= Utils.filterRemainingPots( potsUsed, availablePots );
+
+            _potConfiguration.push( pottingResult );
+
+        });
+
+        return potsUsed;
+	}
+
+	function updatePotting( newPotConfiguration )
+	{
+
 	}
 
 	function onProductDataLoaded( data, onComplete )
 	{
 		var terminalData = JSON.parse( data );
-		console.log('onProductDataLoaded');
-		console.log(terminalData);
+		
 		for ( var id in terminalData )
 		{
 			if ( terminalData.hasOwnProperty( id ) )
 			{
-				var terminal = new Terminal( id, terminalData[id]);
-				_terminals[id] = terminal;	
-				console.log( _terminals[id].toString());
+				var terminal = new Terminal( id, terminalData[ id ]);
+				_terminals[ id ] = terminal;	
+				console.log( _terminals[ id ].toString());
 			}
 		}
 
@@ -100,6 +118,4 @@
 
     	xobj.send( null );  
 	}
-
-
 }());
