@@ -113,7 +113,8 @@
 			undef:true,
 			node:true,
 			browser:true,
-			debug:true
+			debug:true,
+			newcap:false
 		};
 	}
 
