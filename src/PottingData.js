@@ -26,7 +26,6 @@
 					movePots: 			movePots };
 	}
 
-
 	function movePots( pot1Id, pot2Id )
 	{
 		var pot1 		= _potting[ pot1Id - 1 ];
@@ -67,9 +66,9 @@
 
 	function getPotting( forProducts, limitToPots )
 	{
-		_potConfiguration 	=[];
+		_potConfiguration 	= [];
+		_potting			= [];
 
-		var potsUsed 		= [];
 		var availablePots 	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
 		var pottingResult;
 		var currentWeight;
@@ -80,14 +79,29 @@
 
             productDetails      = _currentTerminal.checkWeight( productDetails, potsUsed );
             pottingResult       = _potter.doPottingWithProduct( productDetails, availablePots.slice() );
-            potsUsed			= potsUsed.concat( pottingResult.pottingUsed.getPotArray() );
-            availablePots      	= Utils.filterRemainingPots( potsUsed, availablePots );
+            _potting			= _potting.concat( pottingResult.pottingUsed.getPotArray() );
+            availablePots      	= Utils.filterRemainingPots( _potting, availablePots );
 
             _potConfiguration.push( pottingResult );
 
         });
 
-        return potsUsed;
+        return _potting;
+	}
+
+	function getProductTotals( )
+	{
+		return _potting.reduce( function( productInfo, potData )
+		{
+			if ( productInfo.hasOwnProperty( potData.product )
+			{
+				productInfo[ potData.product ] += potData.amount;
+			}
+			else
+			{
+				productInfo[ potData.product ] = potData.amount;
+			};
+		},{});
 	}
 
 	function updatePotting( newPotConfiguration )
@@ -120,12 +134,11 @@
     	
     	xobj.onreadystatechange = function () 
     	{
-
           if ( xobj.readyState === 4 && xobj.status === 200 ) {
             onProductDataLoaded( xobj.responseText, onComplete );
           }
     	};
 
-    	xobj.send( null );  
+    	xobj.send( null );
 	}
 }());

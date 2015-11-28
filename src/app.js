@@ -64,8 +64,7 @@
                 
                 view.showResults( results );
 
-
-                //view.updateProductInputs([ fillProductData ]);
+                view.updateProductInputs( data.getProductTotals() );
 
                 /*var weightUsed = 0;
 

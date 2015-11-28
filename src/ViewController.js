@@ -48,7 +48,12 @@
 
 	function updateProductInputs( productData )
 	{
-		productData.forEach( _formController.updateInput );
+		for ( var prodId in productData )
+		{
+			_formController.updateInput( { id:prodId, amount: productData[ prodId ] });
+		}
+
+		//productData.forEach( _formController.updateInput );
 	}
 
 	function updateTerminal( withPots, withProducts )
