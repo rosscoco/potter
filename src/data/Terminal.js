@@ -85,40 +85,38 @@
 		return capacity;
 	};
 
+	Terminal.prototype.getBalance = function( productToBalance, otherProducts )
+	{
+		var weight = 0;
+
+		for ( var i = 0; i < otherProducts.length; i++ ) 
+		{
+			weight += this.getProductData( otherProducts[ i ].id ).density * otherProducts[ i ].amount;
+		}
+
+		var litresAvailable = Math.max( this.maxWeight - weight, 0 ) *  ( 1 / this.getProductData( productToBalance ).density );
+
+		return {id:productToBalance, amount: litresAvailable };
+	};
+
 
 
 	//Checks the weight of an amount of product and will reduce it to a number of litres that is below the maximum weight.
 	//If products have already been potted then this function will subtract the already potted weight from the maximum allowed weight first.
-	Terminal.prototype.checkWeight = function( productToPot, productsPotted )
+	Terminal.prototype.checkWeight = function( productToPot, alreadyPotted )
 	{
 		var currentWeight = 0;
 		var maxWeight;
 		var toPotDensity;
 		var litresAvailable;
 
-		if ( productsPotted )
+		if ( alreadyPotted )
 		{	
-			for ( var i = 0; i < productsPotted.length; i++ )
+			for ( var i = 0; i < alreadyPotted.length; i++ )
 			{
-				currentWeight += this.getProductData( productsPotted[ i ].product ).density * productsPotted[ i ].contents;
+				currentWeight += this.getProductData( alreadyPotted[ i ].product ).density * alreadyPotted[ i ].contents;
 			}
 		}
-
-		/*
-		function reduceToProductWeight( total, potData )
-        {
-            return total + potData.contents * this.getProductData( potData.product ).density;
-        }
-
-		currentWeight = productsPotted.reduce.call( this, reduceToProductWeight, 0 );
-	
-		if ( productsPotted )
-		{
-			currentWeight = productsPotted.reduce( function reduceToProductWeight( total, potData )
-            {
-                return total + potData.contents * this.getProductData( potData.product ).density;
-            }, 0 );
-		}*/
 
         toPotDensity 	= this.getProductData( productToPot.id ).density;
 

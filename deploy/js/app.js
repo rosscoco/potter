@@ -258,6 +258,7 @@
 
 		function getEnteredProductAmounts( putLast )
         {
+        	//the product just entered will be potted last
         	var lastProduct;
 
         	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
@@ -285,8 +286,8 @@
                 	return true;
                 });
 
-            //if ( lastProduct ) selectedProducts.push( lastProduct );
-            if ( lastProduct ) selectedProducts.unshift( lastProduct );
+            if ( lastProduct ) selectedProducts.push( lastProduct );
+            //if ( lastProduct ) selectedProducts.unshift( lastProduct );
 
             return selectedProducts;
         }
@@ -509,6 +510,7 @@
 		return { 	loadProductData: 	loadProductData,
 					changeTerminal: 	changeTerminal,
 					getPotting: 		getPotting,
+					balanceTanker: 		balanceTanker,
 					movePots: 			movePots };
 	}
 
@@ -540,6 +542,15 @@
 	function getPotConfig( potting )
 	{
 		return _potConfiguration;
+	}
+
+	function balanceTanker( productToFill, productArray )
+	{
+		productToFill = _currentTerminal.getBalance( productToFill, productArray );
+
+		productArray.push( productToFill );
+
+		return getPotting( productArray );
 	}
 
 	function getPotting( forProducts, limitToPots )
@@ -789,11 +800,11 @@
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
 	        getRemainingSpace       : getRemainingSpace,
-	        getPotArray             : getUsedPots,
+	        getPotArray             : getPotArray,
 	        isValid                 : isValid
 	    };
 
-	    function getUsedPots()
+	    function getPotArray()
 	    {
 	        return _availablePots;
 	    }
@@ -1015,6 +1026,18 @@
 	        });
 
 	        _validPottingSets.sort( PotSorter.sortPotSetsByRemainder );
+
+	        var debugResult = _validPottingSets.map( function( pottingSet )
+	        {
+	        	return pottingSet.getUsedPotsById() + ": " + pottingSet.getRemainingSpace();  
+
+				/*return pottingSet.getPotArray.reduce( function( potString, pots )
+				{
+					return 
+				}, )	        	*/
+	        });
+
+	        console.table( debugResult );
 	    }
 
 	    function getBestPottingSet()
@@ -1022,6 +1045,7 @@
 	    	if ( _validPottingSets.length > 0 )
 	    	{
 	    		return _validPottingSets[ 0 ];
+
 	    	}
 	    	else
 	    	{
@@ -1129,6 +1153,14 @@
         });
     };
 
+	exports.getPotString = function getPotString( pots )
+    {
+        return pots.reduce( function( debugString, potData )
+        {   
+            return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
+        },'');
+    };
+
 
 
 	exports.PotSorter = {
@@ -1143,10 +1175,28 @@
 	        return a.id - b.id;
 	    },
 
-	    sortPotSetsByRemainder: function sortPotSetsByRemainder( aPottingList, bPottingList  )
+	    sortPotSetsByRemainder: function sortPotSetsByRemainder( aPottingSet, bPottingSet  )
 	    {   
-	        return aPottingList.getRemainingSpace() - bPottingList.getRemainingSpace();
+	    	var aRemainder = aPottingSet.getRemainingSpace();
+	    	var bRemainder = bPottingSet.getRemainingSpace();
+
+	    	/*if ( aRemainder === bRemainder )
+	    	{
+	    		return getClosenessRating( aPottingSet ) - getClosenessRating( bPottingSet )
+	    	}*/
+
+	        return aRemainder - bRemainder;
+	    },
+
+	    getClosenessRating: function getClosenessRating( forPottingList )
+	    {
+	    	/*var pots = forPottingList.getUsedPotsById().split("");
+	    	var count = 0;
+	    	
+	    	for ( var i = 0 i < pots.length - 1; i++)*/
 	    }
+
+
 	};
 }());
 },{}],10:[function(require,module,exports){
@@ -1259,9 +1309,9 @@
 
             window.onload   = function()
             {
-                data            = new PottingData();
-                view            = new ViewController( document.querySelector(".content") );
-                pottingResponder        = PottingResponse();
+                data                = new PottingData();
+                view                = new ViewController( document.querySelector(".content") );
+                pottingResponder    = PottingResponse();
 
                 data.loadProductData( onProductDataLoaded );
                 
@@ -1302,7 +1352,14 @@
             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
             function onFillTankerSelected( evt )
             {
-                var weightUsed = 0;
+                var results = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
+                
+                view.showResults( results );
+
+
+                //view.updateProductInputs([ fillProductData ]);
+
+                /*var weightUsed = 0;
 
                 evt.detail.enteredProducts.forEach( function( productData )
                 {
@@ -1316,20 +1373,14 @@
 
                 evt.detail.enteredProducts.push( fillProductData );
 
-                console.log("Filling Tanker With: " + litresAvailable + " of " + evt.detail.productToFill );
+                
 
-                view.updateProductInputs([ fillProductData ]);
+                
 
-                onPotTankerSelected( evt );
+                onPotTankerSelected( evt );*/
             }
 
-            function getPotString( pots )
-            {
-                return pots.reduce( function( debugString, potData )
-                {   
-                    return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
-                },'');
-            }
+
 
             function potProduct( product, pots )
             {
@@ -1355,34 +1406,6 @@
                 var potList         = data.getPotting( forProducts );
 
                 view.showResults( potList );
-                //data.setPotting( allUsedPots );
-
-
-/*                products.forEach( function( productDetails )
-                {
-                    if ( availablePots.length === 0 ) return;
-
-                    productDetails      = currentTerminal.checkWeight( productDetails, currentWeight );
-                    pottingResult       = potter.doPottingWithProduct( productDetails, availablePots.slice() );
-
-
-                    //currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
-
-                    //messages.push( pottingResponder.getPottingResponse( productDetails, pottingResult ) );
-
-                    currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
-                    {
-                        return total + potData.contents * currentTerminal.getProductData( potData.product ).density;
-                    }, 0 );
-                    
-                    allUsedPots         = allUsedPots.concat( currentUsedPots );
-                    availablePots       = Utils.filterRemainingPots( allUsedPots, availablePots );
-                });*/
-
-                //updatePotting( messages )
-                
-
-                //view.updatePotting( filledPots );
             }
 }());            
 },{"./PottingController.js":3,"./PottingData.js":4,"./PottingResponse.js":5,"./Utils.js":9,"./ViewController.js":10}],12:[function(require,module,exports){
@@ -1519,40 +1542,38 @@
 		return capacity;
 	};
 
+	Terminal.prototype.getBalance = function( productToBalance, otherProducts )
+	{
+		var weight = 0;
+
+		for ( var i = 0; i < otherProducts.length; i++ ) 
+		{
+			weight += this.getProductData( otherProducts[ i ].id ).density * otherProducts[ i ].amount;
+		}
+
+		var litresAvailable = Math.max( this.maxWeight - weight, 0 ) *  ( 1 / this.getProductData( productToBalance ).density );
+
+		return {id:productToBalance, amount: litresAvailable };
+	};
+
 
 
 	//Checks the weight of an amount of product and will reduce it to a number of litres that is below the maximum weight.
 	//If products have already been potted then this function will subtract the already potted weight from the maximum allowed weight first.
-	Terminal.prototype.checkWeight = function( productToPot, productsPotted )
+	Terminal.prototype.checkWeight = function( productToPot, alreadyPotted )
 	{
 		var currentWeight = 0;
 		var maxWeight;
 		var toPotDensity;
 		var litresAvailable;
 
-		if ( productsPotted )
+		if ( alreadyPotted )
 		{	
-			for ( var i = 0; i < productsPotted.length; i++ )
+			for ( var i = 0; i < alreadyPotted.length; i++ )
 			{
-				currentWeight += this.getProductData( productsPotted[ i ].product ).density * productsPotted[ i ].contents;
+				currentWeight += this.getProductData( alreadyPotted[ i ].product ).density * alreadyPotted[ i ].contents;
 			}
 		}
-
-		/*
-		function reduceToProductWeight( total, potData )
-        {
-            return total + potData.contents * this.getProductData( potData.product ).density;
-        }
-
-		currentWeight = productsPotted.reduce.call( this, reduceToProductWeight, 0 );
-	
-		if ( productsPotted )
-		{
-			currentWeight = productsPotted.reduce( function reduceToProductWeight( total, potData )
-            {
-                return total + potData.contents * this.getProductData( potData.product ).density;
-            }, 0 );
-		}*/
 
         toPotDensity 	= this.getProductData( productToPot.id ).density;
 

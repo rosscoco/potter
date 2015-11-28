@@ -55,7 +55,7 @@
         {   
             return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
         },'');
-    }
+    };
 
 
 

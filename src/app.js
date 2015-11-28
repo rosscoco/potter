@@ -17,9 +17,9 @@
 
             window.onload   = function()
             {
-                data            = new PottingData();
-                view            = new ViewController( document.querySelector(".content") );
-                pottingResponder        = PottingResponse();
+                data                = new PottingData();
+                view                = new ViewController( document.querySelector(".content") );
+                pottingResponder    = PottingResponse();
 
                 data.loadProductData( onProductDataLoaded );
                 
@@ -60,25 +60,32 @@
             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
             function onFillTankerSelected( evt )
             {
-                var weightUsed = 0;
+                var results = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
+                
+                view.showResults( results );
+
+
+                //view.updateProductInputs([ fillProductData ]);
+
+                /*var weightUsed = 0;
 
                 evt.detail.enteredProducts.forEach( function( productData )
                 {
                     weightUsed += productData.amount * currentTerminal.getProductData( productData.id ).density;
                 });
 
-                   
+                
 
                 var litresAvailable = ( currentTerminal.getMaxWeight() - weightUsed ) * ( 1 / currentTerminal.getProductData( evt.detail.productToFill ).density );
                 var fillProductData = { id: evt.detail.productToFill, amount: litresAvailable };
 
                 evt.detail.enteredProducts.push( fillProductData );
 
-                console.log("Filling Tanker With: " + litresAvailable + " of " + evt.detail.productToFill );
+                
 
-                view.updateProductInputs([ fillProductData ]);
+                
 
-                onPotTankerSelected( evt );
+                onPotTankerSelected( evt );*/
             }
 
 
@@ -107,33 +114,5 @@
                 var potList         = data.getPotting( forProducts );
 
                 view.showResults( potList );
-                //data.setPotting( allUsedPots );
-
-
-/*                products.forEach( function( productDetails )
-                {
-                    if ( availablePots.length === 0 ) return;
-
-                    productDetails      = currentTerminal.checkWeight( productDetails, currentWeight );
-                    pottingResult       = potter.doPottingWithProduct( productDetails, availablePots.slice() );
-
-
-                    //currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
-
-                    //messages.push( pottingResponder.getPottingResponse( productDetails, pottingResult ) );
-
-                    currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
-                    {
-                        return total + potData.contents * currentTerminal.getProductData( potData.product ).density;
-                    }, 0 );
-                    
-                    allUsedPots         = allUsedPots.concat( currentUsedPots );
-                    availablePots       = Utils.filterRemainingPots( allUsedPots, availablePots );
-                });*/
-
-                //updatePotting( messages )
-                
-
-                //view.updatePotting( filledPots );
             }
 }());            

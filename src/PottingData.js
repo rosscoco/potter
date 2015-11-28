@@ -22,6 +22,7 @@
 		return { 	loadProductData: 	loadProductData,
 					changeTerminal: 	changeTerminal,
 					getPotting: 		getPotting,
+					balanceTanker: 		balanceTanker,
 					movePots: 			movePots };
 	}
 
@@ -53,6 +54,15 @@
 	function getPotConfig( potting )
 	{
 		return _potConfiguration;
+	}
+
+	function balanceTanker( productToFill, productArray )
+	{
+		productToFill = _currentTerminal.getBalance( productToFill, productArray );
+
+		productArray.push( productToFill );
+
+		return getPotting( productArray );
 	}
 
 	function getPotting( forProducts, limitToPots )

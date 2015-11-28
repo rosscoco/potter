@@ -32,6 +32,7 @@
 
 		function getEnteredProductAmounts( putLast )
         {
+        	//the product just entered will be potted last
         	var lastProduct;
 
         	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
@@ -59,8 +60,8 @@
                 	return true;
                 });
 
-            //if ( lastProduct ) selectedProducts.push( lastProduct );
-            if ( lastProduct ) selectedProducts.unshift( lastProduct );
+            if ( lastProduct ) selectedProducts.push( lastProduct );
+            //if ( lastProduct ) selectedProducts.unshift( lastProduct );
 
             return selectedProducts;
         }

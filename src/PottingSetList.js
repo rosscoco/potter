@@ -82,7 +82,7 @@
 				{
 					return 
 				}, )	        	*/
-	        })
+	        });
 
 	        console.table( debugResult );
 	    }
