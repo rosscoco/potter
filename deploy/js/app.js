@@ -510,10 +510,10 @@
 		return { 	loadProductData: 	loadProductData,
 					changeTerminal: 	changeTerminal,
 					getPotting: 		getPotting,
+					getProductTotals: 	getProductTotals,
 					balanceTanker: 		balanceTanker,
 					movePots: 			movePots };
 	}
-
 
 	function movePots( pot1Id, pot2Id )
 	{
@@ -555,9 +555,9 @@
 
 	function getPotting( forProducts, limitToPots )
 	{
-		_potConfiguration 	=[];
+		_potConfiguration 	= [];
+		_potting			= [];
 
-		var potsUsed 		= [];
 		var availablePots 	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
 		var pottingResult;
 		var currentWeight;
@@ -566,16 +566,37 @@
         {
             if ( availablePots.length === 0 ) return;
 
-            productDetails      = _currentTerminal.checkWeight( productDetails, potsUsed );
+            productDetails      = _currentTerminal.checkWeight( productDetails, _potting );
             pottingResult       = _potter.doPottingWithProduct( productDetails, availablePots.slice() );
-            potsUsed			= potsUsed.concat( pottingResult.pottingUsed.getPotArray() );
-            availablePots      	= Utils.filterRemainingPots( potsUsed, availablePots );
+            _potting			= _potting.concat( pottingResult.pottingUsed.getPotArray() );
+            availablePots      	= Utils.filterRemainingPots( _potting, availablePots );
 
             _potConfiguration.push( pottingResult );
 
         });
 
-        return potsUsed;
+        return _potting;
+	}
+
+	function getProductTotals()
+	{
+		var pi = {};
+
+		return _potting.reduce( function( productInfo, potData )
+		{
+			if ( productInfo.hasOwnProperty( potData.product ) )
+			{
+				productInfo[ potData.product ] += potData.contents;
+			}
+			else
+			{
+				productInfo[ potData.product ] = potData.contents;
+			}
+
+
+			return productInfo;
+
+		}, pi );
 	}
 
 	function updatePotting( newPotConfiguration )
@@ -608,13 +629,12 @@
     	
     	xobj.onreadystatechange = function () 
     	{
-
           if ( xobj.readyState === 4 && xobj.status === 200 ) {
             onProductDataLoaded( xobj.responseText, onComplete );
           }
     	};
 
-    	xobj.send( null );  
+    	xobj.send( null );
 	}
 }());
 
@@ -1250,7 +1270,16 @@
 
 	function updateProductInputs( productData )
 	{
-		productData.forEach( _formController.updateInput );
+		for ( var prodId in productData )
+		{
+			if ( productData.hasOwnProperty( prodId ))
+			{
+				_formController.updateInput( { id:prodId, amount: productData[ prodId ] });	
+			}
+			
+		}
+
+		//productData.forEach( _formController.updateInput );
 	}
 
 	function updateTerminal( withPots, withProducts )
@@ -1356,8 +1385,7 @@
                 
                 view.showResults( results );
 
-
-                //view.updateProductInputs([ fillProductData ]);
+                view.updateProductInputs( data.getProductTotals() );
 
                 /*var weightUsed = 0;
 

@@ -50,7 +50,11 @@
 	{
 		for ( var prodId in productData )
 		{
-			_formController.updateInput( { id:prodId, amount: productData[ prodId ] });
+			if ( productData.hasOwnProperty( prodId ))
+			{
+				_formController.updateInput( { id:prodId, amount: productData[ prodId ] });	
+			}
+			
 		}
 
 		//productData.forEach( _formController.updateInput );
