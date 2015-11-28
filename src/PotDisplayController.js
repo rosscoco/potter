@@ -104,7 +104,6 @@
 		{
 			evt.preventDefault();  
 			_potContents[ evt.target.getAttribute('data-id') ].container.classList.add('dragOver');
-			console.log("Enter:", evt.target.getAttribute('data-id'));
 		}
 
 		function onPotDragOver( evt )
@@ -118,8 +117,6 @@
 
 			var potId = evt.target.getAttribute('data-id');
 			_potContents[ potId ].container.classList.remove('dragOver');
-
-			console.log("Leave:", potId );
  		}
 
 
@@ -127,7 +124,6 @@
 		{
 			//evt.dataTransfer.setData('targetPotId', evt.target.getAttribute('data-id'));
 			evt.target.classList.remove('dragOver');
-			console.log('OnDragDrop: Moving from ' + evt.dataTransfer.getData('originPotId') + " to " + evt.target.getAttribute('data-id') );
 			swapPots( evt.dataTransfer.getData('originPotId'),  evt.target.getAttribute('data-id'));
 		}
 
@@ -140,8 +136,7 @@
 
 		function onPotDragEnd( evt, potContents )
 		{
-			console.log("DragEnd:" + evt.target.getAttribute('data-id'));
-
+		
 			var origin = evt.dataTransfer.getData('originPotId');
 
 			evt.dataTransfer.getData('targetPotId');
