@@ -158,14 +158,14 @@
 
 	    function updatePot( potData )
         {
-        	console.log( "PotDisplayController::Filling " + potData.id + " with " + potData.contents + "/" + potData.capacity + " of " + potData.product );
+        	//console.log( "PotDisplayController::Filling " + potData.id + " with " + potData.contents + "/" + potData.capacity + " of " + potData.product );
 
             var potContents = _potContents[ potData.id ].pot;
             var potTextContents = _potContents[ potData.id ].text;
 
             potTextContents.innerHTML = parseInt(potData.contents);
 
-            if ( potData.contents < potData.minimum )
+            if ( potData.contents < potData.minimum && potData.contents > 0 )
             {
 				potTextContents.className += " warningText";
             }

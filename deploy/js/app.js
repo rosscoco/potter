@@ -106,7 +106,6 @@
 		{
 			evt.preventDefault();  
 			_potContents[ evt.target.getAttribute('data-id') ].container.classList.add('dragOver');
-			console.log("Enter:", evt.target.getAttribute('data-id'));
 		}
 
 		function onPotDragOver( evt )
@@ -120,8 +119,6 @@
 
 			var potId = evt.target.getAttribute('data-id');
 			_potContents[ potId ].container.classList.remove('dragOver');
-
-			console.log("Leave:", potId );
  		}
 
 
@@ -129,7 +126,6 @@
 		{
 			//evt.dataTransfer.setData('targetPotId', evt.target.getAttribute('data-id'));
 			evt.target.classList.remove('dragOver');
-			console.log('OnDragDrop: Moving from ' + evt.dataTransfer.getData('originPotId') + " to " + evt.target.getAttribute('data-id') );
 			swapPots( evt.dataTransfer.getData('originPotId'),  evt.target.getAttribute('data-id'));
 		}
 
@@ -142,8 +138,7 @@
 
 		function onPotDragEnd( evt, potContents )
 		{
-			console.log("DragEnd:" + evt.target.getAttribute('data-id'));
-
+		
 			var origin = evt.dataTransfer.getData('originPotId');
 
 			evt.dataTransfer.getData('targetPotId');
@@ -165,14 +160,14 @@
 
 	    function updatePot( potData )
         {
-        	console.log( "PotDisplayController::Filling " + potData.id + " with " + potData.contents + "/" + potData.capacity + " of " + potData.product );
+        	//console.log( "PotDisplayController::Filling " + potData.id + " with " + potData.contents + "/" + potData.capacity + " of " + potData.product );
 
             var potContents = _potContents[ potData.id ].pot;
             var potTextContents = _potContents[ potData.id ].text;
 
             potTextContents.innerHTML = parseInt(potData.contents);
 
-            if ( potData.contents < potData.minimum )
+            if ( potData.contents < potData.minimum && potData.contents > 0 )
             {
 				potTextContents.className += " warningText";
             }
@@ -306,12 +301,10 @@
 
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
 				{
-					console.log("Hiding " + forProduct );
 					inputGroup.style.display = "none";
 				}
 				else
 				{
-					console.log("Showing " + forProduct );
 					inputGroup.style.display = "block";
 				}
 			});
@@ -471,8 +464,8 @@
 	    {
 	        var allPotPermutations  = Utils.getPotPermutations( withPots );
 
-	        var allPottingSets      = new PottingSetList( allPotPermutations );
-	        //var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
+	        //var allPottingSets      = new PottingSetList( allPotPermutations );
+	        var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
 	        //var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
 	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
 
@@ -517,6 +510,13 @@
 		var pot1 		= _potting[ pot1Id - 1 ];
 		var pot2 		= _potting[ pot2Id - 1 ];
 
+		console.log("moving " + debugPot( pot1 ) + " to " + debugPot( pot2) );
+
+		function debugPot( p )
+		{
+			return "Pot " + p.id + " " + p.contents + " of " + p.product;
+		}
+
 		var pot1Copy 	= JSON.parse( JSON.stringify( pot1 ));
 
 		pot1.contents 	= Math.min( pot1.capacity, pot2.contents );
@@ -525,7 +525,10 @@
 		pot2.contents 	= Math.min( pot2.capacity, pot1Copy.contents );
 		pot2.product 	= pot1Copy.product;
 
-		return _potting;
+		console.log( "Pot " + pot1Id + " now has " + debugPot( _potting[ pot1Id - 1 ]));
+		console.log( "And Pot " + pot2Id + " now has " + debugPot( _potting[ pot2Id - 1 ]));
+
+		return _potting;	
 	}
 
 	function changeTerminal( terminalName )
@@ -552,26 +555,67 @@
 
 	function getPotting( forProducts, limitToPots )
 	{
-		_potConfiguration 	= [];
-		_potting			= [];
+		console.log("Get Potting ");
 
-		var availablePots 	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
+		_potConfiguration	= [];
+		_potting 			= new Array( 6 );
+		var potStore		= [];
+
+		var availablePots	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
 		var pottingResult;
 		var currentWeight;
+		var usedPots;
+
+		console.log(new Array(24 + 1).join('\n'));
 
 		forProducts.forEach( function( productDetails )
-        {
-            if ( availablePots.length === 0 ) return;
+		{
+			if ( availablePots.length === 0 ) return;
 
-            productDetails      = _currentTerminal.checkWeight( productDetails, _potting );
-            pottingResult       = _potter.doPottingWithProduct( productDetails, availablePots.slice() );
-            _potting			= _potting.concat( pottingResult.pottingUsed.getPotArray() );
-            availablePots      	= Utils.filterRemainingPots( _potting, availablePots );
+			productDetails		= _currentTerminal.checkWeight( productDetails, potStore );
+			pottingResult		= _potter.doPottingWithProduct( productDetails, availablePots.slice() );
 
-            _potConfiguration.push( pottingResult );
-        });
+			var potsUsedForProduct =  pottingResult.pottingUsed.getPotArray();
+			console.log("Used " + potsUsedForProduct .length + " Pots : " + pottingResult.pottingUsed.getUsedPotsById() + " for product " + productDetails.id );
+			
+			potStore			= potStore.concat( potsUsedForProduct );
 
-        return _potting;
+			console.log( potStore.length + " pots in potStore " );
+
+			availablePots		= Utils.filterRemainingPots( potStore, availablePots );
+
+			console.log( availablePots.length + "Pots Left " + Utils.getPotString( availablePots ));
+			console.log("-------------------------");
+
+			_potConfiguration.push( pottingResult );
+		});
+
+		//sort the used pots by id 
+		potStore.forEach( function( potData )
+		{
+			_potting[ potData.id - 1] = potData;
+		});
+
+		for ( var i = 0; i < _potting.length; i++ )
+		{
+			console.log("Filling Potting Array: " + i + "   " + _potting[i]);
+
+			if ( !_potting[i] )
+			{
+				_potting[i] = JSON.parse( JSON.stringify( _currentTerminal.pots[ i ]));
+			}
+		}
+
+		_potting.forEach( function(p)
+		{
+			//console.table(p);
+		});
+
+		//reset unused pots to their initial state
+
+		console.log("Potting Done. Used " + _potting.length );
+
+		return _potting;
 	}
 
 	function getProductTotals()
@@ -620,17 +664,17 @@
 	function loadProductData( onComplete )
 	{
 		var xobj = new XMLHttpRequest();
-        xobj.overrideMimeType( "application/json" );
-    	xobj.open( 'GET', PRODUCT_DATA_URL, true ); 
-    	
-    	xobj.onreadystatechange = function () 
-    	{
-          if ( xobj.readyState === 4 && xobj.status === 200 ) {
-            onProductDataLoaded( xobj.responseText, onComplete );
-          }
-    	};
+		xobj.overrideMimeType( "application/json" );
+		xobj.open( 'GET', PRODUCT_DATA_URL, true );
+		
+		xobj.onreadystatechange = function () 
+		{
+		  if ( xobj.readyState === 4 && xobj.status === 200 ) {
+			onProductDataLoaded( xobj.responseText, onComplete );
+		  }
+		};
 
-    	xobj.send( null );
+		xobj.send( null );
 	}
 }());
 
@@ -650,7 +694,7 @@
 	        getUsedPotsById         : getUsedPotsById,
 	        getRemainingSpace       : getRemainingSpace,
 	        getPotArray             : getPotArray,
-	        isValid                 : isValid
+	        isValid                 : isValid,
 	    };
 
 	    function getPotArray()
@@ -760,7 +804,7 @@
 	    		}
 	    	}
 
-	    	return {potToFill:potToFill, otherPots:otherPots};
+	    	return { potToFill:potToFill, otherPots:otherPots };
 	    }
 
 	    function fixLastPot( lastPot, remainingPots)
@@ -779,7 +823,7 @@
 	            if ( helperPot.contents - needed > helperPot.minimum )
 	            {
 	                amountToMove = helperPot.contents - ( helperPot.contents - needed );
-	            } 
+	            }
 	            else
 	            {
 	                amountToMove = helperPot.contents  - helperPot.minimum;
@@ -797,7 +841,13 @@
 
 	        return false;
 	    }
+
+	    function toString()
+	    {
+	    	return;
+	    }
 	};
+
 }());
 },{"./Utils.js":8}],6:[function(require,module,exports){
 (function()
@@ -886,7 +936,7 @@
 				}, )	        	*/
 	        });
 
-	        console.table( debugResult );
+	       // console.table( debugResult );
 	    }
 
 	    function getBestPottingSet()
@@ -1280,7 +1330,6 @@
                                     {id:6,capacity:7000, contents:0, product:"", minimum:6000}];*/
 
 	module.exports = Terminal;
-
 
 	function Terminal( id, data )
 	{

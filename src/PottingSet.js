@@ -13,7 +13,7 @@
 	        getUsedPotsById         : getUsedPotsById,
 	        getRemainingSpace       : getRemainingSpace,
 	        getPotArray             : getPotArray,
-	        isValid                 : isValid
+	        isValid                 : isValid,
 	    };
 
 	    function getPotArray()
@@ -123,7 +123,7 @@
 	    		}
 	    	}
 
-	    	return {potToFill:potToFill, otherPots:otherPots};
+	    	return { potToFill:potToFill, otherPots:otherPots };
 	    }
 
 	    function fixLastPot( lastPot, remainingPots)
@@ -142,7 +142,7 @@
 	            if ( helperPot.contents - needed > helperPot.minimum )
 	            {
 	                amountToMove = helperPot.contents - ( helperPot.contents - needed );
-	            } 
+	            }
 	            else
 	            {
 	                amountToMove = helperPot.contents  - helperPot.minimum;
@@ -160,5 +160,11 @@
 
 	        return false;
 	    }
+
+	    function toString()
+	    {
+	    	return;
+	    }
 	};
+
 }());

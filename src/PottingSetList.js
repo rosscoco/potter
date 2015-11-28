@@ -84,7 +84,7 @@
 				}, )	        	*/
 	        });
 
-	        console.table( debugResult );
+	       // console.table( debugResult );
 	    }
 
 	    function getBestPottingSet()

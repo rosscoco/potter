@@ -83,12 +83,10 @@
 
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
 				{
-					console.log("Hiding " + forProduct );
 					inputGroup.style.display = "none";
 				}
 				else
 				{
-					console.log("Showing " + forProduct );
 					inputGroup.style.display = "block";
 				}
 			});

@@ -11,7 +11,6 @@
 
 	module.exports = Terminal;
 
-
 	function Terminal( id, data )
 	{
 		this.name 		= id;
