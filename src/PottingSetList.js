@@ -9,7 +9,7 @@
 	{
 	   var _listOfPottingSets = withListOfPots.map( function( potArray ) 
 	    {
-	        return new PottingSet( potArray );
+	        return PottingSet( potArray );
 	    });
 
 	   var _validPottingSets;

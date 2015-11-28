@@ -6,20 +6,20 @@
             var PottingController       = require("./PottingController.js");
             var PottingData             = require('./PottingData.js');
             var ViewController          = require("./ViewController.js");
-            var PottingResults          = require("./PottingResults.js");
+            var PottingResponse         = require("./PottingResponse.js");
             var Utils                   = require("./Utils.js");
             
             var potter;
             var data;
             var view;
             var currentTerminal;
-            var results;
+            var pottingResponder;
 
             window.onload   = function()
             {
                 data            = new PottingData();
                 view            = new ViewController( document.querySelector(".content") );
-                results         = PottingResults();
+                pottingResponder        = PottingResponse();
 
                 data.loadProductData( onProductDataLoaded );
                 
@@ -95,6 +95,15 @@
                 view.updatePotting( bestPotting.getUsedPots() );
             }
 
+            function onPottingChanged(pots)
+            {
+                /*I want to respond to potting changing manually, without invoking the potting controller
+                    -accept a list of potting results
+                        PottingSet
+                        Product
+                */
+            }
+
             function onPotTankerSelected( evt )
             {
                 var products        = evt.detail.enteredProducts;
@@ -108,98 +117,31 @@
                 var pottingResult;
 
                 view.showResults( null );
-
+                
                 products.forEach( function( productDetails )
                 {
-                    console.log("onPotTankerSelected()::Potting " + productDetails.id + " using " + availablePots.join(" & "));
-
                     if ( availablePots.length === 0 ) return;
 
                     productDetails      = currentTerminal.checkWeight( productDetails, currentWeight );
-
                     pottingResult       = potter.doPottingWithProduct( productDetails, availablePots.slice() );
                     currentUsedPots     = pottingResult.pottingUsed.getUsedPots();
 
-                    messages.push( results.getPottingResults( productDetails, pottingResult ) );
+                    messages.push( pottingResponder.getPottingResponse( productDetails, pottingResult ) );
 
                     currentWeight       += currentUsedPots.reduce( function reduceToProductWeight( total, potData )
                     {
                         return total + potData.contents * currentTerminal.getProductData( potData.product ).density;
                     }, 0 );
-
-                    allUsedPots         = allUsedPots.concat( currentUsedPots );                    
+                    
+                    allUsedPots         = allUsedPots.concat( currentUsedPots );
                     availablePots       = Utils.filterRemainingPots( allUsedPots, availablePots );
                 });
+
+                
 
                 //view.updatePotting( filledPots );
 
                 view.showResults( allUsedPots, messages );
                 data.setPotting( allUsedPots );
             }
-
-           /* function checkWeight( productToPot, alreadyPotted )
-            {
-                var currentWeight = alreadyPotted.reduce( function countProductWeight(total, product )
-                {
-                    return total + product.amount * currentTerminal.getProductData( product.id ).density;
-                },0);
-
-                var toPotDensity =  currentTerminal.getProductData( productToPot.id ).density;
-
-                if ( toPotDensity * productToPot.amount + currentWeight > currentTerminal.getMaxWeight() )
-                {
-                    var litresAvailable = Math.max( currentTerminal.getMaxWeight() - currentWeight, 0 ) / toPotDensity;   // * ( 1 / toPotDensity );
-                    
-                    productToPot.remainder = productToPot.amount - litresAvailable;
-                    productToPot.amount = litresAvailable;
-                }
-
-                return productToPot;
-            }*/
-
-                    /*var alreadyPotted = results.isAlreadyPotted( productDetails, availablePots );
-
-                    if ( alreadyPotted )
-                    {
-                        messages.push( alreadyPotted );
-                        return;
-                    }
-
-                    if ( availablePots.length === 0 )
-                    {
-                        messages.push( results.noPotsLeft( productDetails ));
-                        return;
-                    }
-
-                    var usedPottingSet = potter.doPottingWithProduct( productDetails, availablePots.slice() );
-                    var potsUsed = usedPottingSet.getUsedPots();
-
-
-
-                    if ( usedPottingSet.isValid() )
-                    {
-                        messages.push( results.pottingSuccess( productDetails, potsUsed  ));
-                    }
-                    else
-                    {
-                        messages.push( results.pottingFail( productDetails, potsUsed ));
-                    }
-
-                    usedPotIds          = usedPottingSet.getUsedPotsById();
-
-                    filledPots  = filledPots.concat( potsUsed );
-
-                    availablePots       = availablePots.filter( function getRemainingPots( potData )
-                    {
-                        if (  usedPotIds.indexOf( potData.id ) === -1 )
-                        {
-                            return true;
-                        }
-                    });                     
-                });
-
-                view.updatePotting( filledPots );
-                //view.showResults( messages );
-                
-            }*/
 }());            

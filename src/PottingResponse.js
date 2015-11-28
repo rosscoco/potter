@@ -6,12 +6,12 @@
 
 	var pottedProducts = {};
 
-	module.exports = PottingResults;
+	module.exports = PottingResponse;
 
-	function PottingResults()
+	function PottingResponse()
 	{
 		return {
-			getPottingResults: getPottingResults
+			getPottingResponse: getPottingResponse
 		};
 
 		/*return {
@@ -25,7 +25,7 @@
 		};*/
 	}
 
-	function getPottingResults( forProduct, result  )
+	function getPottingResponse( forProduct, result  )
 	{
 		var message;
 
