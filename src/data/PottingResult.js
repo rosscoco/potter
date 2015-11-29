@@ -1,45 +1,15 @@
 (function()
 {
-	
+	PottingResult.prototype.SUCCESS = 0;
+	PottingResult.prototype.ERROR 	= 1;
+	PottingResult.prototype.WARN 	= 2;
 
 	module.exports = PottingResult;
 
-	function PottingResult(forProduct, pottingSetUsed )
+	function PottingResult( forProduct, pottingSetUsed, productLeftOver )
 	{
-
-
-		/*
-
-		var _pottingSet;
-		var _isValidPottingSet;
-		var _productDetails;
-		var _potsUsed;
-		var _potIds;
-
-		*/
-		
 		this.pottingUsed 	= pottingSetUsed;
-		this.product 		= forProduct;
-
-/*
-		function movePots( potToInsert, pot2Move )
-		{
-
-		}
-
-		function getPotsUsed()
-		{
-
-		}
-
-		function isUsingPot( potId )
-		{
-			var results = _potsUsed.filter( function( pot )
-			{
-				return pot.id === potId;
-			});
-
-			return results.length === 1; 
-		}*/
+		this.productDetails = forProduct;
+		this.remainder 		= productLeftOver;
 	}
 }());

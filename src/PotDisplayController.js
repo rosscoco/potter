@@ -73,15 +73,14 @@
 				pot.addEventListener('drop', 		onPotDrop );
 				pot.addEventListener('dragend', 	onPotDragEnd );
 
+				pot.addEventListener("wheel", onMouseWheel );
 
 				_potContents[ '' + ( i + 1 ) ] = { pot:potContents, text:txtContents, container:pot };
 				
-
 				container.appendChild( txtContents );
 				container.appendChild( pot );
 				pot.appendChild( potContents );
-				container.appendChild( txtCapacity );
-
+				container.appendChild( txtCapacity );	
 
 				_displayNode.appendChild( container );
 			});
@@ -92,6 +91,13 @@
 
 			return _displayNode;
 		} 
+
+		function onMouseWheel( evt )
+		{
+			evt.preventDefault();
+
+			console.log("wheeeeel");
+		}
 
 		function onPotDragStart( evt, potContainer )
 		{

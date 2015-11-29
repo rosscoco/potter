@@ -1,8 +1,6 @@
 (function(){
 
-	var SUCCESS 	= 1;
-	var ERROR		= -1;
-	var	WARN		= 0;
+	var PottingResult = require("./data/PottingResult.js");
 
 	var pottedProducts = {};
 
@@ -25,29 +23,32 @@
 		};*/
 	}
 
-	function getPottingResponse( forProduct, result  )
+	function getPottingResponse( pottingResult )
 	{
-		var message;
-
-		var usedPottingSet = result.pottingUsed;
-
-		if ( usedPottingSet.isValid() )
+		var response;
+		
+		if ( pottingResult.pottingUsed.isValid() )
 		{
-			if ( forProduct.remainder > 0 || result.remainder > 0 )
+			//if ( forProduct.remainder > 0 || result.remainder > 0 )
+			if ( pottingResult.productDetails.remainder > 0  )
 			{
-				message = pottedSomeProduct( forProduct, usedPottingSet.getUsedPots() );
+				response = pottingOverWeight;
+			}
+			else if ( pottingResult.pottingUsed.remainder ) 
+			{
+				response = pottedSomeProduct;
 			}
 			else
 			{
-				message = pottingSuccess( forProduct, usedPottingSet.getUsedPots() );			
+				response = pottingSuccess;
 			}
 		}
 		else
 		{
-			message = pottingFail( forProduct, usedPottingSet.getUsedPots() );
+			response = pottingFail;
 		}
 
-		return message;
+		return getMessage( pottingResult, response );
 	}
 
 
@@ -58,7 +59,7 @@
 
 	function getPottedProducts()
 	{
-		return; 
+		return;
 	}
 
 	function isAlreadyPotted( product, availablePots )
@@ -98,69 +99,69 @@
 		return false;
 	}
 
-	function overMaxWeight( product, limitTo )
+	function getMessage( pottingResult, messageFunction )
 	{
+		/*var product 		= pottingResult.productDetails;
+		var potsUsed 		= pottingResult.pottingUsed.getPotArray();
+		var potIds 			= pottingResult.pottingUsed.getUsedPotsById();*/
+		
 		var data 			= {};
-		data.product 		= product.id;
-		data.pottingStatus 	= this.ERROR;
-		data.message 		= product.amount + " of " + product.id + " is over max allowed weight. Reducing to " + limitTo;
 
-		return data;
+		data.product 		= pottingResult.productDetails.id;
+		data.potsUsed 		= pottingResult.pottingUsed.getPotArray();
+		data.potIds 		= pottingResult.pottingUsed.getUsedPotsById();
+		data.amountPotted	= parseInt( pottingResult.productDetails.amount );
+
+		return messageFunction( data, pottingResult );
 	}
 
-	function noPotsLeft( product )
+	function pottingOverWeight( messageData, pottingResult )
 	{
-		var data 			= {};
-		data.product 		= product.id;
-		data.pottingStatus 	= this.ERROR;
-		data.message 		= "Could not pot " + product.amount + " of " + product.id + ". No Pots left on tanker";
+		var amountNeeded 	= pottingResult.productDetails.amount + pottingResult.productDetails.remainder;
+		messageData.pottingStatus 	= PottingResult.WARN;
+		messageData.message 		= amountNeeded + " of " + messageData.product + " is over max weight. Reduced by " + pottingResult.productDetails.remainder + " to " + messageData.amountPotted + "L total.";
 
-		return data;
+		return messageData;
 	}
 
-	function pottingFail( product, pots )
+
+	function noPotsLeft( messageData )
 	{
+		messageData.pottingStatus 	= PottingResult.ERROR;
+		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product + ". No Pots left on tanker";
+
+		return messageData;
+	}
+
+	function pottingFail( messageData, pottingResult )
+	{
+		var pots 			= messageData.potsUsed;
 		var failedPot 		= pots[ pots.length - 1 ];
-		var amountNeeded 	= failedPot.minimum - failedPot.contents;
+		var amountNeeded 	= failedPot.minimum - failedPot.contents;		
 
-		var data 			= {};
-		data.product		= product.id;
-		data.amount 		= product.amount;
-		data.pottingStatus 	= this.ERROR;
-		data.potsUsed		= pots.join('');
-		data.message 		= "Could not pot " + product.amount + " of " + product.id;
-		data.message 		+= "Need " + amountNeeded + "L more in Pot " + failedPot.id;
+		messageData.pottingStatus 	= PottingResult.ERROR;
+		
+		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product;
+		messageData.message 		+= "Need " + amountNeeded + "L more in Pot " + failedPot.id;
 
-		return data;
+		return messageData;
 	}
 
-	function pottingSuccess( product, pots )
+	function pottingSuccess( messageData, pottingResult )
 	{
-		/*var potsUsed = pots.reduce( function(id, pot )
-		{
-			return id + pot.id + " ";
-		},'');*/
+		messageData.pottingStatus 	= PottingResult.SUCCESS;
+		
+		messageData.message 		= messageData.amountPotted + "L of " + messageData.product + " successfully potted in pots " + messageData.potIds +".";
 
-		var data 			= {};
-		data.product		= product.id;
-		data.amount 		= product.amount;
-		data.pottingStatus 	= this.SUCCESS;
-		data.potsUsed		= pots.join('');
-		data.message 		= product.id + " successfully potted in pots " + data.potsUsed;
-
-		return data;
+		return messageData;
 	}
 
-	function pottedSomeProduct( product, pots )
+	function pottedSomeProduct( messageData, pottingResult  )
 	{
-		var data 			= {};
-		data.product		= product.id;
-		data.amount 		= product.amount;
-		data.remainder		= product.remainder;
-		data.pottingStatus 	= this.WARN;
-		data.message 		= product.amount + " of " + product.id + " put into pots " + pots.join(' & ');
-		data.message 		+= ". " + product.remainder  + " could not be potted.";
+		messageData.pottingStatus 	= PottingResult.WARN;
+		messageData.message 		= messageData.amountPotted + " of " + messageData.product + " put into pots " + messageData.potIds;
+		messageData.message 		+= ". " + pottingResult.remainder  + " could not be potted.";
 
-		return data;
+		return messageData;
 	}
 }());	

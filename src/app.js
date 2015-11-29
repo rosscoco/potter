@@ -3,74 +3,86 @@
 */
 (function()
 {   
-            var PottingData             = require('./PottingData.js');
-            var ViewController          = require("./ViewController.js");
-            
-            var data;
-            var view;
+			var PottingData             = require('./PottingData.js');
+			var ViewController          = require("./ViewController.js");
+			var PottingResponder 		= require('./PottingResponse.js');
 
-            window.onload   = function()
-            {
-                data                = new PottingData();
-                view                = new ViewController( document.querySelector(".content") );
+			var data;
+			var view;
+			var responder;
 
-                data.loadProductData( onProductDataLoaded );
-                
-                document.querySelector("#productInputs").addEventListener("fillTanker", onBalanceTankerSelected );
-                document.querySelector("#productInputs").addEventListener("potTanker", onPotTankerSelected );                
-                document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
-                document.querySelector("#pottingContainer").addEventListener("swapPots", onSwapPotContents );
-            };
+			window.onload   = function()
+			{
+				data                = PottingData();
+				view                = ViewController( document.querySelector(".content") );
+				responder			= PottingResponder();
 
-            function onChangeTerminal( evt )
-            {
-                console.log("Changing terminal to " + evt.detail );
+				data.loadProductData( onProductDataLoaded );
+				
+				document.querySelector("#productInputs").addEventListener("fillTanker", onBalanceTankerSelected );
+				document.querySelector("#productInputs").addEventListener("potTanker", onPotTankerSelected );                
+				document.querySelector(".tabs").addEventListener("onChangeTerminal", onChangeTerminal );
+				document.querySelector("#pottingContainer").addEventListener("swapPots", onSwapPotContents );
+			};
 
-                var newTerminal = data.changeTerminal( evt.detail );
-                    
-                view.updateTerminal( newTerminal.pots, newTerminal.products );
-            }
+			function onChangeTerminal( evt )
+			{
+				console.log("Changing terminal to " + evt.detail );
 
-            function onProductDataLoaded( )
-            {
-                console.log("Product Data Loaded!!");
-                var currentTerminal = data.changeTerminal("bramhall");
+				var newTerminal = data.changeTerminal( evt.detail );
+					
+				view.updateTerminal( newTerminal.pots, newTerminal.products );
+			}
 
-                view.init( currentTerminal.pots, currentTerminal.products );
-            }
+			function onProductDataLoaded( )
+			{
+				var currentTerminal = data.changeTerminal( "bramhall" );
 
-            function onSwapPotContents( evt )
-            {
-                var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
-                view.showResults( newPotting );
-            }
+				view.init( currentTerminal.pots, currentTerminal.products );
+			}
 
-            function onPottingChanged(pots)
-            {
-                /*I want to respond to potting changing manually, without invoking the potting controller
-                    -accept a list of potting results
-                        PottingSet
-                        Product
-                */
-            }
+			function onSwapPotContents( evt )
+			{
+				var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
+				view.showResults( newPotting );
+			}
 
-             //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
-            function onBalanceTankerSelected( evt )
-            {
-                var results = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
-                
-                view.showResults( results );
+			function onPottingChanged( pots )
+			{
+				/*I want to respond to potting changing manually, without invoking the potting controller
+					-accept a list of potting results
+						PottingSet
+						Product
+				*/
+			}
 
-                view.updateProductInputs( data.getProductTotals() );
-            }
+			 //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
+			function onBalanceTankerSelected( evt )
+			{
+				//pottingResult.potsUsed, pottingResult.pottedProducts
+				var pottingResult   = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
+				//var pottingResponse = pottingResponder.getPottingResponse( pottingResult.pottedProducts );
+
+				var messages 		= [];
+
+				pottingResult.pottedProducts.forEach( function( result )
+				{
+					messages.push( responder.getPottingResponse( result ));
+				});
+
+				view.showResults( pottingResult.potsUsed );
+
+				view.updateProductInputs( data.getProductTotals() );
+				view.showFeedback( messages );
+			}
 
 
-            function onPotTankerSelected( evt )
-            {
-                var forProducts     = evt.detail.enteredProducts;
-                var results         = [];
-                var potList         = data.getPotting( forProducts );
+			function onPotTankerSelected( evt )
+			{
+				var forProducts        = evt.detail.enteredProducts;
+				var results         = [];
+				var pottingResult   = data.getPotting( forProducts );
 
-                view.showResults( potList );
-            }
+				view.showResults( pottingResult.potsUsed );
+			}
 }());            

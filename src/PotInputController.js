@@ -1,5 +1,7 @@
 (function()
 {
+	
+
 	module.exports = function PotInputController( usingDom, availableProducts )
 	{
 		var _domElement 	= usingDom;
@@ -15,6 +17,7 @@
 
 		return { 	init: init,
 					updateProductList: updateProductList,
+					showProductFeedback: showProductFeedback,
 					updateInput:updateInput };
 
 		function updateInput( withInfo )
@@ -28,6 +31,12 @@
 			}
 
 			txtInput.value = parseInt( withInfo.amount );
+		}
+
+		function showProductFeedback( productId, messageNode )
+		{
+			var inputGroup = _domElement.querySelector("#input_" + productId );
+			inputGroup.appendChild( messageNode );
 		}
 
 		function getEnteredProductAmounts( putLast )
@@ -79,7 +88,7 @@
 			{
 				var forProduct 		= inputGroup.id.split('_')[1];
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
-            	txtInput.value      = 0;
+            	txtInput.value      = "";
 
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
 				{

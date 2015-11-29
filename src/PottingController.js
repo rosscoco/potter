@@ -39,7 +39,7 @@
 
 	        withProduct.remainder = productNotPotted;
 	        //return { pottingSetUsed:pottingSetUsed, remainder: productNotPotted, product:withProduct };
-	        var result = new PottingResult( withProduct, pottingSetUsed );
+	        var result = new PottingResult( withProduct, pottingSetUsed, productNotPotted );
 	        return result;
 	    }
 

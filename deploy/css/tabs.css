@@ -6,7 +6,15 @@ span
 	border:1px solid red;
 }
 
+.red
+{
+	background-color: red;
+}
 
+.borderB
+{
+	border:10px solid black;
+}
 
 
 .wrap
@@ -14,7 +22,6 @@ span
 	width:800px;
 	margin:auto;
 	padding-top: 75px;
-	border:1px solid yellow;
 	text-align: justify;
 }
 

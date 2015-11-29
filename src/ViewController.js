@@ -4,6 +4,7 @@
 
 	var PotDisplayController    = require("./PotDisplayController.js");
     var PotInputController      = require("./PotInputController.js");
+    var PottingResult 			= require("./data/PottingResult.js");
     var Tabs                    = require('./Tabs.js');
 
 	var _formController;
@@ -20,6 +21,7 @@
 		return { 	init: 			init, 
 					updateTerminal: updateTerminal,
 					showResults: 	showResults,
+					showFeedback: 	showFeedback,
 					updateProductInputs:updateProductInputs };
 	}
 
@@ -55,6 +57,26 @@
 				_formController.updateInput( { id:prodId, amount: productData[ prodId ] });	
 			}			
 		}
+	}
+
+	function showFeedback( messageList )
+	{
+		var classes = [];
+
+		classes[ PottingResult.SUCCESS 	] = ["inputMessage","alert", "alert-success"];
+		classes[ PottingResult.ERROR 	] = ["inputMessage","alert", "alert-danger"];
+		classes[ PottingResult.WARN 	] = ["inputMessage","alert", "alert-warning"];
+
+		messageList.forEach( function( messageData )
+		{
+			var messageDiv 			= document.createElement("div");
+			messageDiv.innerHTML 	= messageData.message;
+
+			//using apply allows us to pass an array of arguments to be called as ordered function params
+			messageDiv.classList.add.apply( messageDiv.classList, classes[ messageData.pottingStatus ]);
+
+			_formController.showProductFeedback( messageData.product, messageDiv );
+		});
 	}
 
 	function updateTerminal( withPots, withProducts )
