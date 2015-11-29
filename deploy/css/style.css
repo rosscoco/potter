@@ -183,15 +183,28 @@ ul
 
 .productInputGroup
 {
-	padding-bottom: 20px;
+	/*padding-bottom: 20px;*/
+	position:relative;
 }
 
-.productInputGroup label
+input[id^=productInput]
 {
-	padding-left: 15px;
-	display:block;
+	width:222px;
+	max-width:222px;
+	margin-left:15px;
+	margin-right:5px;
+	
 }
 
+.form-group
+{
+	margin-bottom: 0;
+}
+
+.help-block
+{
+	font-size:10px;
+}
 
 
 /*================================================--POTTING DISPLAY--========================================================================

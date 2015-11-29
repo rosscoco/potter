@@ -423,7 +423,7 @@
 		{
 			console.log("PotInputController::onClearProduct()");
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
-            txtInput.value      = 0;
+            txtInput.value      = "";
 
             clearFeedback( selectedInputGroup.id.split("_")[ 1 ]);
 
@@ -504,8 +504,8 @@
 	    {
 	        var allPotPermutations  = Utils.getPotPermutations( withPots );
 
-	        //var allPottingSets      = new PottingSetList( allPotPermutations );
-	        var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
+	        var allPottingSets      = new PottingSetList( allPotPermutations );
+	        //var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
 	        //var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
 	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
 

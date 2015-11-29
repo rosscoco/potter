@@ -199,7 +199,7 @@
 		{
 			console.log("PotInputController::onClearProduct()");
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
-            txtInput.value      = 0;
+            txtInput.value      = "";
 
             clearFeedback( selectedInputGroup.id.split("_")[ 1 ]);
 
