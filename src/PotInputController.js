@@ -176,6 +176,11 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
+		function validInput( txtInput )
+		{
+			
+		}
+
 		function onPotTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onPotTanker()");
@@ -183,6 +188,10 @@
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var enteredProducts	= getEnteredProductAmounts( productToFill );
+
+            if ( !validInput( txtInput )) return;
+
+            if ( txtInput.value )
 
             if ( txtInput.value < 1000 ) return;
 
