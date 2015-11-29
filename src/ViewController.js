@@ -71,7 +71,7 @@
 		{
 			var messageDiv 			= document.createElement("div");
 			messageDiv.innerHTML 	= messageData.message;
-
+			console.log("Message Status : " messageData.pottingStatus );
 			//using apply allows us to pass an array of arguments to be called as ordered function params
 			messageDiv.classList.add.apply( messageDiv.classList, classes[ messageData.pottingStatus ]);
 

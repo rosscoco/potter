@@ -33,8 +33,17 @@
 			txtInput.value = parseInt( withInfo.amount );
 		}
 
+		function clearFeedback()
+		{
+			[].slice.call( _domElement.querySelectorAll(".inputMessage")).forEach( function( messageNode )
+			{
+				messageNode.parentNode.removeChild( messageNode );
+			});
+		}
+
 		function showProductFeedback( productId, messageNode )
 		{
+			clearFeedback();
 			var inputGroup = _domElement.querySelector("#input_" + productId );
 			inputGroup.appendChild( messageNode );
 		}
