@@ -4,7 +4,8 @@
 
 	var PotDisplayController    = require("./PotDisplayController.js");
     var PotInputController      = require("./PotInputController.js");
-    var PottingResult 			= require("./data/PottingResult.js");
+    var cPottingResult 			= require("./data/PottingResult.js");
+    var PottingResult 			= new cPottingResult();
     var Tabs                    = require('./Tabs.js');
 
 	var _formController;
@@ -63,19 +64,19 @@
 	{
 		var classes = [];
 
-		classes[ PottingResult.SUCCESS 	] = ["inputMessage","alert", "alert-success"];
-		classes[ PottingResult.ERROR 	] = ["inputMessage","alert", "alert-danger"];
-		classes[ PottingResult.WARN 	] = ["inputMessage","alert", "alert-warning"];
+		classes[ PottingResult.SUCCESS 	] = [ "has-success","has-feedback"];
+		classes[ PottingResult.ERROR 	] = [ "has-error","has-feedback"];
+		classes[ PottingResult.WARN 	] = [ "has-warning","has-feedback"];
+
+		_formController.clearFeedback();
 
 		messageList.forEach( function( messageData )
 		{
-			var messageDiv 			= document.createElement("div");
-			messageDiv.innerHTML 	= messageData.message;
-			console.log("Message Status : " messageData.pottingStatus );
+			messageData.classes 	= classes[ messageData.pottingStatus ];
 			//using apply allows us to pass an array of arguments to be called as ordered function params
-			messageDiv.classList.add.apply( messageDiv.classList, classes[ messageData.pottingStatus ]);
+			//messageDiv.classList.add.apply( messageDiv.classList, classes[ messageData.pottingStatus ]);
 
-			_formController.showProductFeedback( messageData.product, messageDiv );
+			_formController.showProductFeedback( messageData );
 		});
 	}
 

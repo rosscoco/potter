@@ -242,6 +242,7 @@
 		return { 	init: init,
 					updateProductList: updateProductList,
 					showProductFeedback: showProductFeedback,
+					clearFeedback: clearFeedback,
 					updateInput:updateInput };
 
 		function updateInput( withInfo )
@@ -257,10 +258,32 @@
 			txtInput.value = parseInt( withInfo.amount );
 		}
 
-		function showProductFeedback( productId, messageNode )
+		function clearFeedback( onlyForProduct )
 		{
-			var inputGroup = _domElement.querySelector("#input_" + productId );
-			inputGroup.appendChild( messageNode );
+			if ( onlyForProduct )
+			{
+				var inputGroup = _domElement.querySelector("#input_" + onlyForProduct );
+				inputGroup.className = "form-group productInputGroup";
+				inputGroup.querySelector(".help-block").innerHTML = "";	
+				return;
+			}
+
+
+			[].slice.call( _domElement.querySelectorAll("[id^='input']")).forEach( function( inputGroup )
+			{
+				inputGroup.className = "form-group productInputGroup";
+				inputGroup.querySelector(".help-block").innerHTML = "";
+			});
+		}
+
+		function showProductFeedback( feedback )
+		{
+			var inputGroup = _domElement.querySelector("#input_" + feedback.product );
+			var helperText = inputGroup.querySelector(".help-block");
+
+			helperText.innerHTML = feedback.message;
+
+			inputGroup.classList.add.apply( inputGroup.classList, feedback.classes );
 		}
 
 		function getEnteredProductAmounts( putLast )
@@ -401,6 +424,8 @@
 			console.log("PotInputController::onClearProduct()");
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             txtInput.value      = 0;
+
+            clearFeedback( selectedInputGroup.id.split("_")[ 1 ]);
 
             var enteredProducts	= getEnteredProductAmounts();
 
@@ -676,9 +701,9 @@
 },{"./PottingController.js":3,"./Utils.js":9,"./data/Terminal.js":13}],5:[function(require,module,exports){
 (function(){
 
-	var PottingResult = require("./data/PottingResult.js");
-
-	var pottedProducts = {};
+	var cPottingResult 	= require("./data/PottingResult.js");
+	var PottingResult 	= new cPottingResult();
+	var pottedProducts 	= {};
 
 	module.exports = PottingResponse;
 
@@ -1268,7 +1293,8 @@
 
 	var PotDisplayController    = require("./PotDisplayController.js");
     var PotInputController      = require("./PotInputController.js");
-    var PottingResult 			= require("./data/PottingResult.js");
+    var cPottingResult 			= require("./data/PottingResult.js");
+    var PottingResult 			= new cPottingResult();
     var Tabs                    = require('./Tabs.js');
 
 	var _formController;
@@ -1327,19 +1353,19 @@
 	{
 		var classes = [];
 
-		classes[ PottingResult.SUCCESS 	] = ["inputMessage","alert", "alert-success"];
-		classes[ PottingResult.ERROR 	] = ["inputMessage","alert", "alert-danger"];
-		classes[ PottingResult.WARN 	] = ["inputMessage","alert", "alert-warning"];
+		classes[ PottingResult.SUCCESS 	] = [ "has-success","has-feedback"];
+		classes[ PottingResult.ERROR 	] = [ "has-error","has-feedback"];
+		classes[ PottingResult.WARN 	] = [ "has-warning","has-feedback"];
+
+		_formController.clearFeedback();
 
 		messageList.forEach( function( messageData )
 		{
-			var messageDiv 			= document.createElement("div");
-			messageDiv.innerHTML 	= messageData.message;
-
+			messageData.classes 	= classes[ messageData.pottingStatus ];
 			//using apply allows us to pass an array of arguments to be called as ordered function params
-			messageDiv.classList.add.apply( messageDiv.classList, classes[ messageData.pottingStatus ]);
+			//messageDiv.classList.add.apply( messageDiv.classList, classes[ messageData.pottingStatus ]);
 
-			_formController.showProductFeedback( messageData.product, messageDiv );
+			_formController.showProductFeedback( messageData );
 		});
 	}
 
@@ -1441,20 +1467,24 @@
 			 //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
 			function onBalanceTankerSelected( evt )
 			{
-				//pottingResult.potsUsed, pottingResult.pottedProducts
 				var pottingResult   = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
-				//var pottingResponse = pottingResponder.getPottingResponse( pottingResult.pottedProducts );
+				
+				view.showResults( pottingResult.potsUsed );
 
-				var messages 		= [];
+				showPottingFeedback( pottingResult.pottedProducts );
 
-				pottingResult.pottedProducts.forEach( function( result )
+				view.updateProductInputs( data.getProductTotals() );
+			}
+
+			function showPottingFeedback( pottingConfiguration )
+			{
+				var  messages = [];
+
+				pottingConfiguration.forEach( function( result )
 				{
 					messages.push( responder.getPottingResponse( result ));
 				});
 
-				view.showResults( pottingResult.potsUsed );
-
-				view.updateProductInputs( data.getProductTotals() );
 				view.showFeedback( messages );
 			}
 
@@ -1462,10 +1492,12 @@
 			function onPotTankerSelected( evt )
 			{
 				var forProducts        = evt.detail.enteredProducts;
-				var results         = [];
+				var messages 		= [];
 				var pottingResult   = data.getPotting( forProducts );
 
 				view.showResults( pottingResult.potsUsed );
+
+				showPottingFeedback( pottingResult.pottedProducts ); 
 			}
 }());            
 },{"./PottingData.js":4,"./PottingResponse.js":5,"./ViewController.js":10}],12:[function(require,module,exports){

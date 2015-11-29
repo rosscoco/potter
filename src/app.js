@@ -59,20 +59,24 @@
 			 //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
 			function onBalanceTankerSelected( evt )
 			{
-				//pottingResult.potsUsed, pottingResult.pottedProducts
 				var pottingResult   = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
-				//var pottingResponse = pottingResponder.getPottingResponse( pottingResult.pottedProducts );
+				
+				view.showResults( pottingResult.potsUsed );
 
-				var messages 		= [];
+				showPottingFeedback( pottingResult.pottedProducts );
 
-				pottingResult.pottedProducts.forEach( function( result )
+				view.updateProductInputs( data.getProductTotals() );
+			}
+
+			function showPottingFeedback( pottingConfiguration )
+			{
+				var  messages = [];
+
+				pottingConfiguration.forEach( function( result )
 				{
 					messages.push( responder.getPottingResponse( result ));
 				});
 
-				view.showResults( pottingResult.potsUsed );
-
-				view.updateProductInputs( data.getProductTotals() );
 				view.showFeedback( messages );
 			}
 
@@ -80,9 +84,11 @@
 			function onPotTankerSelected( evt )
 			{
 				var forProducts        = evt.detail.enteredProducts;
-				var results         = [];
+				var messages 		= [];
 				var pottingResult   = data.getPotting( forProducts );
 
 				view.showResults( pottingResult.potsUsed );
+
+				showPottingFeedback( pottingResult.pottedProducts ); 
 			}
 }());            

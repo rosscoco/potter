@@ -18,6 +18,7 @@
 		return { 	init: init,
 					updateProductList: updateProductList,
 					showProductFeedback: showProductFeedback,
+					clearFeedback: clearFeedback,
 					updateInput:updateInput };
 
 		function updateInput( withInfo )
@@ -33,19 +34,32 @@
 			txtInput.value = parseInt( withInfo.amount );
 		}
 
-		function clearFeedback()
+		function clearFeedback( onlyForProduct )
 		{
-			[].slice.call( _domElement.querySelectorAll(".inputMessage")).forEach( function( messageNode )
+			if ( onlyForProduct )
 			{
-				messageNode.parentNode.removeChild( messageNode );
+				var inputGroup = _domElement.querySelector("#input_" + onlyForProduct );
+				inputGroup.className = "form-group productInputGroup";
+				inputGroup.querySelector(".help-block").innerHTML = "";	
+				return;
+			}
+
+
+			[].slice.call( _domElement.querySelectorAll("[id^='input']")).forEach( function( inputGroup )
+			{
+				inputGroup.className = "form-group productInputGroup";
+				inputGroup.querySelector(".help-block").innerHTML = "";
 			});
 		}
 
-		function showProductFeedback( productId, messageNode )
+		function showProductFeedback( feedback )
 		{
-			clearFeedback();
-			var inputGroup = _domElement.querySelector("#input_" + productId );
-			inputGroup.appendChild( messageNode );
+			var inputGroup = _domElement.querySelector("#input_" + feedback.product );
+			var helperText = inputGroup.querySelector(".help-block");
+
+			helperText.innerHTML = feedback.message;
+
+			inputGroup.classList.add.apply( inputGroup.classList, feedback.classes );
 		}
 
 		function getEnteredProductAmounts( putLast )
@@ -186,6 +200,8 @@
 			console.log("PotInputController::onClearProduct()");
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             txtInput.value      = 0;
+
+            clearFeedback( selectedInputGroup.id.split("_")[ 1 ]);
 
             var enteredProducts	= getEnteredProductAmounts();
 

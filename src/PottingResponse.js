@@ -1,8 +1,8 @@
 (function(){
 
-	var PottingResult = require("./data/PottingResult.js");
-
-	var pottedProducts = {};
+	var cPottingResult 	= require("./data/PottingResult.js");
+	var PottingResult 	= new cPottingResult();
+	var pottedProducts 	= {};
 
 	module.exports = PottingResponse;
 
