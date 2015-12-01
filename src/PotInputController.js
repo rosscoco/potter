@@ -80,6 +80,7 @@
                 .filter( function removeZeroValues( inputValues )
                 {
                     if ( inputValues.amount > 0 ) return true;                                  	
+                    //if ( isValidInput( amount )) return true;
                 })
                 .filter( function removeSpecificProduct( inputValues )
                 {
@@ -176,8 +177,32 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
-		function validInput( txtInput )
+		//return an array of valid inputs to account for pots being defined.
+		function isValidInput( txtInput )
 		{
+			var withSpaces = txtInput.split(" ");
+
+			if ( withSpaces.length !== 0 )
+			{
+				var allAreNumbers = withSpaces.every( function( isNumber )
+				{
+					return isNaN( isNumber );
+				});
+
+				if ( !allAreNumbers ){
+					return false;
+				} 	
+				else{
+					return withSpaces;
+				} 	
+			}
+
+			if ( isNaN( parseInt( txtInput )) || txtInput < 1000 )
+			{
+				return false;
+			}
+			
+			return [parseInt(txtInput)];
 			
 		}
 
@@ -186,16 +211,12 @@
 			console.log("PotInputController::onPotTanker()");
 
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
-            var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
-            var enteredProducts	= getEnteredProductAmounts( productToFill );
-
-            if ( !validInput( txtInput )) return;
-
-            if ( txtInput.value )
+            var isValid 		= isValidInput( txtInput.value );
 
             if ( txtInput.value < 1000 ) return;
 
-            console.log("After Sort:" + enteredProducts );
+            var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
+            var enteredProducts	= getEnteredProductAmounts( productToFill );
 
             var detail			= { enteredProducts : enteredProducts };
 

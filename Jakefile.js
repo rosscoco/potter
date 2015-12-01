@@ -11,7 +11,8 @@
 	var exorcist = require('exorcist');
 	var through2 = require('through2');
 
-	var DEPLOY_DIR = "./deploy/";
+	var DEPLOY_DIR 		= "./deploy/";
+	var APP_ENGINE_DIR 	= "/Users/Rossco/pottingcalc/www";
 
 	desc("Default task");
 	task("default",["lint","clean","deploy","http"],function()
@@ -42,6 +43,7 @@
 	{
 		console.log("Clearing Deploy folder: .");
 		shelljs.rm('-rf', DEPLOY_DIR );
+		shelljs.rm('-rf', APP_ENGINE_DIR );
 	});
 
 
@@ -50,11 +52,11 @@
 	{
 		console.log("Broserifying JS Modules: .");
 
-		var mapfile = path.join(DEPLOY_DIR,"js","app.js.map");
-		var flag = 0;
+		var mapfile = path.join(DEPLOY_DIR, "js","app.js.map");
+		var flag 	= 0;
 		var sourceDirective ="//# sourceMappingURL=./app.js.map";
 
-		browserify({debug:true}).require(require.resolve('./src/app.js'), {entry:true})
+		browserify({ debug:true }).require(require.resolve('./src/app.js'), {entry:true})
 					.bundle()
 					.pipe(exorcist(mapfile))
 					.pipe(through2( {"decodeStrings" : false, "encoding": "utf8"},function(chunk, enc) 
@@ -70,7 +72,7 @@
 				        	}
         					this.push( chunk );
         				}))
-					.pipe(fs.createWriteStream( path.join(DEPLOY_DIR,"js","app.js")), 'utf8');
+					.pipe(fs.createWriteStream( path.join( DEPLOY_DIR, "js","app.js")), 'utf8' );
 
 		//# sourceMappingURL=./app.js.map
 	});
@@ -82,6 +84,7 @@
 
 		console.log("Copying content files: .");
 		shelljs.cp("-R", "./src/content/*", DEPLOY_DIR );
+		shelljs.cp("-R", "./deploy/", APP_ENGINE_DIR );
 	});
 
 	desc("Lint Javascript");
