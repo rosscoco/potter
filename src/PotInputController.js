@@ -67,22 +67,32 @@
         	//the product just entered will be potted last
         	var lastProduct;
 
-        	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
-                {
-					var amount = inputGroup.querySelector("[id^=productInput").value;
+			var textInput;
+			var parsedAmount;
+			var value;
 
-                	//if ( amount < 1000 ) amount = potifyNumber( amount );
+			var usedTextInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
+            {
+            	var textInput = inputGroup.querySelector("[id^=productInput");
+            	value = textInput.value;
 
-                    return {    id      :inputGroup.getAttribute("id").split("_")[1], 
-                                amount  :potifyNumber( amount ) };
-                })
+            	return value !== '' && value !== 0;
+            });
 
-                .filter( function removeZeroValues( inputValues )
-                {
-                    if ( inputValues.amount > 0 ) return true;
-                    //if ( isValidInput( amount )) return true;
-                })
-                .filter( function removeSpecificProduct( inputValues )
+			if ( usedTextInputs.length === 0 )	return [];
+
+            var enteredProducts = usedTextInputs.map( function extractValuesFromTextInputs( inputGroup ) 
+            {
+            	textInput 		= inputGroup.querySelector("[id^=productInput");
+				parsedAmount 	= inputValidator.parseInput( textInput.value );
+            	parsedAmount.id = textInput.getAttribute("id").split("_")[1];
+
+            	return parsedAmount;
+            });
+
+            if ( putLast )
+            {
+            	enteredProducts = enteredProducts.filter( function removeSpecificProduct( inputValues )
                 {
                 	if ( inputValues.id === putLast )
                 	{
@@ -93,10 +103,10 @@
                 	return true;
                 });
 
-            if ( lastProduct ) selectedProducts.push( lastProduct );
-            //if ( lastProduct ) selectedProducts.unshift( lastProduct );
-
-            return selectedProducts;
+                enteredProducts.push( lastProduct );
+            }
+				
+            return enteredProducts;
         }
 
         function updateProductList( availableProducts )
@@ -162,7 +172,7 @@
 					if ( evt.target.id.split("_")[0] === "productInput" )
 					{
 						evt.stopPropagation();
-						onParseProductInput( this );
+						onPotTanker( this );
 					}
 				});
 			});
@@ -188,37 +198,6 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
-		//return an array of valid inputs to account for pots being defined.
-		function isValidInput( txtInput )
-		{
-			var withSpaces = txtInput.split(" ");
-
-			if ( withSpaces.length !== 0 )
-			{
-				var allAreNumbers = withSpaces.every( function( isNumber )
-				{
-					return isNaN( isNumber );
-				});
-
-				if ( !allAreNumbers )
-				{
-					return false;
-				} 	
-				else
-				{
-					return withSpaces;
-				} 	
-			}
-
-			if ( isNaN( parseInt( txtInput )) || txtInput < 1000 )
-			{
-				return false;
-			}
-			
-			return [ parseInt( txtInput )];
-			
-		}
-
 		function onParseProductInput( selectedInputGroup )
 		{
 			var inputCheckers 	= [];
@@ -228,6 +207,9 @@
 
 			console.log( new Array(24).join("\n"));
 
+			var input = inputValidator.parseInput( inputValue );
+
+			/*
 			if ( inputValue.indexOf('/') !== -1 )
 			{	
 				inputCheckers = inputValidator.parseValueAndSplits( inputValue );
@@ -246,7 +228,7 @@
 				console.log( "Checking Input: ", inputChecker.type, inputChecker.getInput(), inputChecker.isValidInput());
 
 				return inputChecker.isValidInput();
-			});
+			});*/
 
 
 			
@@ -254,20 +236,17 @@
 
             //if ( txtInput.value < 1000 ) return;
 
-			if ( validInputs.length > 0 )
-			{
-				//onPotTanker( validInputs  );	
-			}
+			
 		}
 
 		function onPotTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onPotTanker()");
 
-			
-
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var enteredProducts	= getEnteredProductAmounts( productToFill );
+
+            if ( enteredProducts.length === 0 ) return;
 
             var detail			= { enteredProducts : enteredProducts };
 

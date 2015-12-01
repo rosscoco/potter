@@ -4,12 +4,14 @@
 
 	var _allowedKeys 	= [ 8,9,13,27,35,38,45,46 ]; //backspace, delete, insert, home, end
 
+	module.exports.parseInput 		= parseInput;
+	module.exports.isAllowedInput 	= isAllowedInput;
 
-	module.exports.checkValueInput 		= checkValueInput;
+	/*module.exports.checkValueInput 		= checkValueInput;
 	module.exports.checkSplits 			= checkSplits;
 	module.exports.isAllowedInput 		= isAllowedInput;
 	module.exports.parseValueAndSplits 	= parseValueAndSplits;
-	module.exports.parseSpaces 			= parseSpaces;
+	module.exports.parseSpaces 			= parseSpaces;*/
 
 	function isAllowedInput( inputEvt )
 	{	
@@ -30,47 +32,84 @@
 		return _allowedKeys.some( isSpecialKey ) || allowedChars.indexOf( keyChar ) !== -1;
 	}
 
-	function checkValueInput( value )
+	function parseInput( inputValue )
+	{
+		var checker;
+
+		if ( inputValue.indexOf('/') !== -1 )
+		{	
+			checker = parseValueAndSplits;
+		}
+		else if ( inputValue.indexOf(" ") !== -1 && inputValue.length > 2 )
+		{
+			checker =  parseSplits;
+		}
+		else
+		{
+			checker = parseValue;
+		}
+
+		return checker( inputValue );
+	}
+
+
+
+	function parseValue( value )
 	{
 		var _isValid 	= false;
 		var _value 		= validate( value );
 
-		return {
-			isValidInput: isValidInput,
-			type:"value",
-			getInput: getInput };
+		return { 	isValid: _isValid,
+					type: 	"total",
+					amount:_value };
 
 		function validate( amount )
 		{
 			if ( isNaN( parseInt( amount ) ))
 			{
 				_isValid = false;
-				return;
+				return 0;
 			}
 
 			_isValid = true;
 
 			return potifyNumber( amount );
 		}
-
-		function isValidInput()
-		{
-			return _isValid;
-		}
-
-		function getInput()
-		{
-
-			console.log("Gettign Value: " + _value);
-			return _value;
-
-
-		}
 	}
 
-	function checkSplits()
+	function parseSplits( inputValue )
 	{
+		var data 		= {};
+		data.pots 		= parseSpaces( inputValue );
+		data.amount 	= 0;
+		data.hasPotting	= data.pots.length > 0;
+
+		data.pots = data.pots.map ( function( potSplit )
+		{
+			data.amount += potSplit.amount;
+			return potSplit.amount;
+		});
+
+		return data;
+	}
+
+	function parseValueAndSplits( inputValue )
+	{
+		var separated 	= inputValue.split("/");
+		var data 		= {};
+		var total 		= separated[ 0 ];
+		var splits 		= separated[ 1 ];
+
+		//if multiple entries before / then only take the first one
+		var leftSide 	= removeSpaces( total )[0];
+		var rightSide 	= parseSplits( splits  );
 		
+		data.amount 	= leftSide.amount;
+		data.potTotal 	= rightSide.amount;
+		data.pots 		= rightSide.pots;
+		data.hasPotting	= data.pots.length > 0;
+
+		return data;
 	}
 
 	function parseSpaces( inputValue )
@@ -79,7 +118,7 @@
 
 		amounts = amounts.map( function checkInput( value )
 		{
-			return checkValueInput( value );
+			return parseValue( value );
 		});
 
 		return amounts;
@@ -91,30 +130,6 @@
 		{
 			return String( s ) !== '';
 		});
-	}
-
-	function parseValueAndSplits( inputValue )
-	{
-		var separated = inputValue.split("/");
-		
-		if ( separated.length > 2 )
-		{
-			return [];//this should not happen as we should be preventing a second / character being input.
-		} 
-
-		var total 	= separated[0];
-		var splits 	= separated[1];
-
-		var leftSide = parseSpaces( total );
-
-		if ( leftSide.length > 1 )
-		{
-			return []; //Only allow a single input to the left of the / character
-		}
-
-		var rightSide = parseSpaces( splits  );
-
-		return leftSide.concat( rightSide );
 	}
 
 	function potifyNumber( number )
@@ -418,22 +433,32 @@
         	//the product just entered will be potted last
         	var lastProduct;
 
-        	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
-                {
-					var amount = inputGroup.querySelector("[id^=productInput").value;
+			var textInput;
+			var parsedAmount;
+			var value;
 
-                	//if ( amount < 1000 ) amount = potifyNumber( amount );
+			var usedTextInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
+            {
+            	var textInput = inputGroup.querySelector("[id^=productInput");
+            	value = textInput.value;
 
-                    return {    id      :inputGroup.getAttribute("id").split("_")[1], 
-                                amount  :potifyNumber( amount ) };
-                })
+            	return value !== '' && value !== 0;
+            });
 
-                .filter( function removeZeroValues( inputValues )
-                {
-                    if ( inputValues.amount > 0 ) return true;
-                    //if ( isValidInput( amount )) return true;
-                })
-                .filter( function removeSpecificProduct( inputValues )
+			if ( usedTextInputs.length === 0 )	return [];
+
+            var enteredProducts = usedTextInputs.map( function extractValuesFromTextInputs( inputGroup ) 
+            {
+            	textInput 		= inputGroup.querySelector("[id^=productInput");
+				parsedAmount 	= inputValidator.parseInput( textInput.value );
+            	parsedAmount.id = textInput.getAttribute("id").split("_")[1];
+
+            	return parsedAmount;
+            });
+
+            if ( putLast )
+            {
+            	enteredProducts = enteredProducts.filter( function removeSpecificProduct( inputValues )
                 {
                 	if ( inputValues.id === putLast )
                 	{
@@ -444,10 +469,10 @@
                 	return true;
                 });
 
-            if ( lastProduct ) selectedProducts.push( lastProduct );
-            //if ( lastProduct ) selectedProducts.unshift( lastProduct );
-
-            return selectedProducts;
+                enteredProducts.push( lastProduct );
+            }
+				
+            return enteredProducts;
         }
 
         function updateProductList( availableProducts )
@@ -513,7 +538,7 @@
 					if ( evt.target.id.split("_")[0] === "productInput" )
 					{
 						evt.stopPropagation();
-						onParseProductInput( this );
+						onPotTanker( this );
 					}
 				});
 			});
@@ -539,37 +564,6 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
-		//return an array of valid inputs to account for pots being defined.
-		function isValidInput( txtInput )
-		{
-			var withSpaces = txtInput.split(" ");
-
-			if ( withSpaces.length !== 0 )
-			{
-				var allAreNumbers = withSpaces.every( function( isNumber )
-				{
-					return isNaN( isNumber );
-				});
-
-				if ( !allAreNumbers )
-				{
-					return false;
-				} 	
-				else
-				{
-					return withSpaces;
-				} 	
-			}
-
-			if ( isNaN( parseInt( txtInput )) || txtInput < 1000 )
-			{
-				return false;
-			}
-			
-			return [ parseInt( txtInput )];
-			
-		}
-
 		function onParseProductInput( selectedInputGroup )
 		{
 			var inputCheckers 	= [];
@@ -579,6 +573,9 @@
 
 			console.log( new Array(24).join("\n"));
 
+			var input = inputValidator.parseInput( inputValue );
+
+			/*
 			if ( inputValue.indexOf('/') !== -1 )
 			{	
 				inputCheckers = inputValidator.parseValueAndSplits( inputValue );
@@ -597,7 +594,7 @@
 				console.log( "Checking Input: ", inputChecker.type, inputChecker.getInput(), inputChecker.isValidInput());
 
 				return inputChecker.isValidInput();
-			});
+			});*/
 
 
 			
@@ -605,20 +602,17 @@
 
             //if ( txtInput.value < 1000 ) return;
 
-			if ( validInputs.length > 0 )
-			{
-				//onPotTanker( validInputs  );	
-			}
+			
 		}
 
 		function onPotTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onPotTanker()");
 
-			
-
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var enteredProducts	= getEnteredProductAmounts( productToFill );
+
+            if ( enteredProducts.length === 0 ) return;
 
             var detail			= { enteredProducts : enteredProducts };
 
