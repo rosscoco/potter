@@ -1,7 +1,7 @@
 (function(){
 
 	var _allowedKeys 	= [ 8,9,13,27,35,38,45,46 ]; //backspace, delete, insert, home, end
-	var _allowedChars 	= "0123456789 /";
+
 
 	module.exports.checkValueInput 		= checkValueInput;
 	module.exports.checkSplits 			= checkSplits;
@@ -12,15 +12,20 @@
 	function isAllowedInput( inputEvt )
 	{	
 		var keyChar 		= String.fromCharCode( inputEvt.which );
-		
+		var allowedChars 	= "0123456789 /";
+
 		var isSpecialKey = function( keyCode )
 		{
 			return keyCode === inputEvt.which;
 		};
 
-		console.log( inputEvt.target.value );
+		//prevent second / character being input
+		if ( inputEvt.target.value.indexOf('/') >= 0 )
+		{
+			allowedChars  = "0123456789 ";
+		}
 
-		return _allowedKeys.some( isSpecialKey ) || _allowedChars.indexOf( keyChar ) !== -1;
+		return _allowedKeys.some( isSpecialKey ) || allowedChars.indexOf( keyChar ) !== -1;
 	}
 
 	function checkValueInput( value )
@@ -68,10 +73,7 @@
 
 	function parseSpaces( inputValue )
 	{	
-		var amounts = inputValue.split(" ").filter( function notEmptyString( s )
-		{
-			return String( s ) !== '';
-		});
+		var amounts = removeSpaces( inputValue );
 
 		amounts = amounts.map( function checkInput( value )
 		{
@@ -81,16 +83,36 @@
 		return amounts;
 	}
 
+	function removeSpaces( inputValue )
+	{
+		return inputValue.split(" ").filter( function notEmptyString( s )
+		{
+			return String( s ) !== '';
+		});
+	}
+
 	function parseValueAndSplits( inputValue )
 	{
 		var separated = inputValue.split("/");
+		
 		if ( separated.length > 2 )
 		{
-			return [];//
+			return [];//this should not happen as we should be preventing a second / character being input.
 		} 
 
-		var leftSide = inputValue.split("/");
+		var total 	= separated[0];
+		var splits 	= separated[1];
 
+		var leftSide = parseSpaces( total );
+
+		if ( leftSide.length > 1 )
+		{
+			return []; //Only allow a single input to the left of the / character
+		}
+
+		var rightSide = parseSpaces( splits  );
+
+		return leftSide.concat( rightSide );
 	}
 
 	function potifyNumber( number )
