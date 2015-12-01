@@ -1,14 +1,12 @@
 (function()
 {
-	
+	var inputValidator		= require('./InputValidation.js');
 
 	module.exports = function PotInputController( usingDom, availableProducts )
 	{
 		var _domElement 	= usingDom;
 		var _inputGroups	= [].slice.call( _domElement.querySelectorAll( "[id^='input']" ));
 		var _products		= availableProducts;
-
-
 
 		init( availableProducts );
 
@@ -81,7 +79,7 @@
 
                 .filter( function removeZeroValues( inputValues )
                 {
-                    if ( inputValues.amount > 0 ) return true;                                  	
+                    if ( inputValues.amount > 0 ) return true;
                     //if ( isValidInput( amount )) return true;
                 })
                 .filter( function removeSpecificProduct( inputValues )
@@ -170,19 +168,7 @@
 			});
 		}
 
-		function isAllowedInput( evt )
-		{
-			var allowedKeys 	= [ 8,9,35,38,45,46 ]; //backspace, delete, insert, home, end
-			var allowedChars 	= "0123456789 /";
-			var keyChar 		= String.fromCharCode( evt.which );
-			
-			var isSpecialKey = function( keyCode )
-			{
-				return keyCode === evt.which;
-			} ;
-
-			return allowedKeys.some( isSpecialKey ) || allowedChars.indexOf( keyChar ) !== -1;
-		}
+		
 
 
 
@@ -214,10 +200,12 @@
 					return isNaN( isNumber );
 				});
 
-				if ( !allAreNumbers ){
+				if ( !allAreNumbers )
+				{
 					return false;
 				} 	
-				else{
+				else
+				{
 					return withSpaces;
 				} 	
 			}
@@ -227,23 +215,55 @@
 				return false;
 			}
 			
-			return [parseInt(txtInput)];
+			return [ parseInt( txtInput )];
 			
 		}
 
 		function onParseProductInput( selectedInputGroup )
 		{
-			onPotTanker( selectedInputGroup  );
+			var inputCheckers 	= [];
+			var amountInput;
+			var pottingInput;
+			var inputValue      = selectedInputGroup.querySelector("[id^=productInput]").value;
+
+			if ( inputValue.indexOf('/') !== -1 )
+			{	
+				var inputs 	= inputValue.split("/")
+				var value 	= inputValue[ 0 ];
+				var splits 	= inputValue.slice(1);
+
+				//inputValue.push( checkValueInput( value ))
+				//inputCheckers.push( checkPottingInput( splits ));
+			}
+			else
+			{
+				inputCheckers.push( inputValidator.checkValueInput( inputValue ));
+			}
+
+			var validInputs = inputCheckers.filter( function( inputChecker )
+			{
+				trace( "Checking Input: ", inputChecker.type, inputChecker.getValue(), inputChecker.isValidInput());
+
+				return inputChecker.isValidInput();
+			});
+
+
+			
+            //var isValid 		= isValidInput( txtInput.value );
+
+            //if ( txtInput.value < 1000 ) return;
+
+			if ( validInputs.length > 0 )
+			{
+				//onPotTanker( validInputs  );	
+			}
 		}
 
 		function onPotTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onPotTanker()");
 
-			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
-            var isValid 		= isValidInput( txtInput.value );
-
-            if ( txtInput.value < 1000 ) return;
+			
 
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var enteredProducts	= getEnteredProductAmounts( productToFill );
