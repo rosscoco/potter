@@ -18,6 +18,8 @@
 			return keyCode === inputEvt.which;
 		};
 
+		console.log( inputEvt.target.value );
+
 		return _allowedKeys.some( isSpecialKey ) || _allowedChars.indexOf( keyChar ) !== -1;
 	}
 
@@ -81,6 +83,13 @@
 
 	function parseValueAndSplits( inputValue )
 	{
+		var separated = inputValue.split("/");
+		if ( separated.length > 2 )
+		{
+			return [];//
+		} 
+
+		var leftSide = inputValue.split("/");
 
 	}
 
