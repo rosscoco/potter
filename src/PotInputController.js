@@ -115,8 +115,8 @@
 				
 				txtInput.onkeypress = function( evt )
 				{
-					return isAllowedInput( evt );	
-				} ;
+					return inputValidator.isAllowedInput( evt );
+				};
 
             	txtInput.value      = "";
 
@@ -226,23 +226,24 @@
 			var pottingInput;
 			var inputValue      = selectedInputGroup.querySelector("[id^=productInput]").value;
 
+			console.log( new Array(24).join("\n"));
+
 			if ( inputValue.indexOf('/') !== -1 )
 			{	
-				var inputs 	= inputValue.split("/")
-				var value 	= inputValue[ 0 ];
-				var splits 	= inputValue.slice(1);
-
-				//inputValue.push( checkValueInput( value ))
-				//inputCheckers.push( checkPottingInput( splits ));
+				inputCheckers = inputValidator.parseValueAndSplits( inputValue );
+			}
+			else if ( inputValue.indexOf(" ") !== -1 )
+			{
+				inputCheckers = inputValidator.parseSpaces( inputValue );
 			}
 			else
 			{
-				inputCheckers.push( inputValidator.checkValueInput( inputValue ));
+				inputCheckers = [ inputValidator.checkValueInput( inputValue ) ];
 			}
 
 			var validInputs = inputCheckers.filter( function( inputChecker )
 			{
-				trace( "Checking Input: ", inputChecker.type, inputChecker.getValue(), inputChecker.isValidInput());
+				console.log( "Checking Input: ", inputChecker.type, inputChecker.getInput(), inputChecker.isValidInput());
 
 				return inputChecker.isValidInput();
 			});
