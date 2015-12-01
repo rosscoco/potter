@@ -232,6 +232,8 @@
 		var _inputGroups	= [].slice.call( _domElement.querySelectorAll( "[id^='input']" ));
 		var _products		= availableProducts;
 
+
+
 		init( availableProducts );
 
 		if ( _inputGroups.length === 0 )
@@ -336,6 +338,12 @@
 			{
 				var forProduct 		= inputGroup.id.split('_')[1];
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
+				
+				txtInput.onkeypress = function( evt )
+				{
+					return isAllowedInput( evt );	
+				} ;
+
             	txtInput.value      = "";
 
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
@@ -374,6 +382,7 @@
 		                }
 		            });
 
+
 				inputGroup.addEventListener("input", function( evt )
 				{
 					if ( evt.target.id.split("_")[0] === "productInput" )
@@ -384,6 +393,22 @@
 				});
 			});
 		}
+
+		function isAllowedInput( evt )
+		{
+			var allowedKeys 	= [ 8,9,35,38,45,46 ]; //backspace, delete, insert, home, end
+			var allowedChars 	= "0123456789 /";
+			var keyChar 		= String.fromCharCode( evt.which );
+			
+			var isSpecialKey = function( keyCode )
+			{
+				return keyCode === evt.which;
+			} ;
+
+			return allowedKeys.some( isSpecialKey ) || allowedChars.indexOf( keyChar ) !== -1;
+		}
+
+
 
 		function onFillTanker( selectedInputGroup )
 		{
