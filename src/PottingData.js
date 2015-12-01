@@ -46,8 +46,6 @@
 		
 		pot2.contents 	= Math.min( pot2.capacity, pot1Copy.contents );
 		pot2.product 	= pot1Copy.product;
-
-		
 		
 		return _potting;
 	}
