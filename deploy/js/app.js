@@ -1,5 +1,147 @@
 //# sourceMappingURL=./app.js.map
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){
+
+	var _allowedKeys 	= [ 8,9,13,27,35,38,45,46 ]; //backspace, delete, insert, home, end
+
+	module.exports.parseInput 		= parseInput;
+	module.exports.isAllowedInput 	= isAllowedInput;
+
+	/*module.exports.checkValueInput 		= checkValueInput;
+	module.exports.checkSplits 			= checkSplits;
+	module.exports.isAllowedInput 		= isAllowedInput;
+	module.exports.parseValueAndSplits 	= parseValueAndSplits;
+	module.exports.parseSpaces 			= parseSpaces;*/
+
+	function isAllowedInput( inputEvt )
+	{	
+		var keyChar 		= String.fromCharCode( inputEvt.which );
+		var allowedChars 	= "0123456789 /";
+
+		var isSpecialKey = function( keyCode )
+		{
+			return keyCode === inputEvt.which;
+		};
+
+		//prevent second / character being input
+		if ( inputEvt.target.value.indexOf('/') >= 0 )
+		{
+			allowedChars  = "0123456789 ";
+		}
+
+		return _allowedKeys.some( isSpecialKey ) || allowedChars.indexOf( keyChar ) !== -1;
+	}
+
+	function parseInput( inputValue )
+	{
+		var checker;
+
+		if ( inputValue.indexOf('/') !== -1 )
+		{	
+			checker = parseValueAndSplits;
+		}
+		else if ( inputValue.indexOf(" ") !== -1 && inputValue.length > 2 )
+		{
+			checker =  parseSplits;
+		}
+		else
+		{
+			checker = parseValue;
+		}
+
+		return checker( inputValue );
+	}
+
+
+
+	function parseValue( value )
+	{
+		var _isValid 	= false;
+		var _value 		= validate( value );
+
+		return { 	isValid: _isValid,
+					type: 	"total",
+					amount:_value };
+
+		function validate( amount )
+		{
+			if ( isNaN( parseInt( amount ) ))
+			{
+				_isValid = false;
+				return 0;
+			}
+
+			_isValid = true;
+
+			return potifyNumber( amount );
+		}
+	}
+
+	function parseSplits( inputValue )
+	{
+		var data 		= {};
+		data.pots 		= parseSpaces( inputValue );
+		data.amount 	= 0;
+		data.hasPotting	= data.pots.length > 0;
+
+		data.pots = data.pots.map ( function( potSplit )
+		{
+			data.amount += potSplit.amount;
+			return potSplit.amount;
+		});
+
+		return data;
+	}
+
+	function parseValueAndSplits( inputValue )
+	{
+		var separated 	= inputValue.split("/");
+		var data 		= {};
+		var total 		= separated[ 0 ];
+		var splits 		= separated[ 1 ];
+
+		//if multiple entries before / then only take the first one
+		var leftSide 	= removeSpaces( total )[0];
+		var rightSide 	= parseSplits( splits  );
+		
+		data.amount 	= leftSide.amount;
+		data.potTotal 	= rightSide.amount;
+		data.pots 		= rightSide.pots;
+		data.hasPotting	= data.pots.length > 0;
+
+		return data;
+	}
+
+	function parseSpaces( inputValue )
+	{	
+		var amounts = removeSpaces( inputValue );
+
+		amounts = amounts.map( function checkInput( value )
+		{
+			return parseValue( value );
+		});
+
+		return amounts;
+	}
+
+	function removeSpaces( inputValue )
+	{
+		return inputValue.split(" ").filter( function notEmptyString( s )
+		{
+			return String( s ) !== '';
+		});
+	}
+
+	function potifyNumber( number )
+	{
+		var numberLength = String( Number( number ) ).length;
+
+		if ( String( Number( number ) ).length >= 4 ) return number;
+
+		return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
+	}
+}());
+},{}],2:[function(require,module,exports){
 (function()
 {
 	module.exports = function PotDisplayController( domElement )
@@ -221,10 +363,10 @@
 	};
 
 }());
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 (function()
 {
-	
+	var inputValidator		= require('./InputValidation.js');
 
 	module.exports = function PotInputController( usingDom, availableProducts )
 	{
@@ -291,21 +433,32 @@
         	//the product just entered will be potted last
         	var lastProduct;
 
-        	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
-                {
-					var amount = inputGroup.querySelector("[id^=productInput").value;
+			var textInput;
+			var parsedAmount;
+			var value;
 
-                	//if ( amount < 1000 ) amount = potifyNumber( amount );
+			var usedTextInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
+            {
+            	var textInput = inputGroup.querySelector("[id^=productInput");
+            	value = textInput.value;
 
-                    return {    id      :inputGroup.getAttribute("id").split("_")[1], 
-                                amount  :potifyNumber( amount ) };
-                })
+            	return value !== '' && value !== 0;
+            });
 
-                .filter( function removeZeroValues( inputValues )
-                {
-                    if ( inputValues.amount > 0 ) return true;                                  	
-                })
-                .filter( function removeSpecificProduct( inputValues )
+			if ( usedTextInputs.length === 0 )	return [];
+
+            var enteredProducts = usedTextInputs.map( function extractValuesFromTextInputs( inputGroup ) 
+            {
+            	textInput 		= inputGroup.querySelector("[id^=productInput");
+				parsedAmount 	= inputValidator.parseInput( textInput.value );
+            	parsedAmount.id = textInput.getAttribute("id").split("_")[1];
+
+            	return parsedAmount;
+            });
+
+            if ( putLast )
+            {
+            	enteredProducts = enteredProducts.filter( function removeSpecificProduct( inputValues )
                 {
                 	if ( inputValues.id === putLast )
                 	{
@@ -316,10 +469,10 @@
                 	return true;
                 });
 
-            if ( lastProduct ) selectedProducts.push( lastProduct );
-            //if ( lastProduct ) selectedProducts.unshift( lastProduct );
-
-            return selectedProducts;
+                enteredProducts.push( lastProduct );
+            }
+				
+            return enteredProducts;
         }
 
         function updateProductList( availableProducts )
@@ -335,6 +488,12 @@
 			{
 				var forProduct 		= inputGroup.id.split('_')[1];
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
+				
+				txtInput.onkeypress = function( evt )
+				{
+					return inputValidator.isAllowedInput( evt );
+				};
+
             	txtInput.value      = "";
 
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
@@ -373,6 +532,7 @@
 		                }
 		            });
 
+
 				inputGroup.addEventListener("input", function( evt )
 				{
 					if ( evt.target.id.split("_")[0] === "productInput" )
@@ -383,6 +543,10 @@
 				});
 			});
 		}
+
+		
+
+
 
 		function onFillTanker( selectedInputGroup )
 		{
@@ -400,17 +564,55 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
+		function onParseProductInput( selectedInputGroup )
+		{
+			var inputCheckers 	= [];
+			var amountInput;
+			var pottingInput;
+			var inputValue      = selectedInputGroup.querySelector("[id^=productInput]").value;
+
+			console.log( new Array(24).join("\n"));
+
+			var input = inputValidator.parseInput( inputValue );
+
+			/*
+			if ( inputValue.indexOf('/') !== -1 )
+			{	
+				inputCheckers = inputValidator.parseValueAndSplits( inputValue );
+			}
+			else if ( inputValue.indexOf(" ") !== -1 )
+			{
+				inputCheckers = inputValidator.parseSpaces( inputValue );
+			}
+			else
+			{
+				inputCheckers = [ inputValidator.checkValueInput( inputValue ) ];
+			}
+
+			var validInputs = inputCheckers.filter( function( inputChecker )
+			{
+				console.log( "Checking Input: ", inputChecker.type, inputChecker.getInput(), inputChecker.isValidInput());
+
+				return inputChecker.isValidInput();
+			});*/
+
+
+			
+            //var isValid 		= isValidInput( txtInput.value );
+
+            //if ( txtInput.value < 1000 ) return;
+
+			
+		}
+
 		function onPotTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onPotTanker()");
 
-			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var enteredProducts	= getEnteredProductAmounts( productToFill );
 
-            if ( txtInput.value < 1000 ) return;
-
-            console.log("After Sort:" + enteredProducts );
+            if ( enteredProducts.length === 0 ) return;
 
             var detail			= { enteredProducts : enteredProducts };
 
@@ -454,7 +656,7 @@
 		}
 	};
 }());
-},{}],3:[function(require,module,exports){
+},{"./InputValidation.js":1}],4:[function(require,module,exports){
 
 (function()
 {
@@ -515,7 +717,7 @@
 	    }
 	};
 }());
-},{"./PottingSetList.js":7,"./Utils.js":9,"./data/PottingResult.js":12}],4:[function(require,module,exports){
+},{"./PottingSetList.js":8,"./Utils.js":10,"./data/PottingResult.js":13}],5:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -565,6 +767,8 @@
 		pot2.contents 	= Math.min( pot2.capacity, pot1Copy.contents );
 		pot2.product 	= pot1Copy.product;
 
+		
+		
 		return _potting;
 	}
 
@@ -661,7 +865,7 @@
 
 	function updatePotting( newPotConfiguration )
 	{
-
+		
 	}
 
 	function onProductDataLoaded( data, onComplete )
@@ -698,7 +902,7 @@
 	}
 }());
 
-},{"./PottingController.js":3,"./Utils.js":9,"./data/Terminal.js":13}],5:[function(require,module,exports){
+},{"./PottingController.js":4,"./Utils.js":10,"./data/Terminal.js":14}],6:[function(require,module,exports){
 (function(){
 
 	var cPottingResult 	= require("./data/PottingResult.js");
@@ -866,7 +1070,7 @@
 		return messageData;
 	}
 }());	
-},{"./data/PottingResult.js":12}],6:[function(require,module,exports){
+},{"./data/PottingResult.js":13}],7:[function(require,module,exports){
 /* globals debugger:false */
 (function()
 {
@@ -1037,7 +1241,7 @@
 	};
 
 }());
-},{"./Utils.js":9}],7:[function(require,module,exports){
+},{"./Utils.js":10}],8:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -1143,7 +1347,7 @@
 		}
 	};
 }());
-},{"./PottingSet.js":6,"./Utils.js":9}],8:[function(require,module,exports){
+},{"./PottingSet.js":7,"./Utils.js":10}],9:[function(require,module,exports){
 (function()
 {
 	module.exports = Tabs;
@@ -1188,7 +1392,7 @@
 		}
 	}
 }());
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function()
 {
 	"use strict";
@@ -1286,7 +1490,7 @@
 
 	};
 }());
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 (function()
 {
 	module.exports = ViewController;
@@ -1405,7 +1609,7 @@
 	}
 }());
 
-},{"./PotDisplayController.js":1,"./PotInputController.js":2,"./Tabs.js":8,"./data/PottingResult.js":12}],11:[function(require,module,exports){
+},{"./PotDisplayController.js":2,"./PotInputController.js":3,"./Tabs.js":9,"./data/PottingResult.js":13}],12:[function(require,module,exports){
 /* globals PottingSetList:false, PottingController:false 
 # sourceMappingURL=./app.js.map
 */
@@ -1500,7 +1704,7 @@
 				showPottingFeedback( pottingResult.pottedProducts ); 
 			}
 }());            
-},{"./PottingData.js":4,"./PottingResponse.js":5,"./ViewController.js":10}],12:[function(require,module,exports){
+},{"./PottingData.js":5,"./PottingResponse.js":6,"./ViewController.js":11}],13:[function(require,module,exports){
 (function()
 {
 	PottingResult.prototype.SUCCESS = 0;
@@ -1516,7 +1720,7 @@
 		this.remainder 		= productLeftOver;
 	}
 }());
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function()
 {	
 	"use strict";
@@ -1650,5 +1854,5 @@
 	};
 
 }());
-},{}]},{},[11])
+},{}]},{},[12])
 //# sourceMappingURL=app.js.map

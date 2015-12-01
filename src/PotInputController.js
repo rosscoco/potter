@@ -1,6 +1,6 @@
 (function()
 {
-	
+	var inputValidator		= require('./InputValidation.js');
 
 	module.exports = function PotInputController( usingDom, availableProducts )
 	{
@@ -67,21 +67,32 @@
         	//the product just entered will be potted last
         	var lastProduct;
 
-        	var selectedProducts = _inputGroups.map( function getProductAmounts( inputGroup ) 
-                {
-					var amount = inputGroup.querySelector("[id^=productInput").value;
+			var textInput;
+			var parsedAmount;
+			var value;
 
-                	//if ( amount < 1000 ) amount = potifyNumber( amount );
+			var usedTextInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
+            {
+            	var textInput = inputGroup.querySelector("[id^=productInput");
+            	value = textInput.value;
 
-                    return {    id      :inputGroup.getAttribute("id").split("_")[1], 
-                                amount  :potifyNumber( amount ) };
-                })
+            	return value !== '' && value !== 0;
+            });
 
-                .filter( function removeZeroValues( inputValues )
-                {
-                    if ( inputValues.amount > 0 ) return true;                                  	
-                })
-                .filter( function removeSpecificProduct( inputValues )
+			if ( usedTextInputs.length === 0 )	return [];
+
+            var enteredProducts = usedTextInputs.map( function extractValuesFromTextInputs( inputGroup ) 
+            {
+            	textInput 		= inputGroup.querySelector("[id^=productInput");
+				parsedAmount 	= inputValidator.parseInput( textInput.value );
+            	parsedAmount.id = textInput.getAttribute("id").split("_")[1];
+
+            	return parsedAmount;
+            });
+
+            if ( putLast )
+            {
+            	enteredProducts = enteredProducts.filter( function removeSpecificProduct( inputValues )
                 {
                 	if ( inputValues.id === putLast )
                 	{
@@ -92,10 +103,10 @@
                 	return true;
                 });
 
-            if ( lastProduct ) selectedProducts.push( lastProduct );
-            //if ( lastProduct ) selectedProducts.unshift( lastProduct );
-
-            return selectedProducts;
+                enteredProducts.push( lastProduct );
+            }
+				
+            return enteredProducts;
         }
 
         function updateProductList( availableProducts )
@@ -111,6 +122,12 @@
 			{
 				var forProduct 		= inputGroup.id.split('_')[1];
 				var txtInput        = inputGroup.querySelector("[id^=productInput]");
+				
+				txtInput.onkeypress = function( evt )
+				{
+					return inputValidator.isAllowedInput( evt );
+				};
+
             	txtInput.value      = "";
 
 				if ( usedProductIds.indexOf( forProduct ) < 0 )
@@ -149,6 +166,7 @@
 		                }
 		            });
 
+
 				inputGroup.addEventListener("input", function( evt )
 				{
 					if ( evt.target.id.split("_")[0] === "productInput" )
@@ -159,6 +177,10 @@
 				});
 			});
 		}
+
+		
+
+
 
 		function onFillTanker( selectedInputGroup )
 		{
@@ -176,8 +198,44 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
-		function validInput( txtInput )
+		function onParseProductInput( selectedInputGroup )
 		{
+			var inputCheckers 	= [];
+			var amountInput;
+			var pottingInput;
+			var inputValue      = selectedInputGroup.querySelector("[id^=productInput]").value;
+
+			console.log( new Array(24).join("\n"));
+
+			var input = inputValidator.parseInput( inputValue );
+
+			/*
+			if ( inputValue.indexOf('/') !== -1 )
+			{	
+				inputCheckers = inputValidator.parseValueAndSplits( inputValue );
+			}
+			else if ( inputValue.indexOf(" ") !== -1 )
+			{
+				inputCheckers = inputValidator.parseSpaces( inputValue );
+			}
+			else
+			{
+				inputCheckers = [ inputValidator.checkValueInput( inputValue ) ];
+			}
+
+			var validInputs = inputCheckers.filter( function( inputChecker )
+			{
+				console.log( "Checking Input: ", inputChecker.type, inputChecker.getInput(), inputChecker.isValidInput());
+
+				return inputChecker.isValidInput();
+			});*/
+
+
+			
+            //var isValid 		= isValidInput( txtInput.value );
+
+            //if ( txtInput.value < 1000 ) return;
+
 			
 		}
 
@@ -185,17 +243,10 @@
 		{
 			console.log("PotInputController::onPotTanker()");
 
-			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var enteredProducts	= getEnteredProductAmounts( productToFill );
 
-            if ( !validInput( txtInput )) return;
-
-            if ( txtInput.value )
-
-            if ( txtInput.value < 1000 ) return;
-
-            console.log("After Sort:" + enteredProducts );
+            if ( enteredProducts.length === 0 ) return;
 
             var detail			= { enteredProducts : enteredProducts };
 
