@@ -12,4 +12,9 @@
 		this.productDetails = forProduct;
 		this.remainder 		= productLeftOver;
 	}
+
+	function updatePot( potId )
+	{
+		
+	}
 }());

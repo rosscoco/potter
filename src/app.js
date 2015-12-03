@@ -43,8 +43,13 @@
 
 			function onSwapPotContents( evt )
 			{
-				var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
-				view.showResults( newPotting );
+				var pottingResult = data.changePotPosition( evt.detail.pot1, evt.detail.pot2 );
+
+				view.showResults( pottingResult.potsUsed );
+
+				showPottingFeedback( pottingResult.pottedProducts );
+
+				view.updateProductInputs( data.getProductTotals() );
 			}
 
 			function onPottingChanged( pots )

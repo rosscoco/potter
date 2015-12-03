@@ -11,16 +11,6 @@
 		return {
 			getPottingResponse: getPottingResponse
 		};
-
-		/*return {
-			noPotsLeft: 		noPotsLeft,
-			pottingSuccess: 	pottingSuccess,
-			pottingFail: 		pottingFail, 
-			pottedSomeProduct: 	pottedSomeProduct,
-			overMaxWeight: 		overMaxWeight,
-			isAlreadyPotted: 	isAlreadyPotted,
-			clearResults: 		clearResults
-		};*/
 	}
 
 	function getPottingResponse( pottingResult )
@@ -45,66 +35,26 @@
 		}
 		else
 		{
-			response = pottingFail;
+			if ( pottingResult.pottingUsed.getPotArray().length === 0 )
+			{
+				response = noPotsLeft;
+			}
+			else
+			{
+				response = pottingFail;	
+			}
 		}
 
 		return getMessage( pottingResult, response );
 	}
 
-
-	function clearResults()
-	{
-		pottedProducts = {};
-	}
-
-	function getPottedProducts()
-	{
-		return;
-	}
-
 	function isAlreadyPotted( product, availablePots )
 	{
-
-		/*
-		if ( pottedProduct.hasOwnProperty( product.id ) )
-		{
-			var cachedResults = pottedProduct[ product.id ];
-
-			if ( product.amount !== cachedResults.amount )
-			{
-				delete cachedResults[ product.id ];
-				return false;
-			}
-
-			var potsNeeded	= cachedResults.potsUsed.length;
-			var foundPots	= 0;
-
-			availablePots.forEach( function( potDetails )
-			{
-				if ( potsNeeded.indexOf( potDetails.id ) !== -1 )
-				{
-					foundPots++ ;
-				};
-			});
-
-			if ( cachedResults.potsUsed !== usedPotIds )
-			{
-				delete cachedResults[ product.id ];
-				return false;				
-			}
-
-			return cachedResults;
-		}
-		*/
 		return false;
 	}
 
 	function getMessage( pottingResult, messageFunction )
 	{
-		/*var product 		= pottingResult.productDetails;
-		var potsUsed 		= pottingResult.pottingUsed.getPotArray();
-		var potIds 			= pottingResult.pottingUsed.getUsedPotsById();*/
-		
 		var data 			= {};
 
 		data.product 		= pottingResult.productDetails.id;
@@ -129,7 +79,7 @@
 	{
 		messageData.pottingStatus 	= PottingResult.ERROR;
 		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product + ". No Pots left on tanker";
-
+		
 		return messageData;
 	}
 
@@ -137,7 +87,7 @@
 	{
 		var pots 			= messageData.potsUsed;
 		var failedPot 		= pots[ pots.length - 1 ];
-		var amountNeeded 	= failedPot.minimum - failedPot.contents;		
+		var amountNeeded 	= failedPot.minimum - failedPot.contents;
 
 		messageData.pottingStatus 	= PottingResult.ERROR;
 		

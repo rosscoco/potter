@@ -33,7 +33,29 @@
 	    return permute( fromList );
 	};
 
-    exports.filterRemainingPots = function( usedPots, availablePots )
+	exports.getProductsFromPots = function( usedPots )
+	{
+		return usedPots.reduce( function getPotConfiguration( configData, potData )
+		{
+				//ignore empty pots
+				if ( !potData.contents ) return configData;
+
+				if ( !configData.hasOwnProperty( potData.product ) )
+				{
+					configData[ potData.product ]		= {};
+					configData[ potData.product ].pots 	= [];
+					configData[ potData.product ].id 	= potData.content;
+					configData[ potData.product ].amount= 0;
+				}
+
+				configData[ potData.product ].pots.push( potData );
+				configData[ potData.product ].amount += potData.amount;
+				
+				return configData;
+		},{});
+	};
+
+    exports.getUnusedPots = function( usedPots, availablePots )
     {
     	var usedPotIds = usedPots.reduce( function( idString, potData )
 		{	
@@ -56,8 +78,6 @@
             return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
         },'');
     };
-
-
 
 	exports.PotSorter = {
 

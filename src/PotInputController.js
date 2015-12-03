@@ -39,7 +39,7 @@
 			if ( onlyForProduct )
 			{
 				var inputGroup = _domElement.querySelector("#input_" + onlyForProduct );
-				inputGroup.className = "form-group productInputGroup";
+				inputGroup.className = "form-horizontal productInputGroup";
 				inputGroup.querySelector(".help-block").innerHTML = "";	
 				return;
 			}
@@ -47,7 +47,7 @@
 
 			[].slice.call( _domElement.querySelectorAll("[id^='input']")).forEach( function( inputGroup )
 			{
-				inputGroup.className = "form-group productInputGroup";
+				inputGroup.className = "form-horizontal productInputGroup";
 				inputGroup.querySelector(".help-block").innerHTML = "";
 			});
 		}
@@ -71,17 +71,14 @@
 			var parsedAmount;
 			var value;
 
-			var usedTextInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
+			var usedInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
             {
             	var textInput = inputGroup.querySelector("[id^=productInput");
             	value = textInput.value;
 
             	return value !== '' && value !== 0;
-            });
-
-			if ( usedTextInputs.length === 0 )	return [];
-
-            var enteredProducts = usedTextInputs.map( function extractValuesFromTextInputs( inputGroup ) 
+            })
+			.map( function extractValuesFromTextInputs( inputGroup ) 
             {
             	textInput 		= inputGroup.querySelector("[id^=productInput");
 				parsedAmount 	= inputValidator.parseInput( textInput.value );
@@ -90,9 +87,9 @@
             	return parsedAmount;
             });
 
-            if ( putLast )
+            if ( putLast  )
             {
-            	enteredProducts = enteredProducts.filter( function removeSpecificProduct( inputValues )
+				usedInputs = usedInputs.filter( function removeSpecificProduct( inputValues )
                 {
                 	if ( inputValues.id === putLast )
                 	{
@@ -103,10 +100,10 @@
                 	return true;
                 });
 
-                enteredProducts.push( lastProduct );
+                usedInputs.push( lastProduct );
             }
 				
-            return enteredProducts;
+            return usedInputs;
         }
 
         function updateProductList( availableProducts )
@@ -198,7 +195,7 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
-		function onParseProductInput( selectedInputGroup )
+		/*function onParseProductInput( selectedInputGroup )
 		{
 			var inputCheckers 	= [];
 			var amountInput;
@@ -208,42 +205,20 @@
 			console.log( new Array(24).join("\n"));
 
 			var input = inputValidator.parseInput( inputValue );
-
-			/*
-			if ( inputValue.indexOf('/') !== -1 )
-			{	
-				inputCheckers = inputValidator.parseValueAndSplits( inputValue );
-			}
-			else if ( inputValue.indexOf(" ") !== -1 )
-			{
-				inputCheckers = inputValidator.parseSpaces( inputValue );
-			}
-			else
-			{
-				inputCheckers = [ inputValidator.checkValueInput( inputValue ) ];
-			}
-
-			var validInputs = inputCheckers.filter( function( inputChecker )
-			{
-				console.log( "Checking Input: ", inputChecker.type, inputChecker.getInput(), inputChecker.isValidInput());
-
-				return inputChecker.isValidInput();
-			});*/
-
-
-			
-            //var isValid 		= isValidInput( txtInput.value );
-
-            //if ( txtInput.value < 1000 ) return;
-
-			
-		}
+		}*/
 
 		function onPotTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onPotTanker()");
 
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
+            var productValue	= selectedInputGroup.querySelector("#productInput_" + productToFill ).value;
+            
+            if ( !productValue  )
+            {
+            	productToFill = undefined;
+            }
+
             var enteredProducts	= getEnteredProductAmounts( productToFill );
 
             if ( enteredProducts.length === 0 ) return;

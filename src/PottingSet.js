@@ -4,16 +4,18 @@
 	"use strict";
 	var PotSorter = require("./Utils.js").PotSorter;
 	
-	module.exports = function PottingSet( fromPotArr )
+	module.exports = function PottingSet( fromPotArr, isFixed )
 	{
-	    var _availablePots = fromPotArr;
+		var _isFixed 		= isFixed;
+	    var _availablePots 	= fromPotArr ? fromPotArr : [];
 
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
+	        fillSinglePot 			: fillSinglePot,
 	        getRemainingSpace       : getRemainingSpace,
 	        getPotArray             : getPotArray,
-	        isValid                 : isValid,
+	        isValid                 : isValid
 	    };
 
 	    function getPotArray()
@@ -23,12 +25,18 @@
 
 	    function isValid()
 	    {
+	    	if ( _availablePots.length === 0 ) return false;
+
 	        var valid = _availablePots.reduce( checkPotCapacityAgainstContents, true );
 
 	        if ( valid )
 	        {
 	            return true;
 	        } 
+	        else if ( _isFixed )
+	        {
+	        	return false;
+	        }
 	        else
 	        {
 	        	var fillData = getPotToFix();

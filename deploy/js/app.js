@@ -405,7 +405,7 @@
 			if ( onlyForProduct )
 			{
 				var inputGroup = _domElement.querySelector("#input_" + onlyForProduct );
-				inputGroup.className = "form-group productInputGroup";
+				inputGroup.className = "form-horizontal productInputGroup";
 				inputGroup.querySelector(".help-block").innerHTML = "";	
 				return;
 			}
@@ -413,7 +413,7 @@
 
 			[].slice.call( _domElement.querySelectorAll("[id^='input']")).forEach( function( inputGroup )
 			{
-				inputGroup.className = "form-group productInputGroup";
+				inputGroup.className = "form-horizontal productInputGroup";
 				inputGroup.querySelector(".help-block").innerHTML = "";
 			});
 		}
@@ -437,17 +437,14 @@
 			var parsedAmount;
 			var value;
 
-			var usedTextInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
+			var usedInputs = _inputGroups.filter( function removeZeroValues( inputGroup )
             {
             	var textInput = inputGroup.querySelector("[id^=productInput");
             	value = textInput.value;
 
             	return value !== '' && value !== 0;
-            });
-
-			if ( usedTextInputs.length === 0 )	return [];
-
-            var enteredProducts = usedTextInputs.map( function extractValuesFromTextInputs( inputGroup ) 
+            })
+			.map( function extractValuesFromTextInputs( inputGroup ) 
             {
             	textInput 		= inputGroup.querySelector("[id^=productInput");
 				parsedAmount 	= inputValidator.parseInput( textInput.value );
@@ -456,9 +453,9 @@
             	return parsedAmount;
             });
 
-            if ( putLast )
+            if ( putLast  )
             {
-            	enteredProducts = enteredProducts.filter( function removeSpecificProduct( inputValues )
+				usedInputs = usedInputs.filter( function removeSpecificProduct( inputValues )
                 {
                 	if ( inputValues.id === putLast )
                 	{
@@ -469,10 +466,10 @@
                 	return true;
                 });
 
-                enteredProducts.push( lastProduct );
+                usedInputs.push( lastProduct );
             }
 				
-            return enteredProducts;
+            return usedInputs;
         }
 
         function updateProductList( availableProducts )
@@ -564,7 +561,7 @@
             _domElement.dispatchEvent( fillEvent );
 		}
 
-		function onParseProductInput( selectedInputGroup )
+		/*function onParseProductInput( selectedInputGroup )
 		{
 			var inputCheckers 	= [];
 			var amountInput;
@@ -574,42 +571,20 @@
 			console.log( new Array(24).join("\n"));
 
 			var input = inputValidator.parseInput( inputValue );
-
-			/*
-			if ( inputValue.indexOf('/') !== -1 )
-			{	
-				inputCheckers = inputValidator.parseValueAndSplits( inputValue );
-			}
-			else if ( inputValue.indexOf(" ") !== -1 )
-			{
-				inputCheckers = inputValidator.parseSpaces( inputValue );
-			}
-			else
-			{
-				inputCheckers = [ inputValidator.checkValueInput( inputValue ) ];
-			}
-
-			var validInputs = inputCheckers.filter( function( inputChecker )
-			{
-				console.log( "Checking Input: ", inputChecker.type, inputChecker.getInput(), inputChecker.isValidInput());
-
-				return inputChecker.isValidInput();
-			});*/
-
-
-			
-            //var isValid 		= isValidInput( txtInput.value );
-
-            //if ( txtInput.value < 1000 ) return;
-
-			
-		}
+		}*/
 
 		function onPotTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onPotTanker()");
 
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
+            var productValue	= selectedInputGroup.querySelector("#productInput_" + productToFill ).value;
+            
+            if ( !productValue  )
+            {
+            	productToFill = undefined;
+            }
+
             var enteredProducts	= getEnteredProductAmounts( productToFill );
 
             if ( enteredProducts.length === 0 ) return;
@@ -665,144 +640,143 @@
 	var Utils 			= require("./Utils.js");
 	var PottingSetList	= require("./PottingSetList.js");
 	var PottingResult 	= require("./data/PottingResult.js");
+	var PottingSet 		= require("./PottingSet.js");
 
 	module.exports = function PottingController( listOfPots )
 	{
-	    var _basePots   = listOfPots;
-	    var _activePots,_products;
-	    
-	    return {
-	        doPottingWithProduct   : doPottingWithProduct
-	    };
+		var _basePots   = listOfPots;
+		var _activePots,_products;
+		
+		return {
+			doPottingWithProduct   	: doPottingWithProduct,
+			changeProductConfiguration	: changeProductConfiguration
+		};
 
-	    function doPottingWithProduct( withProduct, withPots )
-	    {
-	        _activePots             = withPots;        
+		function changeProductConfiguration( updatedPotArray )
+		{
+			var productsPotted  = Utils.getProductsFromPots( updatedPotArray );
 
-	        var productNotPotted 	= 0;
-	        var pottingSetUsed;			//PottingSet;
-	        var usedPottingSet      = '';
+			var potConfiguration = [];
+			var pottingResult;
+			var pottingSet;
 
-	         var spaceAvailable     = _activePots.reduce( function ( count, potData )
-	         {
-	            return count + potData.capacity;
-	         }, 0 );
+			for ( var productId in productsPotted )
+			{	
+				if ( productsPotted.hasOwnProperty( productId ))
+				{
+					pottingSet		= PottingSet( productsPotted[ productId ].pots, true );
+					pottingResult	= new PottingResult( productsPotted[ productId ], pottingSet );
 
-	         if ( spaceAvailable < withProduct.amount )
-	         {
-	            withProduct.amount 	= spaceAvailable;
-	            productNotPotted 	= withProduct.amount - spaceAvailable;
-	         }
+					potConfiguration.push( pottingResult );
+				}
+			}
 
-	        pottingSetUsed = getBestPotsForProduct( _activePots, withProduct );
+			return potConfiguration;
+		}
 
-	        withProduct.remainder = productNotPotted;
-	        //return { pottingSetUsed:pottingSetUsed, remainder: productNotPotted, product:withProduct };
-	        var result = new PottingResult( withProduct, pottingSetUsed, productNotPotted );
-	        return result;
-	    }
+		//don't perform any calculations on best potting, just create the results objects for the provided potting
+		function doPottingWithPots( withProduct, staticPotting )
+		{
+			//var 
+		}
 
-	    function getBestPotsForProduct( withPots, product )
-	    {
-	        var allPotPermutations  = Utils.getPotPermutations( withPots );
+		function doPottingWithProduct( withProduct, withPots )
+		{
+			_activePots             = withPots;        
 
-	        var allPottingSets      = new PottingSetList( allPotPermutations );
-	        //var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
-	        //var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
-	        var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
+			var productNotPotted 	= 0;
+			var pottingSetUsed;			//PottingSet;
+			var usedPottingSet      = '';
 
-	        var bestPottingSet      = allPottingSets.getBestPottingSet();
-	        
-	        return bestPottingSet;
-	    }
+			 var spaceAvailable     = _activePots.reduce( function ( count, potData )
+			 {
+				return count + potData.capacity;
+			 }, 0 );
+
+			 if ( spaceAvailable < withProduct.amount )
+			 {
+				withProduct.amount 	= spaceAvailable;
+				productNotPotted 	= withProduct.amount - spaceAvailable;
+			 }
+
+			pottingSetUsed = getBestPotsForProduct( _activePots, withProduct );
+
+			withProduct.remainder = productNotPotted;
+			//return { pottingSetUsed:pottingSetUsed, remainder: productNotPotted, product:withProduct };
+			var result = new PottingResult( withProduct, pottingSetUsed, productNotPotted );
+			return result;
+		}
+
+		function getBestPotsForProduct( withPots, product )
+		{
+			var allPotPermutations  = Utils.getPotPermutations( withPots );
+
+			var allPottingSets      = new PottingSetList( allPotPermutations );
+			//var allPottingSets      = new PottingSetList( [JSON.parse(JSON.stringify(withPots)), JSON.parse( JSON.stringify( withPots.reverse() ))] );
+			//var allPottingSets      = new PottingSetList( [ JSON.parse( JSON.stringify( withPots ))]);
+			var uniquePottingSets   = allPottingSets.sendProductToPottingSets( product );
+
+			var bestPottingSet      = allPottingSets.getBestPottingSet();
+			
+			return bestPottingSet;
+		}
 	};
 }());
-},{"./PottingSetList.js":8,"./Utils.js":10,"./data/PottingResult.js":13}],5:[function(require,module,exports){
+},{"./PottingSet.js":7,"./PottingSetList.js":8,"./Utils.js":10,"./data/PottingResult.js":13}],5:[function(require,module,exports){
 (function()
 {
 	"use strict";
-	var PRODUCT_DATA_URL 	= './resources/products.json?' + Math.random().toFixed(4);
+	var PRODUCT_DATA_URL	= './resources/products.json?' + Math.random().toFixed(4);
 	
-	var Terminal 			= require('./data/Terminal.js');
+	var Terminal			= require('./data/Terminal.js');
 	var Utils				= require('./Utils.js');
-	var PottingController 	= require('./PottingController.js');
-	var _terminals;
-	var _potting;
-	var _currentTerminal;
-	var _potConfiguration;
-	var _potter;
+	var PottingController	= require('./PottingController.js');
+	var PottingResult		= require("./data/PottingResult.js");
+	var PottingSet			= require("./PottingSet.js");
+
+	var _terminals;					
+	var _currentTerminal;			
+	var _potting;					//array of pots on the tanker and their content
+	var _productConfiguration;		//array of PottingResult objects that contain the PottingSet object used for a product
+	var _potter;					//PottingController object that converts products and pots into an array of PottingResults
 
 	module.exports = PottingData;
 
 	function PottingData()
 	{	
-		_terminals 	= [];
-		_potting 	= [];
+		_terminals	= [];
+		_potting	= [];
 
-		return { 	loadProductData: 	loadProductData,
+		return {	loadProductData: 	loadProductData,
 					changeTerminal: 	changeTerminal,
 					getPotting: 		getPotting,
+					changePotPosition: 	changePotPosition,
 					getProductTotals: 	getProductTotals,
-					balanceTanker: 		balanceTanker,
-					movePots: 			movePots };
+					balanceTanker: 		balanceTanker };
 	}
-
-	function movePots( pot1Id, pot2Id )
+	
+	function loadProductData( onComplete )
 	{
-		var pot1 		= _potting[ pot1Id - 1 ];
-		var pot2 		= _potting[ pot2Id - 1 ];
-
-		console.log("moving " + debugPot( pot1 ) + " to " + debugPot( pot2) );
-
-		function debugPot( p )
+		var xobj = new XMLHttpRequest();
+		xobj.overrideMimeType( "application/json" );
+		xobj.open( 'GET', PRODUCT_DATA_URL, true );
+		
+		xobj.onreadystatechange = function () 
 		{
-			return "Pot " + p.id + " " + p.contents + " of " + p.product;
-		}
+		  if ( xobj.readyState === 4 && xobj.status === 200 ) {
+			onProductDataLoaded( xobj.responseText, onComplete );
+		  }
+		};
 
-		var pot1Copy 	= JSON.parse( JSON.stringify( pot1 ));
-
-		pot1.contents 	= Math.min( pot1.capacity, pot2.contents );
-		pot1.product 	= pot2.product;
-		
-		pot2.contents 	= Math.min( pot2.capacity, pot1Copy.contents );
-		pot2.product 	= pot1Copy.product;
-
-		
-		
-		return _potting;
+		xobj.send( null );
 	}
 
 	function changeTerminal( terminalName )
 	{
-		_currentTerminal 	= _terminals[ terminalName ];
-		_potter 			= new PottingController( _currentTerminal.pots );
+		_currentTerminal	= _terminals[ terminalName ];
+		_potter				= new PottingController( _currentTerminal.pots );
 
 		return _currentTerminal;
-	}
-
-	function getPotConfig( potting )
-	{
-		return _potConfiguration;
-	}
-
-	function balanceTanker( productToFill, productArray )
-	{
-		productToFill = _currentTerminal.getBalance( productToFill, productArray );
-
-		productArray.push( productToFill );
-
-		return getPotting( productArray );
-	}
-
-	function resetPots()
-	{
-		_potting 			= [];
-		_potConfiguration	= [];
-
-		_currentTerminal.pots.forEach( function( potData, i )
-		{
-			_potting[ i ] = JSON.parse( JSON.stringify( potData ));
-		});
 	}
 
 	function getPotting( forProducts, limitToPots )
@@ -811,36 +785,58 @@
 
 		resetPots();
 
-		var potStore		= [];
-
+		var usedPots		= [];
 		var availablePots	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
+		
 		var pottingResult;
-		var currentWeight;
-		var usedPots;
 
 		forProducts.forEach( function( productDetails )
 		{
-			if ( availablePots.length === 0 ) return;
+			if ( availablePots.length === 0 ) 
+			{
+				_productConfiguration.push( new PottingResult( productDetails, PottingSet(), productDetails.amount ));
+				return;
+			}
 
-			productDetails		= _currentTerminal.checkWeight( productDetails, potStore );
+			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
 			pottingResult		= _potter.doPottingWithProduct( productDetails, availablePots.slice() );
 
 			var potsUsedForProduct =  pottingResult.pottingUsed.getPotArray();
 			
-			potStore			= potStore.concat( potsUsedForProduct );
+			usedPots			= usedPots.concat( potsUsedForProduct );
 
-			availablePots		= Utils.filterRemainingPots( potStore, availablePots );
+			availablePots		= Utils.getUnusedPots( usedPots, availablePots );
 
-			_potConfiguration.push( pottingResult );
+			_productConfiguration.push( pottingResult );
 		});
 
-		//put the used pots into the correc position in the _potting array;
-		potStore.forEach( function( potData )
+		//put the used pots into the correct position in the _potting array;
+		usedPots.forEach( function( potData )
 		{
-			_potting[ potData.id - 1] = potData;
+			_potting[ potData.id - 1 ] = potData;
 		});
 
-		return { potsUsed:_potting, pottedProducts: _potConfiguration };
+		return { potsUsed:_potting, pottedProducts: _productConfiguration };
+	}
+
+	function changePotPosition( pot1Id, pot2Id )
+	{
+		var pot1		= _potting[ pot1Id - 1 ];
+		var pot2		= _potting[ pot2Id - 1 ];
+
+		var pot1Copy	= JSON.parse( JSON.stringify( pot1 ));
+
+		pot1.contents	= Math.min( pot1.capacity, pot2.contents );
+		pot1.product	= pot2.product;
+		pot1.fixed		= true;
+		
+		pot2.contents	= Math.min( pot2.capacity, pot1Copy.contents );
+		pot2.product	= pot1Copy.product;
+		pot2.fixed		= true;
+
+		_productConfiguration = _potter.changeProductConfiguration( _potting );
+
+		return { potsUsed:_potting, pottedProducts: _productConfiguration };
 	}
 
 	function getProductTotals()
@@ -861,6 +857,34 @@
 			return productInfo;
 
 		}, log );
+	}
+
+	function balanceTanker( productToFill, productArray )
+	{
+		productToFill = _currentTerminal.getBalance( productToFill, productArray );
+
+		productArray.push( productToFill );
+
+		return getPotting( productArray );
+	}
+
+	function getPotConfig( potting )
+	{
+		return _productConfiguration;
+	}
+
+	/*======= Private Methods ==========*/
+	
+
+	function resetPots()
+	{
+		_potting				= [];
+		_productConfiguration	= [];
+
+		_currentTerminal.pots.forEach( function( potData, i )
+		{
+			_potting[ i ] = JSON.parse( JSON.stringify( potData ));
+		});
 	}
 
 	function updatePotting( newPotConfiguration )
@@ -885,24 +909,10 @@
 		if ( onComplete )	onComplete();
 	}
 
-	function loadProductData( onComplete )
-	{
-		var xobj = new XMLHttpRequest();
-		xobj.overrideMimeType( "application/json" );
-		xobj.open( 'GET', PRODUCT_DATA_URL, true );
-		
-		xobj.onreadystatechange = function () 
-		{
-		  if ( xobj.readyState === 4 && xobj.status === 200 ) {
-			onProductDataLoaded( xobj.responseText, onComplete );
-		  }
-		};
 
-		xobj.send( null );
-	}
 }());
 
-},{"./PottingController.js":4,"./Utils.js":10,"./data/Terminal.js":14}],6:[function(require,module,exports){
+},{"./PottingController.js":4,"./PottingSet.js":7,"./Utils.js":10,"./data/PottingResult.js":13,"./data/Terminal.js":14}],6:[function(require,module,exports){
 (function(){
 
 	var cPottingResult 	= require("./data/PottingResult.js");
@@ -916,16 +926,6 @@
 		return {
 			getPottingResponse: getPottingResponse
 		};
-
-		/*return {
-			noPotsLeft: 		noPotsLeft,
-			pottingSuccess: 	pottingSuccess,
-			pottingFail: 		pottingFail, 
-			pottedSomeProduct: 	pottedSomeProduct,
-			overMaxWeight: 		overMaxWeight,
-			isAlreadyPotted: 	isAlreadyPotted,
-			clearResults: 		clearResults
-		};*/
 	}
 
 	function getPottingResponse( pottingResult )
@@ -950,66 +950,26 @@
 		}
 		else
 		{
-			response = pottingFail;
+			if ( pottingResult.pottingUsed.getPotArray().length === 0 )
+			{
+				response = noPotsLeft;
+			}
+			else
+			{
+				response = pottingFail;	
+			}
 		}
 
 		return getMessage( pottingResult, response );
 	}
 
-
-	function clearResults()
-	{
-		pottedProducts = {};
-	}
-
-	function getPottedProducts()
-	{
-		return;
-	}
-
 	function isAlreadyPotted( product, availablePots )
 	{
-
-		/*
-		if ( pottedProduct.hasOwnProperty( product.id ) )
-		{
-			var cachedResults = pottedProduct[ product.id ];
-
-			if ( product.amount !== cachedResults.amount )
-			{
-				delete cachedResults[ product.id ];
-				return false;
-			}
-
-			var potsNeeded	= cachedResults.potsUsed.length;
-			var foundPots	= 0;
-
-			availablePots.forEach( function( potDetails )
-			{
-				if ( potsNeeded.indexOf( potDetails.id ) !== -1 )
-				{
-					foundPots++ ;
-				};
-			});
-
-			if ( cachedResults.potsUsed !== usedPotIds )
-			{
-				delete cachedResults[ product.id ];
-				return false;				
-			}
-
-			return cachedResults;
-		}
-		*/
 		return false;
 	}
 
 	function getMessage( pottingResult, messageFunction )
 	{
-		/*var product 		= pottingResult.productDetails;
-		var potsUsed 		= pottingResult.pottingUsed.getPotArray();
-		var potIds 			= pottingResult.pottingUsed.getUsedPotsById();*/
-		
 		var data 			= {};
 
 		data.product 		= pottingResult.productDetails.id;
@@ -1034,7 +994,7 @@
 	{
 		messageData.pottingStatus 	= PottingResult.ERROR;
 		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product + ". No Pots left on tanker";
-
+		
 		return messageData;
 	}
 
@@ -1042,7 +1002,7 @@
 	{
 		var pots 			= messageData.potsUsed;
 		var failedPot 		= pots[ pots.length - 1 ];
-		var amountNeeded 	= failedPot.minimum - failedPot.contents;		
+		var amountNeeded 	= failedPot.minimum - failedPot.contents;
 
 		messageData.pottingStatus 	= PottingResult.ERROR;
 		
@@ -1077,16 +1037,18 @@
 	"use strict";
 	var PotSorter = require("./Utils.js").PotSorter;
 	
-	module.exports = function PottingSet( fromPotArr )
+	module.exports = function PottingSet( fromPotArr, isFixed )
 	{
-	    var _availablePots = fromPotArr;
+		var _isFixed 		= isFixed;
+	    var _availablePots 	= fromPotArr ? fromPotArr : [];
 
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
 	        getUsedPotsById         : getUsedPotsById,
+	        fillSinglePot 			: fillSinglePot,
 	        getRemainingSpace       : getRemainingSpace,
 	        getPotArray             : getPotArray,
-	        isValid                 : isValid,
+	        isValid                 : isValid
 	    };
 
 	    function getPotArray()
@@ -1096,12 +1058,18 @@
 
 	    function isValid()
 	    {
+	    	if ( _availablePots.length === 0 ) return false;
+
 	        var valid = _availablePots.reduce( checkPotCapacityAgainstContents, true );
 
 	        if ( valid )
 	        {
 	            return true;
 	        } 
+	        else if ( _isFixed )
+	        {
+	        	return false;
+	        }
 	        else
 	        {
 	        	var fillData = getPotToFix();
@@ -1428,7 +1396,29 @@
 	    return permute( fromList );
 	};
 
-    exports.filterRemainingPots = function( usedPots, availablePots )
+	exports.getProductsFromPots = function( usedPots )
+	{
+		return usedPots.reduce( function getPotConfiguration( configData, potData )
+		{
+				//ignore empty pots
+				if ( !potData.contents ) return configData;
+
+				if ( !configData.hasOwnProperty( potData.product ) )
+				{
+					configData[ potData.product ]		= {};
+					configData[ potData.product ].pots 	= [];
+					configData[ potData.product ].id 	= potData.content;
+					configData[ potData.product ].amount= 0;
+				}
+
+				configData[ potData.product ].pots.push( potData );
+				configData[ potData.product ].amount += potData.amount;
+				
+				return configData;
+		},{});
+	};
+
+    exports.getUnusedPots = function( usedPots, availablePots )
     {
     	var usedPotIds = usedPots.reduce( function( idString, potData )
 		{	
@@ -1451,8 +1441,6 @@
             return debugString+ "[" + potData.id +"]:" + potData.contents + "/" + potData.capacity + " " + potData.product;
         },'');
     };
-
-
 
 	exports.PotSorter = {
 
@@ -1655,8 +1643,13 @@
 
 			function onSwapPotContents( evt )
 			{
-				var newPotting = data.movePots( evt.detail.pot1, evt.detail.pot2 );
-				view.showResults( newPotting );
+				var pottingResult = data.changePotPosition( evt.detail.pot1, evt.detail.pot2 );
+
+				view.showResults( pottingResult.potsUsed );
+
+				showPottingFeedback( pottingResult.pottedProducts );
+
+				view.updateProductInputs( data.getProductTotals() );
 			}
 
 			function onPottingChanged( pots )
@@ -1718,6 +1711,11 @@
 		this.pottingUsed 	= pottingSetUsed;
 		this.productDetails = forProduct;
 		this.remainder 		= productLeftOver;
+	}
+
+	function updatePot( potId )
+	{
+		
 	}
 }());
 },{}],14:[function(require,module,exports){
