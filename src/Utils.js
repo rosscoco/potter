@@ -44,16 +44,42 @@
 				{
 					configData[ potData.product ]		= {};
 					configData[ potData.product ].pots 	= [];
-					configData[ potData.product ].id 	= potData.content;
+					configData[ potData.product ].id 	= potData.product;
 					configData[ potData.product ].amount= 0;
 				}
 
 				configData[ potData.product ].pots.push( potData );
-				configData[ potData.product ].amount += potData.amount;
+				configData[ potData.product ].amount += potData.contents;
 				
 				return configData;
 		},{});
 	};
+
+	exports.potifyString = function( s )
+	    {
+	    	var isTrailingZero = true;
+	    	var splits = '';
+	    	var charAt;
+
+	    	for ( var i = s.length - 1; i >= 0; i-- )
+	    	{
+	    		charAt = s.charAt( i );
+
+	    		if ( parseInt( charAt ) > 0 )
+	    		{
+	    			isTrailingZero = false;
+	    		}
+
+	    		if ( isTrailingZero && charAt === '0' ) continue;
+
+	    		splits += charAt;
+
+	    	}
+
+	    	//return splits;//.split("").reverse().join(" /");
+	    	return splits.split("").reverse().join("");
+	    };
+
 
     exports.getUnusedPots = function( usedPots, availablePots )
     {

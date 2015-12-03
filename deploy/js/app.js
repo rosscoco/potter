@@ -15,6 +15,8 @@
 
 	function isAllowedInput( inputEvt )
 	{	
+		console.log( inputEvt.which );
+
 		var keyChar 		= String.fromCharCode( inputEvt.which );
 		var allowedChars 	= "0123456789 /";
 
@@ -550,7 +552,7 @@
 			console.log("PotInputController::onFillTanker()");
 
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
-            txtInput.value      = 0;
+            txtInput.value      = '';
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var otherProducts	= getEnteredProductAmounts();
 
@@ -794,7 +796,7 @@
 		{
 			if ( availablePots.length === 0 ) 
 			{
-				_productConfiguration.push( new PottingResult( productDetails, PottingSet(), productDetails.amount ));
+				_productConfiguration.push( new PottingResult( productDetails, PottingSet([]), productDetails.amount ));
 				return;
 			}
 
@@ -939,7 +941,7 @@
 			{
 				response = pottingOverWeight;
 			}
-			else if ( pottingResult.pottingUsed.remainder ) 
+			else if ( pottingResult.pottingUsed.getRemainder() > 0 ) 
 			{
 				response = pottedSomeProduct;
 			}
@@ -982,7 +984,7 @@
 
 	function pottingOverWeight( messageData, pottingResult )
 	{
-		var amountNeeded 	= pottingResult.productDetails.amount + pottingResult.productDetails.remainder;
+		var amountNeeded 			= pottingResult.productDetails.amount + pottingResult.productDetails.remainder;
 		messageData.pottingStatus 	= PottingResult.WARN;
 		messageData.message 		= amountNeeded + " of " + messageData.product + " is over max weight. Reduced by " + pottingResult.productDetails.remainder + " to " + messageData.amountPotted + "L total.";
 
@@ -1006,8 +1008,7 @@
 
 		messageData.pottingStatus 	= PottingResult.ERROR;
 		
-		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product;
-		messageData.message 		+= "Need " + amountNeeded + "L more in Pot " + failedPot.id;
+		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product + " as " + pottingResult.pottingUsed.getSplitsString();
 
 		return messageData;
 	}
@@ -1016,16 +1017,15 @@
 	{
 		messageData.pottingStatus 	= PottingResult.SUCCESS;
 		
-		messageData.message 		= messageData.amountPotted + "L of " + messageData.product + " successfully potted in pots " + messageData.potIds +".";
-
+		messageData.message 		= messageData.amountPotted + "L of " + messageData.product + " potted as " + pottingResult.pottingUsed.getSplitsString();
 		return messageData;
 	}
 
 	function pottedSomeProduct( messageData, pottingResult  )
 	{
 		messageData.pottingStatus 	= PottingResult.WARN;
-		messageData.message 		= messageData.amountPotted + " of " + messageData.product + " put into pots " + messageData.potIds;
-		messageData.message 		+= ". " + pottingResult.remainder  + " could not be potted.";
+		messageData.message 		= messageData.amountPotted + " of " + messageData.product + " potted as " + pottingResult.pottingUsed.getSplitsString();
+		messageData.message 		+= ".\n " + pottingResult.remainder  + " could not be potted.";
 
 		return messageData;
 	}
@@ -1035,21 +1035,32 @@
 (function()
 {
 	"use strict";
-	var PotSorter = require("./Utils.js").PotSorter;
+	var Utils 			=	require("./Utils.js");
+	var PotSorter 		=	Utils.PotSorter;
 	
 	module.exports = function PottingSet( fromPotArr, isFixed )
 	{
 		var _isFixed 		= isFixed;
-	    var _availablePots 	= fromPotArr ? fromPotArr : [];
+	    var _availablePots 	= fromPotArr;// ? fromPotArr : [];
+	    var _remainder 		= 0;
+	    
 
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
-	        getUsedPotsById         : getUsedPotsById,
 	        fillSinglePot 			: fillSinglePot,
+	        isValid                 : isValid,
+
 	        getRemainingSpace       : getRemainingSpace,
+	        getUsedPotsById         : getUsedPotsById,
 	        getPotArray             : getPotArray,
-	        isValid                 : isValid
+	        getRemainder			: getRemainder,
+	        getSplitsString 		: getSplitsString
 	    };
+
+	    function getRemainder()
+	    {
+	    	return _remainder;
+	    }
 
 	    function getPotArray()
 	    {
@@ -1086,38 +1097,53 @@
 
 	    function fillSinglePot( withProduct, pot )
 	    {
-	        pot.product = withProduct.id;
+	        pot.product 	= withProduct.id;
+	        var leftToPot 	= withProduct.amount - withProduct.potted;
 
-	        if ( pot.capacity > withProduct.amount )
+	        if ( pot.capacity > leftToPot  )
 	        {
-	            pot.contents = withProduct.amount;
-
-	            return withProduct.amount;
-	        }
+	            pot.contents = leftToPot;
+			}
 	        else
 	        {
 	            pot.contents = pot.capacity;
-	            withProduct.amount -= pot.capacity;
-	            return pot.capacity;
 	        }
+
+	        return pot.contents;
 	    }
 
 	    function putProductIntoPots( product )
 	    {
-	        var usedPots = [];
+	        var usedPots	= [];
+	        product.potted	= 0;
+	        product.toPot	= product.amount;
 
 	        _availablePots.forEach( function( nextPot )
 	        {
-	            if ( product.amount > 0 ) 
+	            if ( product.amount > product.potted ) 
 	            {
-	                product.amount -= fillSinglePot( product, nextPot );
+	            	product.potted += fillSinglePot( product, nextPot );
+	            	
 	                usedPots.push( nextPot );
 	            }	        
 	        });
 
-	        _availablePots = usedPots;
+	        _remainder		= product.amount - product.potted;
+	        _availablePots	= usedPots;
 	    }
 
+	    function getSplitsString()
+	    {
+	    	var splits = [];
+
+	    	_availablePots.forEach( function( pot )
+	    	{
+	    		splits.push( Utils.potifyString( String( parseInt( pot.contents ))));
+	    	});
+
+	    	return splits.join(" / ");
+	    }
+	    
 	    function getRemainingSpace()
 	    {
 	        return _availablePots.reduce( function( count, nextPot )
@@ -1407,16 +1433,42 @@
 				{
 					configData[ potData.product ]		= {};
 					configData[ potData.product ].pots 	= [];
-					configData[ potData.product ].id 	= potData.content;
+					configData[ potData.product ].id 	= potData.product;
 					configData[ potData.product ].amount= 0;
 				}
 
 				configData[ potData.product ].pots.push( potData );
-				configData[ potData.product ].amount += potData.amount;
+				configData[ potData.product ].amount += potData.contents;
 				
 				return configData;
 		},{});
 	};
+
+	exports.potifyString = function( s )
+	    {
+	    	var isTrailingZero = true;
+	    	var splits = '';
+	    	var charAt;
+
+	    	for ( var i = s.length - 1; i >= 0; i-- )
+	    	{
+	    		charAt = s.charAt( i );
+
+	    		if ( parseInt( charAt ) > 0 )
+	    		{
+	    			isTrailingZero = false;
+	    		}
+
+	    		if ( isTrailingZero && charAt === '0' ) continue;
+
+	    		splits += charAt;
+
+	    	}
+
+	    	//return splits;//.split("").reverse().join(" /");
+	    	return splits.split("").reverse().join("");
+	    };
+
 
     exports.getUnusedPots = function( usedPots, availablePots )
     {

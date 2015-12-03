@@ -67,7 +67,7 @@
 
 	function pottingOverWeight( messageData, pottingResult )
 	{
-		var amountNeeded 	= pottingResult.productDetails.amount + pottingResult.productDetails.remainder;
+		var amountNeeded 			= pottingResult.productDetails.amount + pottingResult.productDetails.remainder;
 		messageData.pottingStatus 	= PottingResult.WARN;
 		messageData.message 		= amountNeeded + " of " + messageData.product + " is over max weight. Reduced by " + pottingResult.productDetails.remainder + " to " + messageData.amountPotted + "L total.";
 
@@ -91,8 +91,7 @@
 
 		messageData.pottingStatus 	= PottingResult.ERROR;
 		
-		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product;
-		messageData.message 		+= "Need " + amountNeeded + "L more in Pot " + failedPot.id;
+		messageData.message 		= "Could not pot " + messageData.amountPotted + " of " + messageData.product + " as " + pottingResult.pottingUsed.getSplitsString();
 
 		return messageData;
 	}
@@ -101,16 +100,15 @@
 	{
 		messageData.pottingStatus 	= PottingResult.SUCCESS;
 		
-		messageData.message 		= messageData.amountPotted + "L of " + messageData.product + " successfully potted in pots " + messageData.potIds +".";
-
+		messageData.message 		= messageData.amountPotted + "L of " + messageData.product + " potted as " + pottingResult.pottingUsed.getSplitsString();
 		return messageData;
 	}
 
 	function pottedSomeProduct( messageData, pottingResult  )
 	{
 		messageData.pottingStatus 	= PottingResult.WARN;
-		messageData.message 		= messageData.amountPotted + " of " + messageData.product + " put into pots " + messageData.potIds;
-		messageData.message 		+= ". " + pottingResult.remainder  + " could not be potted.";
+		messageData.message 		= messageData.amountPotted + " of " + messageData.product + " potted as " + pottingResult.pottingUsed.getSplitsString();
+		messageData.message 		+= ".\n " + pottingResult.remainder  + " could not be potted.";
 
 		return messageData;
 	}

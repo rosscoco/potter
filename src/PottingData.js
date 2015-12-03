@@ -69,7 +69,7 @@
 		{
 			if ( availablePots.length === 0 ) 
 			{
-				_productConfiguration.push( new PottingResult( productDetails, PottingSet(), productDetails.amount ));
+				_productConfiguration.push( new PottingResult( productDetails, PottingSet([]), productDetails.amount ));
 				return;
 			}
 

@@ -13,6 +13,8 @@
 
 	function isAllowedInput( inputEvt )
 	{	
+		console.log( inputEvt.which );
+
 		var keyChar 		= String.fromCharCode( inputEvt.which );
 		var allowedChars 	= "0123456789 /";
 

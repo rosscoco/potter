@@ -184,7 +184,7 @@
 			console.log("PotInputController::onFillTanker()");
 
 			var txtInput        = selectedInputGroup.querySelector("[id^=productInput]");
-            txtInput.value      = 0;
+            txtInput.value      = '';
             var productToFill   = selectedInputGroup.id.split( "_" )[ 1 ];
             var otherProducts	= getEnteredProductAmounts();
 

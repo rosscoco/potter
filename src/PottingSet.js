@@ -2,23 +2,26 @@
 (function()
 {
 	"use strict";
-	var PotSorter = require("./Utils.js").PotSorter;
+	var Utils 			=	require("./Utils.js");
+	var PotSorter 		=	Utils.PotSorter;
 	
 	module.exports = function PottingSet( fromPotArr, isFixed )
 	{
 		var _isFixed 		= isFixed;
-	    var _availablePots 	= fromPotArr ? fromPotArr : [];
+	    var _availablePots 	= fromPotArr;// ? fromPotArr : [];
 	    var _remainder 		= 0;
 	    
 
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
-	        getUsedPotsById         : getUsedPotsById,
 	        fillSinglePot 			: fillSinglePot,
-	        getRemainingSpace       : getRemainingSpace,
-	        getPotArray             : getPotArray,
 	        isValid                 : isValid,
-	        getRemainder			: getRemainder
+
+	        getRemainingSpace       : getRemainingSpace,
+	        getUsedPotsById         : getUsedPotsById,
+	        getPotArray             : getPotArray,
+	        getRemainder			: getRemainder,
+	        getSplitsString 		: getSplitsString
 	    };
 
 	    function getRemainder()
@@ -61,32 +64,33 @@
 
 	    function fillSinglePot( withProduct, pot )
 	    {
-	        pot.product = withProduct.id;
+	        pot.product 	= withProduct.id;
+	        var leftToPot 	= withProduct.amount - withProduct.potted;
 
-	        if ( pot.capacity > withProduct.amount )
+	        if ( pot.capacity > leftToPot  )
 	        {
-	            pot.contents = withProduct.amount;
-
-	            return withProduct.amount;
-	        }
+	            pot.contents = leftToPot;
+			}
 	        else
 	        {
 	            pot.contents = pot.capacity;
-	            withProduct.amount -= pot.capacity;
-	            return pot.capacity;
 	        }
+
+	        return pot.contents;
 	    }
 
 	    function putProductIntoPots( product )
 	    {
 	        var usedPots	= [];
 	        product.potted	= 0;
+	        product.toPot	= product.amount;
 
 	        _availablePots.forEach( function( nextPot )
 	        {
-	            if ( product.amount < product.potted ) 
+	            if ( product.amount > product.potted ) 
 	            {
-	            	product.potted += fillSinglePot( product, nextPot );	                
+	            	product.potted += fillSinglePot( product, nextPot );
+	            	
 	                usedPots.push( nextPot );
 	            }	        
 	        });
@@ -95,6 +99,18 @@
 	        _availablePots	= usedPots;
 	    }
 
+	    function getSplitsString()
+	    {
+	    	var splits = [];
+
+	    	_availablePots.forEach( function( pot )
+	    	{
+	    		splits.push( Utils.potifyString( String( parseInt( pot.contents ))));
+	    	});
+
+	    	return splits.join(" / ");
+	    }
+	    
 	    function getRemainingSpace()
 	    {
 	        return _availablePots.reduce( function( count, nextPot )
