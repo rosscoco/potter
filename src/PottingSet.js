@@ -8,6 +8,8 @@
 	{
 		var _isFixed 		= isFixed;
 	    var _availablePots 	= fromPotArr ? fromPotArr : [];
+	    var _remainder 		= 0;
+	    
 
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
@@ -15,8 +17,14 @@
 	        fillSinglePot 			: fillSinglePot,
 	        getRemainingSpace       : getRemainingSpace,
 	        getPotArray             : getPotArray,
-	        isValid                 : isValid
+	        isValid                 : isValid,
+	        getRemainder			: getRemainder
 	    };
+
+	    function getRemainder()
+	    {
+	    	return _remainder;
+	    }
 
 	    function getPotArray()
 	    {
@@ -71,18 +79,20 @@
 
 	    function putProductIntoPots( product )
 	    {
-	        var usedPots = [];
+	        var usedPots	= [];
+	        product.potted	= 0;
 
 	        _availablePots.forEach( function( nextPot )
 	        {
-	            if ( product.amount > 0 ) 
+	            if ( product.amount < product.potted ) 
 	            {
-	                product.amount -= fillSinglePot( product, nextPot );
+	            	product.potted += fillSinglePot( product, nextPot );	                
 	                usedPots.push( nextPot );
 	            }	        
 	        });
 
-	        _availablePots = usedPots;
+	        _remainder		= product.amount - product.potted;
+	        _availablePots	= usedPots;
 	    }
 
 	    function getRemainingSpace()

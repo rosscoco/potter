@@ -24,7 +24,7 @@
 			{
 				response = pottingOverWeight;
 			}
-			else if ( pottingResult.pottingUsed.remainder ) 
+			else if ( pottingResult.pottingUsed.getRemainder() > 0 ) 
 			{
 				response = pottedSomeProduct;
 			}
