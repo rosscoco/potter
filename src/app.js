@@ -41,6 +41,34 @@
 				view.init( currentTerminal.pots, currentTerminal.products );
 			}
 
+			function onPotTankerSelected( evt )
+			{	
+				var pottingResult   = data.getPotting( evt.detail.enteredProducts );
+
+				showPotting( pottingResult );
+			}
+
+			function onBalanceTankerSelected( evt )
+			{
+				var pottingResult = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
+
+				showPotting( pottingResult );
+			}
+
+			function showPotting( pottingResult )
+			{
+				var  messages = [];
+
+				pottingResult.pottedProducts.forEach( function( result )
+				{
+					messages.push( responder.getPottingResponse( result ));
+				});
+
+				view.showResults( pottingResult.potsUsed );
+				view.updateProductInputs( data.getProductTotals() );
+				view.showFeedback( messages );
+			}
+
 			function onSwapPotContents( evt )
 			{
 				var pottingResult = data.changePotPosition( evt.detail.pot1, evt.detail.pot2 );
@@ -52,48 +80,11 @@
 				view.updateProductInputs( data.getProductTotals() );
 			}
 
-			function onPottingChanged( pots )
-			{
-				/*I want to respond to potting changing manually, without invoking the potting controller
-					-accept a list of potting results
-						PottingSet
-						Product
-				*/
-			}
-
-			 //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
-			function onBalanceTankerSelected( evt )
-			{
-				var pottingResult   = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
-				
-				view.showResults( pottingResult.potsUsed );
-
-				showPottingFeedback( pottingResult.pottedProducts );
-
-				view.updateProductInputs( data.getProductTotals() );
-			}
-
 			function showPottingFeedback( pottingConfiguration )
 			{
-				var  messages = [];
-
-				pottingConfiguration.forEach( function( result )
-				{
-					messages.push( responder.getPottingResponse( result ));
-				});
-
-				view.showFeedback( messages );
+				
 			}
 
 
-			function onPotTankerSelected( evt )
-			{
-				var forProducts        = evt.detail.enteredProducts;
-				var messages 		= [];
-				var pottingResult   = data.getPotting( forProducts );
-
-				view.showResults( pottingResult.potsUsed );
-
-				showPottingFeedback( pottingResult.pottedProducts ); 
-			}
+			
 }());            

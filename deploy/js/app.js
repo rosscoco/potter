@@ -543,10 +543,6 @@
 			});
 		}
 
-		
-
-
-
 		function onFillTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onFillTanker()");
@@ -562,18 +558,6 @@
 
             _domElement.dispatchEvent( fillEvent );
 		}
-
-		/*function onParseProductInput( selectedInputGroup )
-		{
-			var inputCheckers 	= [];
-			var amountInput;
-			var pottingInput;
-			var inputValue      = selectedInputGroup.querySelector("[id^=productInput]").value;
-
-			console.log( new Array(24).join("\n"));
-
-			var input = inputValidator.parseInput( inputValue );
-		}*/
 
 		function onPotTanker( selectedInputGroup )
 		{
@@ -781,10 +765,42 @@
 		return _currentTerminal;
 	}
 
+	function getFixedPots( productDetails, availablePots )
+	{
+		var bestPot;
+		var potDifference = 10000;
+		var potsToUse = {};
+
+		productDetails.pots.forEach( function( fixedPotSize )
+		{
+			availablePots.forEach( function( potToCheck )
+			{		
+				var potDiffTemp = Math.max( 0, potToCheck.capacity - fixedPotSize );
+
+				if ( potDiffTemp < potDifference && potToCheck.minimum < fixedPotSize )
+				{
+					potDifference 				= potDiffTemp;
+					potsToUse[ fixedPotSize ] 	= potToCheck;
+				}
+			});
+		});
+
+		for ( var split in potsToUse )
+		{
+			if ( potsToUse.hasOwnProperty( split ))
+			{
+				availablePots[ split ].capacity = split;
+				availablePots[ split ].minimum = split;
+			}
+
+			
+		}
+
+		return availablePots;
+	}
+
 	function getPotting( forProducts, limitToPots )
 	{
-		console.log("Get Potting ");
-
 		resetPots();
 
 		var usedPots		= [];
@@ -799,6 +815,13 @@
 				_productConfiguration.push( new PottingResult( productDetails, PottingSet([]), productDetails.amount ));
 				return;
 			}
+
+			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
+
+			/*if ( productDetails.hasPotting )
+			{
+				availablePots = getFixedPots( productDetails, availablePots );
+			}*/
 
 			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
 			pottingResult		= _potter.doPottingWithProduct( productDetails, availablePots.slice() );
@@ -1469,6 +1492,14 @@
 	    	return splits.split("").reverse().join("");
 	    };
 
+	exports.potifyNumber = function( number )
+	{
+		var numberLength = String( Number( number ) ).length;
+
+		if ( String( Number( number ) ).length >= 4 ) return number;
+
+		return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
+	};
 
     exports.getUnusedPots = function( usedPots, availablePots )
     {
@@ -1693,6 +1724,34 @@
 				view.init( currentTerminal.pots, currentTerminal.products );
 			}
 
+			function onPotTankerSelected( evt )
+			{	
+				var pottingResult   = data.getPotting( evt.detail.enteredProducts );
+
+				showPotting( pottingResult );
+			}
+
+			function onBalanceTankerSelected( evt )
+			{
+				var pottingResult = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
+
+				showPotting( pottingResult );
+			}
+
+			function showPotting( pottingResult )
+			{
+				var  messages = [];
+
+				pottingResult.pottedProducts.forEach( function( result )
+				{
+					messages.push( responder.getPottingResponse( result ));
+				});
+
+				view.showResults( pottingResult.potsUsed );
+				view.updateProductInputs( data.getProductTotals() );
+				view.showFeedback( messages );
+			}
+
 			function onSwapPotContents( evt )
 			{
 				var pottingResult = data.changePotPosition( evt.detail.pot1, evt.detail.pot2 );
@@ -1704,50 +1763,13 @@
 				view.updateProductInputs( data.getProductTotals() );
 			}
 
-			function onPottingChanged( pots )
-			{
-				/*I want to respond to potting changing manually, without invoking the potting controller
-					-accept a list of potting results
-						PottingSet
-						Product
-				*/
-			}
-
-			 //Filling all pots with single product. Invoked when Fill Balance is selected with no other product values entered.
-			function onBalanceTankerSelected( evt )
-			{
-				var pottingResult   = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
-				
-				view.showResults( pottingResult.potsUsed );
-
-				showPottingFeedback( pottingResult.pottedProducts );
-
-				view.updateProductInputs( data.getProductTotals() );
-			}
-
 			function showPottingFeedback( pottingConfiguration )
 			{
-				var  messages = [];
-
-				pottingConfiguration.forEach( function( result )
-				{
-					messages.push( responder.getPottingResponse( result ));
-				});
-
-				view.showFeedback( messages );
+				
 			}
 
 
-			function onPotTankerSelected( evt )
-			{
-				var forProducts        = evt.detail.enteredProducts;
-				var messages 		= [];
-				var pottingResult   = data.getPotting( forProducts );
-
-				view.showResults( pottingResult.potsUsed );
-
-				showPottingFeedback( pottingResult.pottedProducts ); 
-			}
+			
 }());            
 },{"./PottingData.js":5,"./PottingResponse.js":6,"./ViewController.js":11}],13:[function(require,module,exports){
 (function()

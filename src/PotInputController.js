@@ -175,10 +175,6 @@
 			});
 		}
 
-		
-
-
-
 		function onFillTanker( selectedInputGroup )
 		{
 			console.log("PotInputController::onFillTanker()");
@@ -194,18 +190,6 @@
 
             _domElement.dispatchEvent( fillEvent );
 		}
-
-		/*function onParseProductInput( selectedInputGroup )
-		{
-			var inputCheckers 	= [];
-			var amountInput;
-			var pottingInput;
-			var inputValue      = selectedInputGroup.querySelector("[id^=productInput]").value;
-
-			console.log( new Array(24).join("\n"));
-
-			var input = inputValidator.parseInput( inputValue );
-		}*/
 
 		function onPotTanker( selectedInputGroup )
 		{

@@ -54,10 +54,42 @@
 		return _currentTerminal;
 	}
 
+	function getFixedPots( productDetails, availablePots )
+	{
+		var bestPot;
+		var potDifference = 10000;
+		var potsToUse = {};
+
+		productDetails.pots.forEach( function( fixedPotSize )
+		{
+			availablePots.forEach( function( potToCheck )
+			{		
+				var potDiffTemp = Math.max( 0, potToCheck.capacity - fixedPotSize );
+
+				if ( potDiffTemp < potDifference && potToCheck.minimum < fixedPotSize )
+				{
+					potDifference 				= potDiffTemp;
+					potsToUse[ fixedPotSize ] 	= potToCheck;
+				}
+			});
+		});
+
+		for ( var split in potsToUse )
+		{
+			if ( potsToUse.hasOwnProperty( split ))
+			{
+				availablePots[ split ].capacity = split;
+				availablePots[ split ].minimum = split;
+			}
+
+			
+		}
+
+		return availablePots;
+	}
+
 	function getPotting( forProducts, limitToPots )
 	{
-		console.log("Get Potting ");
-
 		resetPots();
 
 		var usedPots		= [];
@@ -72,6 +104,13 @@
 				_productConfiguration.push( new PottingResult( productDetails, PottingSet([]), productDetails.amount ));
 				return;
 			}
+
+			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
+
+			/*if ( productDetails.hasPotting )
+			{
+				availablePots = getFixedPots( productDetails, availablePots );
+			}*/
 
 			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
 			pottingResult		= _potter.doPottingWithProduct( productDetails, availablePots.slice() );

@@ -80,6 +80,14 @@
 	    	return splits.split("").reverse().join("");
 	    };
 
+	exports.potifyNumber = function( number )
+	{
+		var numberLength = String( Number( number ) ).length;
+
+		if ( String( Number( number ) ).length >= 4 ) return number;
+
+		return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
+	};
 
     exports.getUnusedPots = function( usedPots, availablePots )
     {
