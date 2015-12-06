@@ -89,6 +89,16 @@
 		return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
 	};
 
+	exports.copyPotArray = function( pots )
+	{
+		var newPots = pots.map( function( potDataObj )
+		{
+			return JSON.parse( JSON.stringify( potDataObj ));
+		});
+
+		return newPots;
+	};
+
     exports.getUnusedPots = function( usedPots, availablePots )
     {
     	var usedPotIds = usedPots.reduce( function( idString, potData )
@@ -117,6 +127,12 @@
 
 	    sortPotsByAmountMoveable: function sortPotSetByAmountMoveable( aPot, bPot )
 	    {
+	    	if ( aPot.isFixed && bPot.isFixed ) return 0;
+
+	    	if ( aPot.isFixed ) return 1;
+
+	    	if ( bPot.isFixed ) return -1;
+
 	        return ( bPot.capacity - bPot.minimum ) - ( aPot.capacity - aPot.minimum );
 	    },
 

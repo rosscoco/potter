@@ -15,7 +15,7 @@
 	var _productConfiguration;		//array of PottingResult objects that contain the PottingSet object used for a product
 	var _potter;					//PottingController object that converts products and pots into an array of PottingResults
 
-	module.exports = PottingData;
+	module.exports 			= PottingData;
 
 	function PottingData()
 	{	
@@ -54,11 +54,39 @@
 		return _currentTerminal;
 	}
 
+	function getBestPotForSplit( split, availablePots )
+	{
+		var bestPot;
+
+		availablePots.forEach( function( potData )
+		{
+			if ( potData.minimum > split ) return;
+			if ( potData.capacity < split ) return;
+
+			var diff = potData.capacity - split;
+
+			if ( bestPot.capacity - split > diff )
+			{
+				bestPot = potData;
+			}
+		});
+
+		return bestPot;
+	}
+
+	function splitsTest( productDetails )
+	{
+
+
+		//productDetails
+
+	}
+
 	function getFixedPots( productDetails, availablePots )
 	{
 		var bestPot;
-		var potDifference = 10000;
-		var potsToUse = {};
+		var potDifference 	= 10000;
+		var potsToUse 		= {};
 
 		productDetails.pots.forEach( function( fixedPotSize )
 		{
@@ -81,8 +109,6 @@
 				availablePots[ split ].capacity = split;
 				availablePots[ split ].minimum = split;
 			}
-
-			
 		}
 
 		return availablePots;
@@ -105,20 +131,11 @@
 				return;
 			}
 
-			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
 
-			/*if ( productDetails.hasPotting )
-			{
-				availablePots = getFixedPots( productDetails, availablePots );
-			}*/
 
 			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
 			pottingResult		= _potter.doPottingWithProduct( productDetails, availablePots.slice() );
-
-			var potsUsedForProduct =  pottingResult.pottingUsed.getPotArray();
-			
-			usedPots			= usedPots.concat( potsUsedForProduct );
-
+			usedPots			= usedPots.concat( pottingResult.pottingUsed.getPotArray() );
 			availablePots		= Utils.getUnusedPots( usedPots, availablePots );
 
 			_productConfiguration.push( pottingResult );
@@ -153,11 +170,9 @@
 		return { potsUsed:_potting, pottedProducts: _productConfiguration };
 	}
 
-	function getProductTotals()
+	function getProductTotals( filterByProduct )
 	{
-		var log = {};
-
-		return _potting.reduce( function( productInfo, potData )
+		var log = _potting.reduce( function( productInfo, potData )
 		{
 			if ( productInfo.hasOwnProperty( potData.product ) )
 			{
@@ -166,11 +181,14 @@
 			else
 			{
 				productInfo[ potData.product ] = potData.contents;
+				
 			}
 
 			return productInfo;
 
-		}, log );
+		}, {} );
+
+		return log;
 	}
 
 	function balanceTanker( productToFill, productArray )

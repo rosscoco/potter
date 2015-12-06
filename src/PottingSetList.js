@@ -50,7 +50,7 @@
 	    {  
 	        _listOfPottingSets.forEach( function( pottingSet )
 	        {  
-	        	pottingSet.putProductIntoPots( {id:product.id, amount:product.amount });
+	        	pottingSet.putProductIntoPots( {id:product.id, amount:product.amount, splits:product.pots });
 	        });
 
 	        removeDuplicates();

@@ -53,6 +53,13 @@
 				var pottingResult = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
 
 				showPotting( pottingResult );
+				var totals = data.getProductTotals();
+
+				var prodToUpdate = {};
+				
+				prodToUpdate[ evt.detail.productToFill ] = totals[ evt.detail.productToFill ];
+
+				view.updateProductInputs( prodToUpdate );
 			}
 
 			function showPotting( pottingResult )
@@ -65,7 +72,7 @@
 				});
 
 				view.showResults( pottingResult.potsUsed );
-				view.updateProductInputs( data.getProductTotals() );
+				
 				view.showFeedback( messages );
 			}
 
@@ -75,14 +82,9 @@
 
 				view.showResults( pottingResult.potsUsed );
 
-				showPottingFeedback( pottingResult.pottedProducts );
+				showPotting( pottingResult );
 
-				view.updateProductInputs( data.getProductTotals() );
-			}
-
-			function showPottingFeedback( pottingConfiguration )
-			{
-				
+				//view.updateProductInputs( data.getProductTotals() );
 			}
 
 

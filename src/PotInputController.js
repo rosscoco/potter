@@ -89,7 +89,7 @@
 
             if ( putLast  )
             {
-				usedInputs = usedInputs.filter( function removeSpecificProduct( inputValues )
+            	usedInputs = usedInputs.filter( function removeSpecificProduct( inputValues )
                 {
                 	if ( inputValues.id === putLast )
                 	{

@@ -52,6 +52,7 @@
 		return checker( inputValue );
 	}
 
+	
 
 
 	function parseValue( value )
@@ -62,6 +63,7 @@
 		return { 	isValid: _isValid,
 					type: 	"total",
 					amount:_value };
+
 
 		function validate( amount )
 		{

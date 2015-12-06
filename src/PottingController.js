@@ -46,24 +46,24 @@
 			//var 
 		}
 
-		function doPottingWithProduct( withProduct, withPots )
+		function doPottingWithProduct( withProduct, withPots, splits )
 		{
-			_activePots             = withPots;        
+			_activePots             = withPots;
 
 			var productNotPotted 	= 0;
 			var pottingSetUsed;			//PottingSet;
 			var usedPottingSet      = '';
 
-			 var spaceAvailable     = _activePots.reduce( function ( count, potData )
-			 {
+			var spaceAvailable		= _activePots.reduce( function ( count, potData )
+			{
 				return count + potData.capacity;
-			 }, 0 );
+			}, 0 );
 
-			 if ( spaceAvailable < withProduct.amount )
-			 {
+			if ( spaceAvailable < withProduct.amount )
+			{
 				withProduct.amount 	= spaceAvailable;
 				productNotPotted 	= withProduct.amount - spaceAvailable;
-			 }
+			}
 
 			pottingSetUsed = getBestPotsForProduct( _activePots, withProduct );
 
@@ -72,6 +72,50 @@
 			var result = new PottingResult( withProduct, pottingSetUsed, productNotPotted );
 			return result;
 		}
+
+		function fixPotSizes( basePots, toSplits )
+		{
+			var potsLeft 		= Utils.copyPotArray( basePots );
+			var assignedPots 	= [];
+
+			toSplits = toSplits.sort( function( a, b )
+			{
+				return parseInt( a ) - parseInt( b );
+			});
+
+			toSplits.forEach( function( split )
+			{
+				var bestPot = getBestPotForSplit( split, potsLeft );
+
+				if ( bestPot ) 
+				{
+					assignedPots[ bestPot.id ] = bestPot;
+				}
+
+				potsLeft = Utils.getUnusedPots( assignedPots, basePots );
+			});
+		}
+
+		function getBestPotForSplit( split, availablePots )
+		{
+			var bestPot;
+
+			availablePots.forEach( function( potData )
+			{
+				if ( potData.minimum > split ) return;
+				if ( potData.capacity < split ) return;
+
+				var diff = potData.capacity - split;
+
+				if ( bestPot.capacity - split > diff )
+				{
+					bestPot = potData;
+				}
+			});
+
+			return bestPot;
+		}
+
 
 		function getBestPotsForProduct( withPots, product )
 		{
