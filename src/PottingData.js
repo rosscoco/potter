@@ -9,13 +9,13 @@
 	var PottingResult		= require("./data/PottingResult.js");
 	var PottingSet			= require("./PottingSet.js");
 
+	module.exports			= PottingData;
+
 	var _terminals;					
 	var _currentTerminal;			
 	var _potting;					//array of pots on the tanker and their content
 	var _productConfiguration;		//array of PottingResult objects that contain the PottingSet object used for a product
 	var _potter;					//PottingController object that converts products and pots into an array of PottingResults
-
-	module.exports = PottingData;
 
 	function PottingData()
 	{	

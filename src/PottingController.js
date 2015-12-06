@@ -14,7 +14,7 @@
 		var _activePots,_products;
 		
 		return {
-			doPottingWithProduct   	: doPottingWithProduct,
+			doPottingWithProduct		: doPottingWithProduct,
 			changeProductConfiguration	: changeProductConfiguration
 		};
 
@@ -40,12 +40,6 @@
 			return potConfiguration;
 		}
 
-		//don't perform any calculations on best potting, just create the results objects for the provided potting
-		function doPottingWithPots( withProduct, staticPotting )
-		{
-			//var 
-		}
-
 		function doPottingWithProduct( withProduct, withPots )
 		{
 			_activePots             = withPots;        
@@ -59,11 +53,11 @@
 				return count + potData.capacity;
 			 }, 0 );
 
-			 if ( spaceAvailable < withProduct.amount )
-			 {
-				withProduct.amount 	= spaceAvailable;
-				productNotPotted 	= withProduct.amount - spaceAvailable;
-			 }
+			if ( spaceAvailable < withProduct.amount )
+			{
+			withProduct.amount 	= spaceAvailable;
+			productNotPotted 	= withProduct.amount - spaceAvailable;
+			}
 
 			pottingSetUsed = getBestPotsForProduct( _activePots, withProduct );
 
