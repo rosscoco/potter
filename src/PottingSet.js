@@ -11,15 +11,15 @@
 	    var _pottingArray 	= fromPotArr;// ? fromPotArr : [];
 	    var _remainder 		= 0;
 	    var _pottingValidator;
+	    var _isValid;
 
-	    if ( _isFixed ) _pottingValidator = StaticPottingSetValidator();
-	    else 			_pottingValidator = DynamicPottingSetValidator();
+	    if ( _isFixed )	_pottingValidator = StaticPottingSetValidator();
+	    else			_pottingValidator = DynamicPottingSetValidator();
+	    
 	    
 	    return {
 	        putProductIntoPots      : putProductIntoPots,
-	        fillSinglePot 			: fillSinglePot,
 	        isValid                 : isValid,
-
 	        getRemainingSpace       : getRemainingSpace,
 	        getUsedPotsById         : getUsedPotsById,
 	        getPotArray             : getPotArray,
@@ -41,99 +41,33 @@
 	    {
 	    	var result = _pottingValidator.isValid( _pottingArray );
 	    	return result;
-
-	    	/*if ( _pottingArray.length === 0 ) return false;
-
-	        var valid = _pottingArray.reduce( checkPotCapacityAgainstContents, true );
-
-	        if ( valid )
-	        {
-	            return true;
-	        } 
-	        else if ( _isFixed )
-	        {
-	        	return false;
-	        }
-	        else
-	        {
-	        	var fillData = getPotToFix( _pottingArray );
-	            return fixLastPot( fillData.potToFill, fillData.otherPots );
-	        }*/
 	    }	   
-
-	    function fillSinglePot( withProduct, pot )
-	    {
-	        pot.product 	= withProduct.id;
-	        var leftToPot 	= withProduct.amount - withProduct.potted;
-
-	    	if ( pot.isFixed ) return 0;
-
-	        if ( pot.capacity > leftToPot  )
-	        {
-	            pot.contents = leftToPot;
-			}
-	        else
-	        {
-	            pot.contents = pot.capacity;
-	        }
-
-	        return pot.contents;
-	    }
 
 	    function putProductIntoPots( product )
 	    {
-	    	var validator;
-	    	var result;
-
-	    	if ( product.pots )
+	    	if ( product.splits )
 	    	{	    		
-	    		result = StaticPottingSetValidator();
-	    		result = validator.putProductIntoPots( product, _pottingArray.slice() );
+	    		_pottingValidator 		= StaticPottingSetValidator();
+	    		var splitsResult 		= _pottingValidator.putProductIntoPots( product, _pottingArray.slice() );
+	    		
+	    		_pottingArray 			= splitsResult.usedPots;
+
+	    		if ( splitsResult.amountPotted < product.amount )
+	    		{
+	    			var remainingProduct 	= {id:product.id, amount: product.amount - splitsResult.amountPotted };
+	    			var remainingPots 		= DynamicPottingSetValidator();
+	    			var remainingResult 	= remainingPots.putProductIntoPots( remainingProduct, splitsResult.remainingPots );
+	    			
+	    			_pottingArray 			= splitsResult.usedPots.concat( remainingResult.usedPots );
+	    		}
 	    	}
 	    	else
 	    	{
-	    		validator 	= DynamicPottingSetValidator();
-	    		result 		= validator.putProductIntoPots( product, _pottingArray.slice() );
+	    		_pottingValidator	= DynamicPottingSetValidator();
+	    		var result			= _pottingValidator.putProductIntoPots( product, _pottingArray.slice() );
+	    		_pottingArray		= result.usedPots;
 	    	}
-
-	    	_pottingValidator 	= result.usedPots;
-	    	_remainder 			= result.remainder;
 	    }
-
-	    /*function forcePotting( product, usePots )
-	    {
-			var fixedPots = [];
-			var amountPotted = 0;
-
-	    	var splits = product.splits.sort( function( a, b)
-    		{
-    			return parseInt( a ) - parseInt( b );
-    		});
-
-	    	splits.forEach( function( forceCapacity )
-	    	{
-	    		var splitAssigned = false;
-
-	    		_pottingArray.forEach( function( potData )
-	    		{
-	    			if ( splitAssigned ) return;
-
-	    			if ( potData.minimum <= forceCapacity && potData.capacity >= forceCapacity && !potData.isFixed )
-	    			{
-	    				splitAssigned 		= true;
-
-	    				potData.contents 	= forceCapacity;
-	    				amountPotted 		+= forceCapacity;
-	    				potData.product 	= product.id;
-	    				potData.isFixed 	= true;
-
-	    				fixedPots.push( potData );
-	    			}
-	    		});
-	    	});
-
-	    	return { fixedPots:fixedPots, amountPotted:amountPotted };
-	    }*/
 
 	    function getSplitsString()
 	    {
@@ -166,8 +100,56 @@
 	            return idList + nextPot.id;
 	        }, '');
 	    }
+	};
 
-	    /*function getPotToFix( fromPots )
+	function checkPotCapacityAgainstContents( isWithinRules, potData )
+	{
+		var willPot = potData.contents >= potData.minimum;
+
+	    return isWithinRules && willPot;
+	}
+
+	function DynamicPottingSetValidator()
+	{
+		return { isValid:isValid, putProductIntoPots: putProductIntoPots };
+
+		function isValid( forPotting )
+	    {
+	    	if ( forPotting.length === 0 ) return false;
+
+	        var valid = forPotting.reduce( checkPotCapacityAgainstContents, true );
+
+	        if ( valid )
+	        {
+	            return true;
+	        } 
+	        else
+	        {
+	        	var fillData = getPotToFix( forPotting );
+	            return fixLastPot( fillData.potToFill, fillData.otherPots );
+	        }
+	    }
+
+	    function putProductIntoPots( product, availablePots )
+	    {
+	    	var usedPots		= [];
+	        
+			product.potted		= 0;
+			product.toPot		= product.amount;
+
+			availablePots.forEach( function( nextPot )
+			{
+				if ( product.amount > product.potted ) 
+				{
+					product.potted += fillSinglePot( product, nextPot );
+					usedPots.push( nextPot );
+				}
+			});
+
+	        return { remainder:product.amount - product.potted, usedPots:usedPots };
+	    }
+
+	    function getPotToFix( fromPots )
 	    {
 	    	var potToFill;
 	    	var pot;
@@ -194,9 +176,28 @@
 	    	}
 
 	    	return { potToFill:potToFill, otherPots:otherPots };
-	    }*/
+	    }
 
-	    /*function fixLastPot( lastPot, remainingPots)
+	    function fillSinglePot( withProduct, pot )
+	    {
+	        pot.product 	= withProduct.id;
+	        var leftToPot 	= withProduct.amount - withProduct.potted;
+
+	    	if ( pot.isFixed ) return 0;
+
+	        if ( pot.capacity > leftToPot  )
+	        {
+	            pot.contents = leftToPot;
+			}
+	        else
+	        {
+	            pot.contents = pot.capacity;
+	        }
+
+	        return pot.contents;
+	    }
+
+	    function fixLastPot( lastPot, remainingPots)
 	    {
 			var needed = lastPot.minimum - lastPot.contents;
 
@@ -231,129 +232,8 @@
 	        }
 
 	        return false;
-	    }*/
-
-	    function toString()
-	    {
-	    	return;
-	    }
-	};
-
-	function checkPotCapacityAgainstContents( isWithinRules, potData )
-	{
-		var willPot = potData.contents >= potData.minimum;
-
-	    return isWithinRules && willPot;
-	}
-
-	function DynamicPottingSetValidator()
-	{
-		return { isValid:isValid, putProductIntoPots: putProductIntoPots };
-
-		function isValid( forPotting )
-	    {
-	    	if ( forPotting.length === 0 ) return false;
-
-	        var valid = forPotting.reduce( checkPotCapacityAgainstContents, true );
-
-	        if ( valid )
-	        {
-	            return true;
-	        } 
-	        else
-	        {
-	        	var fillData = getPotToFix( forPotting );
-	            return fixLastPot( fillData.potToFill, fillData.otherPots );
-	        }
-	    }
-
-	    function putProductIntoPots( product )
-	    {
-	    	_pottingValidator.putProductIntoPots( product, _pottingArray.slice() )
-
-	        var usedPots		= [];
-	        var availablePots 	= _pottingArray.slice();
-
-	        product.potted		= 0;
-	        product.toPot		= product.amount;
-
-	        availablePots.forEach( function( nextPot )
-	        {
-				if ( product.amount > product.potted ) 
-				{
-					product.potted += fillSinglePot( product, nextPot );
-					usedPots.push( nextPot );
-	            }	        
-	        });
-
-	        return { remainder:product.amount - product.potted, usedPots:usedPots }	        
-	    }
-
-	    function getPotToFix( fromPots )
-	    {
-	    	var potToFill;
-	    	var pot;
-	    	var otherPots = [];
-	    	
-	    	for ( var i = fromPots.length - 1; i >= 0; i--) 
-	    	{
-	    		pot = fromPots[i];
-
-	    		if ( pot.contents >= pot.minimum )
-	    		{
-	    			otherPots.push( pot );
-	    		}
-	    		else
-	    		{
-	    			if ( potToFill )
-	    			{
-	    				debugger;
-	    				console.log("SOMETHIGN HAS GONE WRONG!!");
-	    			}
-
-	    			potToFill = pot;
-	    		}
-	    	}
-
-	    	return { potToFill:potToFill, otherPots:otherPots };
-	    }
-
-	    function fixLastPot( lastPot, remainingPots)
-	    {
-			var needed = lastPot.minimum - lastPot.contents;
-
-	        var amountToMove;
-	        var helperPot;
-
-	        remainingPots.sort( PotSorter.sortPotsByAmountMoveable );
-
-	        for ( var i = 0; i < remainingPots.length; i++ )
-	        {
-	            helperPot = remainingPots[ i ];
-
-	            if ( helperPot.contents - needed > helperPot.minimum )
-	            {
-	                amountToMove = helperPot.contents - ( helperPot.contents - needed );
-	            }
-	            else
-	            {
-	                amountToMove = helperPot.contents  - helperPot.minimum;
-	            }
-
-	            needed              -= amountToMove;
-	            helperPot.contents  -= amountToMove;
-	            lastPot.contents    += amountToMove;
-
-	            if ( lastPot.contents >= lastPot.minimum ) 
-	            {
-	            	return true;
-	            }
-	        }
-
-	        return false;
 	    }
 	}
-
 
 	function StaticPottingSetValidator()
 	{
@@ -375,70 +255,80 @@
 	        }
 	    }
 
-	    function forcePotting( product, usePots )
+	    function putProductIntoPots( product, availablePots )
 	    {
 			var fixedPots 		= [];
 			var amountPotted 	= 0;
-
-	    	var splits = product.splits.sort( function( a, b)
+			var usedPots 		= [];
+			
+			
+			//The smallest pot split will give the most wasted space, sort in ascending order to reduce this.
+	    	var splits = product.splits.sort( function( a, b )
     		{
     			return parseInt( a ) - parseInt( b );
     		});
 
-	    	splits.forEach( function( forceCapacity )
-	    	{
-	    		var splitAssigned = false;
+    		splits.forEach( function assignPot( split )
+    		{
+    			var bestPot 		= getBestPotForSplit( split, availablePots );
+    			bestPot.product 	= product.id;
+    			bestPot.contents 	= Math.min( split, bestPot.capacity );
+    			bestPot.isFixed 	= true;
+    			amountPotted 		+= bestPot.contents;
 
-	    		usePots.forEach( function( potData )
-	    		{
-	    			if ( splitAssigned ) return;
+    			usedPots.push( bestPot );
 
-	    			if ( potData.minimum <= forceCapacity && potData.capacity >= forceCapacity && !potData.isFixed )
-	    			{
-	    				splitAssigned 		= true;
+    			availablePots = Utils.getUnusedPots( usedPots, availablePots );
+    		});
 
-	    				potData.contents 	= forceCapacity;
-	    				amountPotted 		+= forceCapacity;
-	    				potData.product 	= product.id;
-	    				potData.isFixed 	= true;
-
-	    				fixedPots.push( potData );
-	    			}
-	    		});
-	    	});
-
-	    	return { fixedPots:fixedPots, amountPotted:amountPotted };
+	    	return { usedPots:usedPots, amountPotted:amountPotted, remainingPots:availablePots };
 	    }
 
-	    function putProductIntoPots( product, availablePots )
-	    {
-	        var usedPots		= [];
-	        var availablePots 	= _pottingArray.slice();
+	    function getBestPotForSplit( split, availablePots )
+		{
+			var OK 				= 0;
+			var MUST_INCREASE 	= 1;
+			var MUST_REDUCE 	= 2;
+			
+			var bestPot;
+			var comparison;
+			var checkingArr = [];
 
-	        product.potted		= 0;
-	        product.toPot		= product.amount;
+			//console.log( "Finding Best Pot for split " + split );
 
-	        /*if ( product.splits ) 
-	        {
-	        	var splitsUsed 		= forcePotting( product );
-	        	usedPots 			= splitsUsed.fixedPots;
-	        	product.potted 		= splitsUsed.amountPotted;
-	        	product.toPot 		= product.amount - product.potted;
-	        	availablePots 		= Utils.getUnusedPots( splitsUsed.fixedPots, _pottingArray );
-	        }*/
 
-			availablePots.forEach( function( nextPot )
-	        {
-				if ( product.amount > product.potted ) 
+			availablePots.forEach( function( potData )
+			{
+				comparison			= {};
+				comparison.potData	= potData;
+				//comparison.diff		= Math.abs( potData.capacity - split );
+				 
+				if ( split > potData.capacity )
 				{
-					product.potted += fillSinglePot( product, nextPot );
-					usedPots.push( nextPot );
-	            }	        
-	        });
+					comparison.status	= MUST_REDUCE;
+					comparison.diff		= split - potData.capacity;
+				}
+				else if ( split < potData.minimum )
+				{
+					comparison.status	= MUST_INCREASE;
+					comparison.diff		= potData.minimum - split;
+				}
+				else
+				{
+					comparison.status 	= OK;
+					comparison.diff		= potData.capacity - split;
+				}
+				
+				checkingArr.push( comparison );
+			});
 
-	        _remainder		= product.amount - product.potted;
-	        _pottingArray	= usedPots;
-	    }
+			checkingArr.sort( Utils.PotSorter.sortPotsByBestFit );
+
+			/*console.log( "best pot is :");
+			console.log( checkingArr[0] );
+			console.log( checkingArr[0].potData );*/
+
+			return checkingArr[0].potData;
+		}
 	}
-
 }());

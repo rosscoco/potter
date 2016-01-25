@@ -23,8 +23,7 @@
 	    {
 	        var uniquePotCombos = [];
 	        var listOfPotCombos = {};
-
-	        var debugCounter = 0;
+	        var debugCounter 	= 0;
 
 	        _listOfPottingSets.forEach ( function( pottingSet )
 	        {

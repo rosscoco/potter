@@ -1,26 +1,21 @@
 (function(){
 
-	var _allowedKeys 	= [ 8,9,13,27,35,38,45,46 ]; //backspace, delete, insert, home, end
+	var Utils 			= require("./Utils.js");
+	var _allowedKeys 	= [ 8,9,13,27,35,37,38,39,40,45,46 ]; //backspace, delete, insert, home, end
 
 	module.exports.parseInput 		= parseInput;
 	module.exports.isAllowedInput 	= isAllowedInput;
 
-	/*module.exports.checkValueInput 		= checkValueInput;
-	module.exports.checkSplits 			= checkSplits;
-	module.exports.isAllowedInput 		= isAllowedInput;
-	module.exports.parseValueAndSplits 	= parseValueAndSplits;
-	module.exports.parseSpaces 			= parseSpaces;*/
-
 	function isAllowedInput( inputEvt )
 	{	
-		console.log( inputEvt.which );
-
 		var keyChar 		= String.fromCharCode( inputEvt.which );
+
+		console.log( keyChar );
 		var allowedChars 	= "0123456789 /";
 
 		var isSpecialKey = function( keyCode )
 		{
-			return keyCode === inputEvt.which;
+			return keyCode === inputEvt.keyCode;
 		};
 
 		//prevent second / character being input
@@ -36,11 +31,13 @@
 	{
 		var checker;
 
+		var numInputs = inputValue.split(" ").length;
+
 		if ( inputValue.indexOf('/') !== -1 )
 		{	
 			checker = parseValueAndSplits;
 		}
-		else if ( inputValue.indexOf(" ") !== -1 && inputValue.length > 2 )
+		else if ( numInputs > 1  && inputValue.length > 2 )
 		{
 			checker =  parseSplits;
 		}
@@ -75,7 +72,7 @@
 
 			_isValid = true;
 
-			return potifyNumber( amount );
+			return Utils.potifyNumber( amount );
 		}
 	}
 
@@ -134,12 +131,12 @@
 		});
 	}
 
-	function potifyNumber( number )
+	/*function potifyNumber( number )
 	{
 		var numberLength = String( Number( number ) ).length;
 
-		if ( String( Number( number ) ).length >= 4 ) return number;
+		if ( String( Number( number ) ).length >= 4 ) return parseInt(number;
 
 		return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
-	}
+	}*/
 }());

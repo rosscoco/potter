@@ -2,7 +2,7 @@
 {	
 	"use strict";
 
-            /*var basePots    = [     {id:1,capacity:7600, contents:0, product:"", minimum:7500},
+            /*var basePots    = [   {id:1,capacity:7600, contents:0, product:"", minimum:7500},
                                     {id:2,capacity:7600, contents:0, product:"", minimum:6600},
                                     {id:3,capacity:7000, contents:0, product:"", minimum:3500},
                                     {id:4,capacity:7600, contents:0, product:"", minimum:3800},
@@ -11,29 +11,68 @@
 
 	module.exports = Terminal;
 
-	function Terminal( id, data )
-	{
-		this.name 		= id;
-		this.pots 		= [];
-		this.products 	= {};
-		this.maxWeight 	= 30000;
+	Terminal.prototype.switchTanker = function ( tankerName )
+	{		
+		var activeTanker;
 
-		this.potIds 	= '';
-		this.productIds = '';
-
-		for ( var i = 0; i < data.pot_configs[0].pots.length; i++ )
+		this.tankers.forEach( function getTanker( tankerData )
 		{
-			this.pots.push({	id: i+1,
-								capacity:this.potifyNumber( data.pot_configs[0].pots[i] ),
-								contents:0,
-								product:'',
-								minimum:this.potifyNumber( data.pot_configs[0].potMinimums[ i ] )
-							});
+			if ( tankerName === tankerData.name )
+			{
+				activeTanker = tankerData;
+			}
+		});
 
-			this.potIds += data.pot_configs[0].pots[i];
+		if ( !activeTanker )
+		{
+			activeTanker = this.tankers[0];
+		}
+		
+		this.pots			= activeTanker.pots;
+		this.maxWeight		= activeTanker.maxWeight;
+	};
+
+	Terminal.prototype.parseTankerData = function ( tankerData )
+	{
+		var dataObj			= {};
+		dataObj.name		= tankerData.name;
+		dataObj.maxWeight	= parseInt(tankerData.max_prod_weight);
+		dataObj.pots		= this.parsePotData( tankerData.pots );
+
+		return dataObj;
+	};
+
+	Terminal.prototype.parsePotData = function( potArray )
+	{
+		var pots = [];
+
+		for ( var i = 0; i < potArray.length; i++ )
+		{
+			pots.push({	id:			i+1,
+						capacity:	this.potifyNumber( potArray[i].max ),
+						minimum:	this.potifyNumber( potArray[i].min ), 
+						contents:	0,
+						product:	'' });
 		}
 
-		this.products = [];//data.products;
+		return pots;
+	};
+
+	function Terminal( id, data )
+	{
+		this.name		= id;
+		this.pots		= [];
+		this.maxWeight	= 30000;
+		this.tankers	= [];
+
+		this.potIds		= '';
+		this.productIds	= '';
+		this.products	= [];
+
+		for ( var i = 0; i < data.pot_configs.length; i++ )
+		{
+			this.tankers.push( this.parseTankerData( data.pot_configs[ i ] ));
+		}
 
 		for ( var product in data.products )
 		{
@@ -43,6 +82,10 @@
 				this.productIds += product + " ";
 			}
 		}
+
+		this.switchTanker();
+		console.log("Terminal Created");
+
 	}
 
 	//Convert 3 to 3000, 69 to 6900 etc
@@ -98,8 +141,6 @@
 		return {id:productToBalance, amount: litresAvailable };
 	};
 
-
-
 	//Checks the weight of an amount of product and will reduce it to a number of litres that is below the maximum weight.
 	//If products have already been potted then this function will subtract the already potted weight from the maximum allowed weight first.
 	Terminal.prototype.checkWeight = function( productToPot, alreadyPotted )
@@ -117,14 +158,13 @@
 			}
 		}
 
-        toPotDensity 	= this.getProductData( productToPot.id ).density;
+        toPotDensity = this.getProductData( productToPot.id ).density;
 
         if ( toPotDensity * productToPot.amount + currentWeight > this.maxWeight )
         {
-            litresAvailable = Math.max( this.maxWeight - currentWeight, 0 ) *  ( 1 / toPotDensity );
-            
-            productToPot.remainder 	= productToPot.amount - litresAvailable;
-            productToPot.amount 	= litresAvailable;
+            litresAvailable			= Math.max( this.maxWeight - currentWeight, 0 ) *  ( 1 / toPotDensity );
+            productToPot.remainder	= productToPot.amount - litresAvailable;
+            productToPot.amount		= litresAvailable;
         }
 
         return productToPot;

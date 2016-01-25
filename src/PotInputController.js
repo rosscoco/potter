@@ -2,11 +2,12 @@
 {
 	var inputValidator		= require('./InputValidation.js');
 
-	module.exports = function PotInputController( usingDom, availableProducts )
+	module.exports = function PotInputController( usingDom, availableProducts, availablePots )
 	{
 		var _domElement 	= usingDom;
 		var _inputGroups	= [].slice.call( _domElement.querySelectorAll( "[id^='input']" ));
 		var _products		= availableProducts;
+		
 
 		init( availableProducts );
 
@@ -117,8 +118,8 @@
 
         	_inputGroups.forEach( function hideUnusedProducts( inputGroup )
 			{
-				var forProduct 		= inputGroup.id.split('_')[1];
-				var txtInput        = inputGroup.querySelector("[id^=productInput]");
+				var forProduct		= inputGroup.id.split('_')[1];
+				var txtInput		= inputGroup.querySelector("[id^=productInput]");
 				
 				txtInput.onkeypress = function( evt )
 				{

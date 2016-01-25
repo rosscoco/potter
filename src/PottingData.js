@@ -9,25 +9,25 @@
 	var PottingResult		= require("./data/PottingResult.js");
 	var PottingSet			= require("./PottingSet.js");
 
-	var _terminals;					
+	var _terminals;
 	var _currentTerminal;			
 	var _potting;					//array of pots on the tanker and their content
 	var _productConfiguration;		//array of PottingResult objects that contain the PottingSet object used for a product
 	var _potter;					//PottingController object that converts products and pots into an array of PottingResults
 
-	module.exports 			= PottingData;
+	module.exports			= PottingData;
 
 	function PottingData()
 	{	
 		_terminals	= [];
 		_potting	= [];
 
-		return {	loadProductData: 	loadProductData,
-					changeTerminal: 	changeTerminal,
-					getPotting: 		getPotting,
-					changePotPosition: 	changePotPosition,
-					getProductTotals: 	getProductTotals,
-					balanceTanker: 		balanceTanker };
+		return {	loadProductData:	loadProductData,
+					changeTerminal:		changeTerminal,
+					potProducts:		potProducts,
+					changePotPosition:	changePotPosition,
+					getProductTotals:	getProductTotals,
+					balanceTanker:		balanceTanker };
 	}
 	
 	function loadProductData( onComplete )
@@ -51,75 +51,45 @@
 		_currentTerminal	= _terminals[ terminalName ];
 		_potter				= new PottingController( _currentTerminal.pots );
 
+		resetPots();
+
 		return _currentTerminal;
 	}
 
-	function getBestPotForSplit( split, availablePots )
+	function increasePot( potId )
 	{
-		var bestPot;
-
-		availablePots.forEach( function( potData )
-		{
-			if ( potData.minimum > split ) return;
-			if ( potData.capacity < split ) return;
-
-			var diff = potData.capacity - split;
-
-			if ( bestPot.capacity - split > diff )
-			{
-				bestPot = potData;
-			}
-		});
-
-		return bestPot;
-	}
-
-	function splitsTest( productDetails )
-	{
-
-
-		//productDetails
 
 	}
 
-	function getFixedPots( productDetails, availablePots )
+	function balanceTanker( productToFill, productArray )
 	{
-		var bestPot;
-		var potDifference 	= 10000;
-		var potsToUse 		= {};
+		resetPots();
 
-		productDetails.pots.forEach( function( fixedPotSize )
+		productToFill = _currentTerminal.getBalance( productToFill, productArray );
+
+		productArray.push( productToFill );
+		
+		/*var potsToFill = _potting.filter( function isFixedPot( potData )
 		{
-			availablePots.forEach( function( potToCheck )
-			{		
-				var potDiffTemp = Math.max( 0, potToCheck.capacity - fixedPotSize );
+			return !potData.isFixed;
+		});*/
 
-				if ( potDiffTemp < potDifference && potToCheck.minimum < fixedPotSize )
-				{
-					potDifference 				= potDiffTemp;
-					potsToUse[ fixedPotSize ] 	= potToCheck;
-				}
-			});
-		});
+		return getPotting( productArray);
 
-		for ( var split in potsToUse )
-		{
-			if ( potsToUse.hasOwnProperty( split ))
-			{
-				availablePots[ split ].capacity = split;
-				availablePots[ split ].minimum = split;
-			}
-		}
+		//return getPotting( [ productToFill ], potsToFill.length > 0 ? potsToFill : undefined );
+	}
 
-		return availablePots;
+	function potProducts( forProducts, limitToPots )
+	{
+		resetPots();
+		return getPotting( forProducts, limitToPots );
 	}
 
 	function getPotting( forProducts, limitToPots )
 	{
-		resetPots();
-
 		var usedPots		= [];
 		var availablePots	= limitToPots ?  limitToPots : _currentTerminal.pots.slice();
+		//var availablePots	= Utils.getUnusedPots( limitToPots, _currentTerminal.pots.slice() );
 		
 		var pottingResult;
 
@@ -131,8 +101,6 @@
 				return;
 			}
 
-
-
 			productDetails		= _currentTerminal.checkWeight( productDetails, usedPots );
 			pottingResult		= _potter.doPottingWithProduct( productDetails, availablePots.slice() );
 			usedPots			= usedPots.concat( pottingResult.pottingUsed.getPotArray() );
@@ -143,27 +111,27 @@
 
 		//put the used pots into the correct position in the _potting array;
 		usedPots.forEach( function( potData )
-		{
+		{			
 			_potting[ potData.id - 1 ] = potData;
 		});
 
 		return { potsUsed:_potting, pottedProducts: _productConfiguration };
 	}
 
-	function changePotPosition( pot1Id, pot2Id )
+	function changePotPosition( fromPotId, toPotId )
 	{
-		var pot1		= _potting[ pot1Id - 1 ];
-		var pot2		= _potting[ pot2Id - 1 ];
+		var fromPot		= _potting[ fromPotId - 1 ];
+		var toPot		= _potting[ toPotId - 1 ];
 
-		var pot1Copy	= JSON.parse( JSON.stringify( pot1 ));
+		var fromPotCopy	= JSON.parse( JSON.stringify( fromPot ));
 
-		pot1.contents	= Math.min( pot1.capacity, pot2.contents );
-		pot1.product	= pot2.product;
-		pot1.fixed		= true;
+		fromPot.contents= Math.min( fromPot.capacity, toPot.contents );
+		fromPot.product	= toPot.product;
+		fromPot.isFixed	= false;
 		
-		pot2.contents	= Math.min( pot2.capacity, pot1Copy.contents );
-		pot2.product	= pot1Copy.product;
-		pot2.fixed		= true;
+		toPot.contents	= Math.min( toPot.capacity, fromPotCopy.contents );
+		toPot.product	= fromPotCopy.product;
+		toPot.isFixed	= true;
 
 		_productConfiguration = _potter.changeProductConfiguration( _potting );
 
@@ -181,7 +149,6 @@
 			else
 			{
 				productInfo[ potData.product ] = potData.contents;
-				
 			}
 
 			return productInfo;
@@ -189,15 +156,6 @@
 		}, {} );
 
 		return log;
-	}
-
-	function balanceTanker( productToFill, productArray )
-	{
-		productToFill = _currentTerminal.getBalance( productToFill, productArray );
-
-		productArray.push( productToFill );
-
-		return getPotting( productArray );
 	}
 
 	function getPotConfig( potting )

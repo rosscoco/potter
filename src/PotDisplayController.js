@@ -135,7 +135,7 @@
 
 		function swapPots( pot1, pot2 )
 		{
-			var swapEvent = new CustomEvent("swapPots", { detail:{pot1:pot1, pot2:pot2 }});
+			var swapEvent = new CustomEvent("swapPots", { detail:{fromPot:pot1, toPot:pot2 }});
 
 			_container.dispatchEvent( swapEvent );
 		}
@@ -183,7 +183,7 @@
 
 		function update( withProductData )
 		{
-			
+
 		}	
 
 		function clear()

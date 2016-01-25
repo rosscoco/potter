@@ -14,9 +14,14 @@
 		var _activePots,_products;
 		
 		return {
-			doPottingWithProduct   	: doPottingWithProduct,
+			doPottingWithProduct		: doPottingWithProduct,
 			changeProductConfiguration	: changeProductConfiguration
 		};
+
+		function changePotConfiguration( potId, changeAmount )
+		{
+			
+		}
 
 		function changeProductConfiguration( updatedPotArray )
 		{
@@ -49,7 +54,6 @@
 		function doPottingWithProduct( withProduct, withPots, splits )
 		{
 			_activePots             = withPots;
-
 			var productNotPotted 	= 0;
 			var pottingSetUsed;			//PottingSet;
 			var usedPottingSet      = '';
@@ -65,57 +69,14 @@
 				productNotPotted 	= withProduct.amount - spaceAvailable;
 			}
 
-			pottingSetUsed = getBestPotsForProduct( _activePots, withProduct );
+			pottingSetUsed			= getBestPotsForProduct( _activePots, withProduct );
 
-			withProduct.remainder = productNotPotted;
-			//return { pottingSetUsed:pottingSetUsed, remainder: productNotPotted, product:withProduct };
-			var result = new PottingResult( withProduct, pottingSetUsed, productNotPotted );
+			withProduct.remainder	= productNotPotted;
+
+			var result				= new PottingResult( withProduct, pottingSetUsed, productNotPotted );
+
 			return result;
 		}
-
-		function fixPotSizes( basePots, toSplits )
-		{
-			var potsLeft 		= Utils.copyPotArray( basePots );
-			var assignedPots 	= [];
-
-			toSplits = toSplits.sort( function( a, b )
-			{
-				return parseInt( a ) - parseInt( b );
-			});
-
-			toSplits.forEach( function( split )
-			{
-				var bestPot = getBestPotForSplit( split, potsLeft );
-
-				if ( bestPot ) 
-				{
-					assignedPots[ bestPot.id ] = bestPot;
-				}
-
-				potsLeft = Utils.getUnusedPots( assignedPots, basePots );
-			});
-		}
-
-		function getBestPotForSplit( split, availablePots )
-		{
-			var bestPot;
-
-			availablePots.forEach( function( potData )
-			{
-				if ( potData.minimum > split ) return;
-				if ( potData.capacity < split ) return;
-
-				var diff = potData.capacity - split;
-
-				if ( bestPot.capacity - split > diff )
-				{
-					bestPot = potData;
-				}
-			});
-
-			return bestPot;
-		}
-
 
 		function getBestPotsForProduct( withPots, product )
 		{

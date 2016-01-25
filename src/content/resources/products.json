@@ -1,27 +1,66 @@
 {
     "bramhall": {
-        "pot_configs": [
-            {
-                "name": "default",
-                "pots": [
-                    7,
-                    7,
-                    7,
-                    7,
-                    7,
-                    7
-                ],
-                "potMinimums": [
-                    69,
-                    6,
-                    35,
-                    35,
-                    35,
-                    6
-                ],
-                "max_weight": "44000"
-            }
-        ],
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
         "products": {
             "1051485": {
                 "name": "Petrol",
@@ -41,129 +80,317 @@
             }
         }
     },
+
     "grangemouth": {
-        "pot_configs": [
-            {
-                "name": "default",
-                "pots": [
-                    76,
-                    76,
-                    6,
-                    6,
-                    7,
-                    7
-                ],
-                "potMinimums": [
-                    75,
-                    66,
-                    3,
-                    3,
-                    35,
-                    6
-                ],
-                "max_weight": "44000"
-            }
-        ],
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
         "products": {
             "1051485": {
                 "name": "Petrol",
                 "density": "0.83"
-            }
-        }
-    },
-    "ipc": {
-        "pot_configs": [
-            {
-                "name": "default",
-                "pots": [
-                    76,
-                    76,
-                    7,
-                    7,
-                    6,
-                    7
-                ],
-                "potMinimums": [
-                    75,
-                    66,
-                    35,
-                    35,
-                    3,
-                    6
-                ],
-                "max_weight": "44000"
-            }
-        ],
-        "products": {
-            "1051510": {
-                "name": "Petrol",
-                "density": "0.83"
             },
             "1051512": {
-                "name": "Diesel",
-                "density": "0.83"
-            }
-        }
-    },
-    "kingsbury": {
-        "pot_configs": [
-            {
-                "name": "default",
-                "pots": [
-                    76,
-                    76,
-                    7,
-                    7,
-                    6,
-                    7
-                ],
-                "potMinimums": [
-                    75,
-                    66,
-                    35,
-                    35,
-                    3,
-                    6
-                ],
-                "max_weight": "44000"
-            }
-        ],
-        "products": {        
-            "1051510": {
                 "name": "Diesel",
                 "density": "0.83"
             },
             "1058700": {
-                "name": "Super Unleaded",
+                "name": "Gas Oil",
+                "density": "0.83"
+            },
+            "1051521": {
+                "name": "Kerosene",
                 "density": "0.83"
             }
         }
     },
+
+    "kingsbury": {
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
+        "products": {
+            "1051485": {
+                "name": "Petrol",
+                "density": "0.83"
+            },
+            "1051512": {
+                "name": "Diesel",
+                "density": "0.83"
+            },
+            "1058700": {
+                "name": "Gas Oil",
+                "density": "0.83"
+            },
+            "1051521": {
+                "name": "Kerosene",
+                "density": "0.83"
+            }
+        }
+    },
+
+    "ipc": {
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
+        "products": {
+            "1051485": {
+                "name": "Petrol",
+                "density": "0.83"
+            },
+            "1051512": {
+                "name": "Diesel",
+                "density": "0.83"
+            },
+            "1058700": {
+                "name": "Gas Oil",
+                "density": "0.83"
+            },
+            "1051521": {
+                "name": "Kerosene",
+                "density": "0.83"
+            }
+        }
+    },
+
     "southeast": {
-        "pot_configs": [
-            {
-                "name": "default",
-                "pots": [
-                    7,
-                    7,
-                    7,
-                    7,
-                    7,
-                    7
-                ],
-                "potMinimums": [
-                    69,
-                    6,
-                    35,
-                    35,
-                    35,
-                    6
-                ],
-                "max_weight": "44000"
-            }
-        ],
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
         "products": {
-            "1051510": {
+            "1051485": {
                 "name": "Petrol",
                 "density": "0.83"
             },
@@ -171,35 +398,79 @@
                 "name": "Diesel",
                 "density": "0.83"
             },
-            "1051485": {
-                "name": "Super Unleaded",
+            "1058700": {
+                "name": "Gas Oil",
+                "density": "0.83"
+            },
+            "1051521": {
+                "name": "Kerosene",
                 "density": "0.83"
             }
         }
     },
-    "teesside": {
-        "pot_configs": [
-            {
-                "name": "default",
-                "pots": [
-                    76,
-                    76,
-                    7,
-                    7,
-                    6,
-                    7
-                ],
-                "potMinimums": [
-                    69,
-                    6,
-                    35,
-                    35,
-                    35,
-                    6
-                ],
-                "max_weight": "44000"
-            }
-        ],
+
+    "westlondon": {
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
         "products": {
             "1051485": {
                 "name": "Petrol",
@@ -207,10 +478,178 @@
             },
             "1051512": {
                 "name": "Diesel",
+                "density": "0.83"
+            },
+            "1058700": {
+                "name": "Gas Oil",
+                "density": "0.83"
+            },
+            "1051521": {
+                "name": "Kerosene",
+                "density": "0.83"
+            }
+        }
+    },
+
+    "teesside": {
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 76,
+                "min": 75
+            }, {
+                "max": 76,
+                "min": 66
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 6,
+                "min": 3
+            }, {
+                "max": 76,
+                "min": 66
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
+        "products": {
+            "1051485": {
+                "name": "Additised Petrol",
+                "density": "0.83"
+            },
+            "1051512": {
+                "name": "Additised Diesel",
                 "density": "0.83"
             },
             "1051643": {
                 "name": "Super Unleaded",
+                "density": "0.83"
+            },
+            "1061943": {
+                "name": "Sentinel Diesel",
+                "density": "0.83"
+            }
+        }
+    },
+
+    "northtees": {
+        "pot_configs": [{
+            "name": "44T",
+            "max_prod_weight": 33000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "35T",
+            "max_prod_weight": 24000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }, {
+            "name": "Lomax",
+            "max_prod_weight": 30000,
+            "pots": [{
+                "max": 7,
+                "min": 69
+            }, {
+                "max": 7,
+                "min": 6
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 35
+            }, {
+                "max": 7,
+                "min": 6
+            }]
+        }],
+        "products": {
+            "1051485": {
+                "name": "Petrol",
+                "density": "0.83"
+            },
+            "1051512": {
+                "name": "Diesel",
+                "density": "0.83"
+            },
+            "1058700": {
+                "name": "Gas Oil",
+                "density": "0.83"
+            },
+            "1051521": {
+                "name": "Kerosene",
                 "density": "0.83"
             }
         }

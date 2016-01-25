@@ -84,7 +84,7 @@
 	{
 		var numberLength = String( Number( number ) ).length;
 
-		if ( String( Number( number ) ).length >= 4 ) return number;
+		if ( String( Number( number ) ).length >= 4 ) return parseInt( number );
 
 		return Math.ceil( Number('.' + number ).toFixed( 4 ) * 10000 );
 	};
@@ -101,6 +101,9 @@
 
     exports.getUnusedPots = function( usedPots, availablePots )
     {
+    	if ( !usedPots )				return availablePots;
+    	if ( usedPots.length === 0 )	return availablePots;
+
     	var usedPotIds = usedPots.reduce( function( idString, potData )
 		{	
 			return idString + potData.id;
@@ -154,14 +157,16 @@
 	        return aRemainder - bRemainder;
 	    },
 
-	    getClosenessRating: function getClosenessRating( forPottingList )
-	    {
-	    	/*var pots = forPottingList.getUsedPotsById().split("");
-	    	var count = 0;
-	    	
-	    	for ( var i = 0 i < pots.length - 1; i++)*/
-	    }
+	    /*	potData.status =  	0 : OK
+	    						1 : Need to increase contents 
+	    						2 : Need to decrease contents
 
-
+	    	potData.diff = absolute difference between pot min/max and intended contents
+	    */ 
+	    sortPotsByBestFit : function sortPotsByBestFit( potA, potB )
+		{
+			if ( potA.status === potB.status )	return potA.diff - potB.diff;
+			else								return potA.status - potB.status;
+		}
 	};
 }());

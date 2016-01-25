@@ -43,13 +43,15 @@
 
 			function onPotTankerSelected( evt )
 			{	
-				var pottingResult   = data.getPotting( evt.detail.enteredProducts );
+				var pottingResult   = data.potProducts( evt.detail.enteredProducts );
 
 				showPotting( pottingResult );
 			}
 
 			function onBalanceTankerSelected( evt )
 			{
+				console.log("app.js:: Balance Tanker" + Math.random().toFixed(4));
+
 				var pottingResult = data.balanceTanker( evt.detail.productToFill ,evt.detail.enteredProducts );
 
 				showPotting( pottingResult );
@@ -76,9 +78,14 @@
 				view.showFeedback( messages );
 			}
 
+			function onIncreasePotContents( evt )
+			{
+				var pottingResult = data.increasePot( evt.detail.potId );
+			}
+
 			function onSwapPotContents( evt )
 			{
-				var pottingResult = data.changePotPosition( evt.detail.pot1, evt.detail.pot2 );
+				var pottingResult = data.changePotPosition( evt.detail.fromPot, evt.detail.toPot );
 
 				view.showResults( pottingResult.potsUsed );
 
